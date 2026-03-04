@@ -1,0 +1,11 @@
+# QF_Wiz Dependencies
+# Install: pip install -r requirements.txt
+
+pyyaml>=6.0
+
+# Optional: for schema validation in parser_smoke.py
+jsonschema>=4.0
+
+# Phase 3-4: Analytics & Knowledge Graph
+networkx>=3.0
+numpy>=1.24

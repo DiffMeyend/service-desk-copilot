@@ -1,0 +1,21 @@
+# Resolved Cases — QF_Wiz Memory
+#
+# Log notable resolutions here so future tickets with similar patterns
+# get the benefit of what you've already solved.
+#
+# Format:
+#   - id: T20260101.0001          # ticket ID
+#     date: "2026-01-01"
+#     issue_type: Workstation      # Autotask Issue Type
+#     sub_issue: Slow Performance  # Autotask Sub-Issue Type
+#     summary: "One-line description of the problem"
+#     root_cause: "What it actually was"
+#     resolution: "What fixed it"
+#     branch_pack_used: vpn_client  # pack ID loaded during the session (optional)
+#     hypothesis_that_resolved: "Split tunnel misconfiguration blocked corp traffic"
+#     ps_commands_used:            # command IDs from PS catalogs (optional)
+#       - get_running_processes
+#     comms_template_used: null    # template ID from comms_templates/ (optional)
+#     tags: []                     # free-form tags for search
+
+cases: []

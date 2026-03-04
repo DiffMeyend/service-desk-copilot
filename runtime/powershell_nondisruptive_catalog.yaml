@@ -1,0 +1,108 @@
+﻿# QF_Wiz Runtime v1.3.1 â€” PowerShell Non-Disruptive Catalog
+version: '1.3.1'
+tier: B
+policy: NON_DISRUPTIVE_ONLY
+safety_banner: "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n NON-DISRUPTIVE CATALOG\
+  \ \u2014 Tier B (Observer Only)\n Commands improve diagnostic signal and never remediate.\n\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550"
+commands:
+- id: refresh_event_logs_cached
+  purpose: Refresh cached event log metadata without persistence
+  tags:
+  - diagnostics
+  - cache
+  - non_disruptive
+  command: '# Clear transient event log caches to ensure fresh reads without altering
+    log state
+
+    wevtutil.exe clear-log /resource-only
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: restart_wmi_provider_cache
+  purpose: Restart WMI provider cache without touching services
+  tags:
+  - diagnostics
+  - wmi
+  - non_disruptive
+  command: '# Touch WMI provider to flush stale caches without stopping services
+
+    $null = Get-WmiObject -Class Win32_OperatingSystem | Out-Null
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: sfc_verify_only
+  purpose: Verify system files without attempting repair
+  tags:
+  - diagnostics
+  - integrity
+  - non_disruptive
+  command: '# Run SFC in verification-only mode to gather integrity data without remediation
+
+    sfc /verifyonly
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: dism_component_check
+  purpose: Check DISM component store health without remediation
+  tags:
+  - diagnostics
+  - dism
+  - non_disruptive
+  command: '# DISM /CheckHealth inspects component store for corruption without making
+    changes
+
+    DISM.exe /Online /Cleanup-Image /CheckHealth
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: perfmon_resource_report
+  purpose: Generate transient Performance Monitor resource report
+  tags:
+  - diagnostics
+  - perfmon
+  - non_disruptive
+  command: '# Generate a 60-second Performance Monitor system diagnostics report
+
+    perfmon.exe /report
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: windows_update_trace_extract
+  purpose: Produce Windows Update diagnostic log without changing settings
+  tags:
+  - diagnostics
+  - windows_update
+  - logging
+  command: '# Merge Windows Update ETL traces into a single log for analysis
+
+    $log = Join-Path $env:TEMP "WindowsUpdateLog_$((Get-Date).ToString(''yyyyMMdd_HHmmss'')).log"
+
+    Get-WindowsUpdateLog -LogPath $log
+
+    Write-Output "Windows Update log created at $log"
+
+    '
+  mutates_state: ephemeral_observer_only
+- id: wlan_diagnostic_report
+  purpose: Capture wireless troubleshooting report (HTML) without changing radios
+  tags:
+  - diagnostics
+  - wlan
+  - reporting
+  command: '# Generate WLAN report for connectivity troubleshooting; report saved
+    under %ProgramData%
+
+    netsh wlan show wlanreport
+
+    '
+  mutates_state: ephemeral_observer_only
+

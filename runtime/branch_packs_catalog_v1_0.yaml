@@ -1,0 +1,2615 @@
+﻿---
+# QF_Wiz Runtime v1.3.1 â€” Branch Packs Catalog
+version: 1.0
+generated_at: '2026-01-14T13:27:45-06:00'
+source_bundle: QF_CNTXT_Wiz_branch_packs_bundle_v1_0
+description: 'Consolidated QF CNTXT_Wiz branch packs for GPT knowledge uploads. Each pack
+  keeps the original hypothesis text but now exposes metadata (category, keywords,
+  command references) so RouterBrain can pick the right pack deterministically.
+
+'
+categories:
+  network: Connectivity, routing, WAN, VPN, DHCP, WLAN, DNS, proxy/TLS.
+  identity: Authentication, Conditional Access, MFA, Entra ID, domain joins.
+  m365: Microsoft 365 app/service-specific troubleshooting.
+  messaging: Exchange Online, Outlook, Shared Mailboxes, email transport.
+  security: ThreatLocker, Defender/EDR, policy-driven blocks.
+  endpoint: Single-device issues, OS health, disk/profile corruption.
+  infrastructure: Servers, file shares, print services, DFS, policy drift.
+  cross_cutting: Use when scoping (recent change, only-this-user/device).
+schema_notes:
+  pack_fields:
+  - 'id: unique slug (used by CP.branches.source_pack).'
+  - 'name: human readable title.'
+  - 'category: must be one of the keys under categories.'
+  - 'keywords: list of phrases to match against ticket summary/notes.'
+  - 'signals: optional list of specific errors/events/vendors.'
+  - 'goal: short description copied from original pack.'
+  - 'notes: optional nuance/escalation reminders.'
+  - 'hypotheses: list of objects with keys id, hypothesis, confidence_hint, discriminating_question,
+    discriminating_tests[], command_refs[], notes.'
+selection_rules:
+- On PASTE_TICKET ingest, scan summary + body for keyword matches (case-insensitive).
+- 'If multiple packs match, load up to two: the most specific (exact phrase) then
+  a fallback cross-cutting pack.'
+- Store the chosen pack IDs in CP.branches.source_pack (array) for audit.
+- If no keywords match, fall back to manual hypothesis creation.
+- Packs flagged category=network should not be mixed with unrelated packs unless symptoms
+  span tiers (e.g., VPN + DNS).
+index:
+- pack_id: ad_auth_dc
+  trigger_examples:
+  - trust relationship
+  - LSASS
+  - domain controller unreachable
+- pack_id: defender_edr
+  trigger_examples:
+  - Defender quarantined
+  - EDR alert
+  - ThreatLocker block
+- pack_id: dhcp_ip_conflict
+  trigger_examples:
+  - APIPA 169.254
+  - duplicate IP
+  - DHCP
+- pack_id: disk_io_pressure
+  trigger_examples:
+  - low disk
+  - NTFS error
+  - storahci
+- pack_id: dns_proxy_tls
+  trigger_examples:
+  - DNS fails
+  - proxy/WPAD
+  - Schannel
+- pack_id: email_security
+  trigger_examples:
+  - quarantine
+  - SPF fail
+  - DMARC
+- pack_id: inky_email_security
+  trigger_examples:
+  - inky
+  - inky warning
+  - warning banner
+  - graymail
+  - greymail
+  - not graymail
+  - microsoft 365 security: you have messages in quarantine
+  - quarantine digest
+  - security.microsoft.com/quarantine
+  - [encrypt]
+  - encryption portal
+- pack_id: exchange_autodiscover
+  trigger_examples:
+  - Autodiscover
+  - Outlook cannot connect
+  - OWA works
+- pack_id: file_share_permissions
+  trigger_examples:
+  - access denied
+  - DFS referral
+  - NTFS permissions
+- pack_id: firewall_acl
+  trigger_examples:
+  - firewall blocking
+  - port closed
+  - ACL
+- pack_id: gpo_intune_drift
+  trigger_examples:
+  - GPO change
+  - Intune policy
+  - compliance drift
+- pack_id: m365_conditional_access
+  trigger_examples:
+  - AADSTS50158
+  - Conditional Access
+  - device compliance
+- pack_id: m365_mfa_method
+  trigger_examples:
+  - Authenticator prompt missing
+  - MFA timeout
+- pack_id: m365_office_activation
+  trigger_examples:
+  - Unlicensed product
+  - Office activation
+  - OSPP
+- pack_id: m365_wam_msal
+  trigger_examples:
+  - '0xCAA'
+  - MSAL
+  - WAM
+- pack_id: onedrive_sync
+  trigger_examples:
+  - OneDrive sync
+  - Files On-Demand
+  - KFM
+- pack_id: only_this_device
+  trigger_examples:
+  - only this PC
+  - single endpoint
+- pack_id: only_this_user
+  trigger_examples:
+  - only this user
+  - license missing
+- pack_id: howto_guidance
+  trigger_examples:
+  - how do i
+  - how to request
+  - documentation request
+- pack_id: print_subsystem
+  trigger_examples:
+  - printer queue
+  - spooler
+  - Point and Print
+- pack_id: recent_change
+  trigger_examples:
+  - after update
+  - recent change
+  - regression
+- pack_id: shared_mailbox_permissions
+  trigger_examples:
+  - shared mailbox
+  - SendAs
+  - permissions
+- pack_id: time_skew
+  trigger_examples:
+  - clock skew
+  - Kerberos time
+  - AADSTS50020
+- pack_id: vpn_client
+  trigger_examples:
+  - AnyConnect
+  - VPN gateway
+  - split tunnel
+- pack_id: wan_isp_degradation
+  trigger_examples:
+  - ISP outage
+  - packet loss
+  - latency spike
+- pack_id: wifi
+  trigger_examples:
+  - Wi-Fi dropping
+  - captive portal
+- pack_id: windows_profile_corruption
+  trigger_examples:
+  - corrupt profile
+  - temp profile
+  - user hive
+- pack_id: endpoint_privilege_elevation
+  trigger_examples:
+  - admin prompt
+  - uac prompt
+  - elevation required
+  - installer needs admin
+  - admin credentials
+# Backup and Restore packs (added 2026-02-19)
+- pack_id: backup_failure
+  trigger_examples:
+  - backup failed
+  - backup job error
+  - missed backup
+- pack_id: backup_file_restore
+  trigger_examples:
+  - restore file
+  - recover deleted
+  - file recovery
+- pack_id: backup_workstation_recovery
+  trigger_examples:
+  - restore workstation
+  - bare metal restore
+  - system image recovery
+# Phone System packs (added 2026-02-19)
+- pack_id: phone_call_quality
+  trigger_examples:
+  - call quality
+  - voip jitter
+  - choppy audio
+  - dropped calls
+- pack_id: phone_voicemail
+  trigger_examples:
+  - voicemail setup
+  - voicemail not working
+  - voicemail to email
+- pack_id: phone_howto
+  trigger_examples:
+  - phone how to
+  - transfer call
+  - forward calls
+- pack_id: phone_changes
+  trigger_examples:
+  - phone move
+  - new extension
+  - phone provisioning
+- pack_id: phone_hardware
+  trigger_examples:
+  - phone not working
+  - handset broken
+  - phone power issue
+- pack_id: phone_outage
+  trigger_examples:
+  - phones down
+  - no dial tone
+  - phone system outage
+# Power packs (added 2026-02-19)
+- pack_id: power_outage
+  trigger_examples:
+  - power outage
+  - blackout
+  - no power
+- pack_id: power_ups
+  trigger_examples:
+  - ups alarm
+  - ups beeping
+  - battery backup
+# Application & SaaS packs (added 2026-02-20)
+- pack_id: email_gsuite
+  trigger_examples:
+  - google workspace
+  - gmail admin
+  - gsuite outage
+- pack_id: email_apple
+  trigger_examples:
+  - apple mail
+  - mac mail
+- pack_id: email_third_party
+  trigger_examples:
+  - thunderbird
+  - zoho mail
+  - other email client
+- pack_id: email_mobile
+  trigger_examples:
+  - iphone email
+  - android email
+  - mobile sync
+- pack_id: server_hardware
+  trigger_examples:
+  - raid degraded
+  - ilo alert
+  - server hardware failure
+- pack_id: server_virtualization
+  trigger_examples:
+  - hyper-v host
+  - vmware
+  - vm down
+- pack_id: server_wvd
+  trigger_examples:
+  - wvd
+  - avd
+  - cloud desktop
+- pack_id: app_unmanaged
+  trigger_examples:
+  - 3rd party app
+  - custom app
+- pack_id: app_adobe_reader
+  trigger_examples:
+  - adobe reader
+  - pdf viewer
+- pack_id: app_adobe_pro
+  trigger_examples:
+  - adobe acrobat
+  - pdf editing
+- pack_id: app_quickbooks
+  trigger_examples:
+  - quickbooks
+  - qb h202
+- pack_id: app_lob
+  trigger_examples:
+  - line of business app
+  - industry platform
+- pack_id: app_browser
+  trigger_examples:
+  - browser crash
+  - extension issue
+- pack_id: app_password_manager
+  trigger_examples:
+  - password manager
+  - keeper/lastpass
+- pack_id: endpoint_macos
+  trigger_examples:
+  - mac workstation
+  - macos
+- pack_id: m365_teams
+  trigger_examples:
+  - teams meeting
+  - teams login
+
+packs:
+- id: ad_auth_dc
+  name: Domain Controller / AD Auth Branch Pack
+  category: identity
+  keywords:
+  - domain controller
+  - dc unreachable
+  - netlogon
+  - secure channel
+  - lsass
+  - trust relationship
+  signals:
+  - Event 5719 / Netlogon
+  - STATUS_TRUSTED_DOMAIN_FAILURE
+  - Computer account secure channel
+  goal: Collapse DC reachability vs secure channel vs account lockout.
+  notes: Secure channel repair/reset is change-making (>Tier A) and usually escalated.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures guardrail baseline data is logged before applying this pack.
+  hypotheses:
+  - id: ad_auth_dc.dc_outage
+    hypothesis: DC unreachable / site issue
+    confidence_hint: 0.4
+    discriminating_question: Domain logon slow/fails; file shares unavailable
+    discriminating_tests:
+    - 'Run Tier-A: domain_dc_check (nltest /dsgetdc).'
+    - Check network baseline (net_snapshot).
+    command_refs:
+    - domain_dc_check
+    - net_snapshot
+  - id: ad_auth_dc.secure_channel
+    hypothesis: Secure channel / computer account issues
+    confidence_hint: 0.35
+    discriminating_question: Only one machine has domain trust issues
+    discriminating_tests:
+    - Look for Netlogon/LSA errors in system_errors.
+    - 'Escalate: repair secure channel is change-making (STOP) and often exceeds QF.'
+    command_refs:
+    - system_errors
+    notes: Repair requires admin action beyond Tier-A; gate with STOP.
+  - id: ad_auth_dc.account_lockout
+    hypothesis: Account lockout / password issues
+    confidence_hint: 0.25
+    discriminating_question: User canâ€™t log in across devices
+    discriminating_tests:
+    - Check lockout status if tools available or ping OHT.
+    - Capture exact login error text.
+- id: defender_edr
+  name: Defender/EDR Interference Branch Pack
+  category: security
+  keywords:
+  - defender
+  - edr
+  - antivirus
+  - threatlocker
+  - quarantine
+  - malware
+  signals:
+  - EDR alert/quarantine notice
+  - ThreatLocker block toast
+  - Missing binaries immediately after detection
+  goal: Collapse true infection vs false positive/quarantine vs policy block.
+  notes: Default to read-only evidence; change-making remediation requires STOP +
+    security approval.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures baseline troubleshooting finished before attributing issues to security tooling.
+  hypotheses:
+  - id: defender_edr.policy_block
+    hypothesis: EDR/AV blocked or quarantined component
+    confidence_hint: 0.45
+    discriminating_question: Do you see missing files, blocked executions, or EDR
+      alerts tied to the timeframe?
+    discriminating_tests:
+    - Check EDR console (read-only) for detections/quarantines.
+    - Collect exact error messages + affected file/process names.
+    - Correlate with Application/System errors and WER.
+    command_refs:
+    - threatlocker_recent_events
+    - threatlocker_agent_status
+    - app_errors
+    - system_errors
+  - id: defender_edr.malware
+    hypothesis: Actual malware/infection suspected
+    confidence_hint: 0.35
+    discriminating_question: Are there multiple suspicious symptoms (unknown processes,
+      persistence, widespread issues)?
+    discriminating_tests:
+    - Escalate immediately to security process (skill).
+    - 'Preserve evidence: timestamps, screenshots, alerts.'
+    - Do not run change-making remediation without security approval.
+  - id: defender_edr.not_edr
+    hypothesis: Not EDR; app/system issue
+    confidence_hint: 0.2
+    discriminating_question: No alerts/quarantines and behavior matches known app
+      failure patterns
+    discriminating_tests:
+    - Route to app-specific pack (Outlook/OneDrive/Print/etc.).
+    - Record EDR ruled out (tests_run + results).
+- id: dhcp_ip_conflict
+  name: DHCP/IP Conflict Branch Pack
+  category: network
+  keywords:
+  - dhcp
+  - ip conflict
+  - apipa
+  - duplicate ip
+  - vlan
+  signals:
+  - 169.254.x.x APIPA
+  - tcpip IP address conflict events
+  goal: Collapse bad lease vs duplicate IP vs VLAN mismatch.
+  preconditions:
+    basic_verification_completed: true # Inline comment: guardrail requires scope/error/repro before diving into DHCP specifics.
+  hypotheses:
+  - id: dhcp_ip_conflict.bad_lease
+    hypothesis: Bad DHCP lease / wrong gateway/DNS
+    confidence_hint: 0.4
+    discriminating_question: Does the device have an APIPA address, wrong subnet,
+      or wrong DNS?
+    discriminating_tests:
+    - 'Run Tier-A: net_snapshot and adapters.'
+    - Compare gateway/DNS to expected for that site/VLAN.
+    - If renew/release is needed, that is change-making (STOP).
+    command_refs:
+    - net_snapshot
+    - adapters
+  - id: dhcp_ip_conflict.duplicate_ip
+    hypothesis: Duplicate IP conflict
+    confidence_hint: 0.35
+    discriminating_question: Intermittent connectivity, ARP flapping, or â€˜IP address
+      conflictâ€™ messages?
+    discriminating_tests:
+    - Check event logs for TCPIP warnings (system_errors).
+    - Escalate if switch/DHCP investigation required (skill/time).
+  - id: dhcp_ip_conflict.vlan_mismatch
+    hypothesis: VLAN/port mispatch
+    confidence_hint: 0.25
+    discriminating_question: Device moved or switch port changed; now on wrong VLAN?
+    discriminating_tests:
+    - Confirm physical move/recent changes.
+    - Compare IP/subnet to expected for location.
+    - Escalate to network team if switch config needed (skill).
+- id: disk_io_pressure
+  name: Disk/IO Pressure Branch Pack
+  category: endpoint
+  keywords:
+  - low disk
+  - disk errors
+  - ntfs
+  - storahci
+  - disk io
+  signals:
+  - NTFS/System disk warnings
+  - 0xC0000017 WER entries
+  goal: Collapse low disk/IO errors vs app-specific vs malware/EDR interference.
+  preconditions:
+    basic_verification_completed: true # Inline comment: confirms baseline troubleshooting before focusing on disk health.
+  hypotheses:
+  - id: disk_io_pressure.low_space
+    hypothesis: Low disk space causing app failures
+    confidence_hint: 0.45
+    discriminating_question: Is system drive low and apps are crashing or failing
+      updates?
+    discriminating_tests:
+    - 'Run Tier-A: disk_health.'
+    - Correlate with crash/errors in app_errors and system_errors.
+    - Identify quick non-destructive mitigations (cleanup = change-making, STOP).
+    command_refs:
+    - disk_health
+    - app_errors
+    - system_errors
+  - id: disk_io_pressure.disk_errors
+    hypothesis: Disk errors / failing storage
+    confidence_hint: 0.35
+    discriminating_question: Are there NTFS/Disk warnings/errors in System log?
+    discriminating_tests:
+    - 'Run Tier-A: system_errors and scan for disk/ntfs/storahci entries.'
+    - Correlate timestamps with incidents.
+    - Escalate for hardware diagnostics if indicated (time/skill).
+  - id: disk_io_pressure.io_contention
+    hypothesis: IO contention from security/AV/EDR
+    confidence_hint: 0.2
+    discriminating_question: Do you see blocks/quarantines or heavy scanning coincident
+      with failures?
+    discriminating_tests:
+    - Check Defender/EDR console if available (read-only).
+    - Look for WER/app errors and security logs (if available).
+    - Escalate if policy exception required (skill).
+- id: dns_proxy_tls
+  name: DNS/Proxy/TLS Inspection Branch Pack
+  category: network
+  keywords:
+  - dns
+  - proxy
+  - wpad
+  - tls
+  - schannel
+  - cert
+  signals:
+  - CAA/AADSTS TLS codes
+  - Schannel Event 36882/36887
+  goal: Collapse name resolution vs proxy vs TLS/cert chain vs upstream blocks.
+  preconditions:
+    basic_verification_completed: true # Inline comment: requires guardrail basics so DNS/TLS work isnâ€™t premature.
+  hypotheses:
+  - id: dns_proxy_tls.dns_failure
+    hypothesis: DNS resolution/misrouting
+    confidence_hint: 0.4
+    discriminating_question: Do multiple domains fail to resolve or only M365 endpoints?
+    discriminating_tests:
+    - 'Run Tier-A: dns_resolve for key endpoints (login.microsoftonline.com, outlook.office365.com).'
+    - 'Run Tier-A: net_snapshot and adapters to verify DNS servers.'
+    - Compare results with known-good device on same network.
+    command_refs:
+    - dns_resolve
+    - net_snapshot
+    - adapters
+  - id: dns_proxy_tls.proxy_block
+    hypothesis: Proxy/WPAD/WinHTTP proxy interference
+    confidence_hint: 0.35
+    discriminating_question: Is a proxy configured or is traffic being intercepted?
+    discriminating_tests:
+    - 'Run Tier-A: winhttp_proxy.'
+    - Check user proxy settings (if available) or confirm PAC/WPAD use.
+    - 'Run Tier-A: m365_endpoint_reachability with Detailed output.'
+    command_refs:
+    - winhttp_proxy
+    - m365_endpoint_reachability
+  - id: dns_proxy_tls.tls_inspection
+    hypothesis: TLS inspection / cert chain / Schannel failures
+    confidence_hint: 0.25
+    discriminating_question: Do you see Schannel errors at the same timestamps as
+      failures?
+    discriminating_tests:
+    - 'Run Tier-A: schannel_errors.'
+    - Correlate to endpoint tests; capture exact error messages/codes.
+    - Escalate if enterprise TLS inspection device/policy needs adjustment (skill).
+    command_refs:
+    - schannel_errors
+- id: email_security
+  name: Email Security and Mail Flow Branch Pack
+  category: messaging
+  keywords:
+  - quarantine
+  - spam
+  - mail flow
+  - spf
+  - dkim
+  - dmarc
+  - bounce
+  signals:
+  - NDR codes (5.7.x, 5.4.x)
+  - Security gateway alert
+  goal: Collapse quarantine/spam filtering vs DNS/auth vs transport issues.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures user/error context captured before diving into mail flow paths.
+  hypotheses:
+  - id: email_security.quarantine
+    hypothesis: Message quarantined/filtered
+    confidence_hint: 0.45
+    discriminating_question: Is the symptom â€˜didnâ€™t receive emailâ€™ or â€˜bounceâ€™?
+    discriminating_tests:
+    - Check security gateway/quarantine logs (read-only) if available.
+    - Capture any bounce message codes.
+    - 'Scope: one sender/domain vs all senders.'
+  - id: email_security.dns_auth
+    hypothesis: SPF/DKIM/DMARC or DNS-related delivery failures
+    confidence_hint: 0.3
+    discriminating_question: Do bounces mention SPF/DKIM/DMARC or domain issues?
+    discriminating_tests:
+    - Capture bounce text and codes.
+    - 'Run Tier-A: dns_resolve for SPF/DKIM/DMARC records if applicable.'
+    - Escalate if DNS changes required (skill).
+    command_refs:
+    - dns_resolve
+  - id: email_security.transport
+    hypothesis: Transport/service degradation
+    confidence_hint: 0.25
+    discriminating_question: Are many users missing mail simultaneously?
+    discriminating_tests:
+    - Check M365 service health or ping OHT.
+    - 'Scope: org-wide vs limited.'
+    - Escalate with timeline and scope if service issue suspected.
+- id: inky_email_security
+  name: Inky Email Security FAQ Branch Pack
+  category: messaging
+  keywords:
+  - inky
+  - inky warning
+  - warning banner
+  - graymail
+  - greymail
+  - not graymail
+  - quarantine digest
+  - microsoft 365 security: you have messages in quarantine
+  - security.microsoft.com/quarantine
+  - [encrypt]
+  - encryption portal
+  - safe sender
+  - not spam
+  signals:
+  - Inky banner (red/yellow/blue/gray)
+  - Microsoft 365 quarantine digest email
+  goal: Route INKY-related tickets to user education vs safe release vs escalation.
+  notes: Inky uses Microsoft 365 quarantine; digest email is legitimate. Red banners should be escalated.
+  hypotheses:
+  - id: inky_email_security.legit_quarantine_digest
+    hypothesis: Legitimate Microsoft 365 quarantine digest triggered by Inky signals
+    confidence_hint: 0.45
+    discriminating_question: 'Is the user receiving "Microsoft 365 security: You have messages in quarantine" emails?'
+    discriminating_tests:
+    - Confirm sender is `quarantine@messaging.microsoft.com`.
+    - Point user to `https://security.microsoft.com/quarantine`.
+    - Explain this is expected behavior with Inky + M365.
+  - id: inky_email_security.false_positive
+    hypothesis: Safe email flagged/graymailed by Inky
+    confidence_hint: 0.35
+    discriminating_question: Is the user expecting the sender and subject?
+    discriminating_tests:
+    - Have user use "Not Graymail" or "Not Spam" in banner if appropriate.
+    - Add sender to Safe Sender list if needed.
+    - If uncertain, forward to support for review.
+  - id: inky_email_security.high_risk_banner
+    hypothesis: High-risk phishing detected by Inky
+    confidence_hint: 0.2
+    discriminating_question: Does the banner show Red / Suspicious?
+    discriminating_tests:
+    - Instruct user not to click links/attachments.
+    - Forward to support for verification.
+    - Treat as potential phishing incident if user already clicked.
+  - id: inky_email_security.encryption_howto
+    hypothesis: User asking how to send encrypted email with Inky
+    confidence_hint: 0.2
+    discriminating_question: Is the request about "[ENCRYPT]" or the encryption portal?
+    discriminating_tests:
+    - Confirm `[ENCRYPT]` plus a space before subject text.
+    - Explain recipients authenticate via Microsoft/Google/Magic link.
+
+- id: exchange_autodiscover
+  name: Autodiscover/Exchange Connectivity Branch Pack
+  category: messaging
+  keywords:
+  - autodiscover
+  - outlook
+  - cannot connect
+  - owa
+  - profile
+  signals:
+  - 0x800C8203 / 0x8004010F
+  - Test Email AutoConfiguration failures
+  goal: Collapse Autodiscover/DNS issues vs Outlook profile vs service health quickly.
+  preconditions:
+    basic_verification_completed: true # Inline comment: guarantees baseline troubleshooting before pivoting to Autodiscover paths.
+  hypotheses:
+  - id: exchange_autodiscover.dns
+    hypothesis: Autodiscover DNS/misrouting issue
+    confidence_hint: 0.4
+    discriminating_question: Does the problem affect multiple users or only users
+      on one domain/tenant?
+    discriminating_tests:
+    - Confirm impacted usersâ€™ domains/tenants.
+    - 'Run Tier-A: dns_resolve for autodiscover.<domain> and compare with expected
+      targets.'
+    - Try OWA access in browser on same device.
+    command_refs:
+    - dns_resolve
+  - id: exchange_autodiscover.outlook_profile
+    hypothesis: Outlook profile corruption or local client issue
+    confidence_hint: 0.35
+    discriminating_question: Does OWA work while Outlook desktop fails?
+    discriminating_tests:
+    - Test OWA (office.com/outlook) on same device.
+    - 'Collect Outlook errors: Run Tier-A: outlook_event_errors and wer_outlook_reports.'
+    - Check if issue is single-device vs service-wide.
+    command_refs:
+    - outlook_event_errors
+    - wer_outlook_reports
+  - id: exchange_autodiscover.service
+    hypothesis: Service degradation/outage
+    confidence_hint: 0.25
+    discriminating_question: Are many users reporting mail connectivity issues at
+      once?
+    discriminating_tests:
+    - Check M365 service health (if accessible) or ping OHT.
+    - Compare with another network/device quickly.
+    - Capture timestamps and scope for escalation pack.
+- id: file_share_permissions
+  name: File Share and NTFS Permissions Branch Pack
+  category: infrastructure
+  keywords:
+  - file share
+  - permissions
+  - ntfs
+  - dfs
+  - access denied
+  signals:
+  - System error 2148074254
+  - DFS referral mismatch
+  goal: Collapse share perms vs NTFS vs DFS vs auth issues.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures scope/error data captured before editing share/NTFS hypotheses.
+  hypotheses:
+  - id: file_share_permissions.acl
+    hypothesis: Permissions/ACL issue
+    confidence_hint: 0.45
+    discriminating_question: Access denied for some users but others succeed
+    discriminating_tests:
+    - Confirm whether failure is share-level or NTFS-level (error text).
+    - Escalate if ACL changes needed (change-making, STOP; likely skill).
+  - id: file_share_permissions.dfs
+    hypothesis: DFS namespace/referral issue
+    confidence_hint: 0.3
+    discriminating_question: Path resolves differently or intermittently
+    discriminating_tests:
+    - 'Scope: many users vs one.'
+    - Test DNS resolution and connectivity to target servers.
+    - Escalate to infra team for DFS health if indicated (skill).
+  - id: file_share_permissions.auth
+    hypothesis: Auth/session/token issue
+    confidence_hint: 0.25
+    discriminating_question: User can access from one device but not another
+    discriminating_tests:
+    - Check domain auth pack outputs (domain_dc_check, time_sync_status).
+    - Confirm if VPN required and connected.
+    command_refs:
+    - domain_dc_check
+    - time_sync_status
+- id: firewall_acl
+  name: Local Firewall vs Network ACL Branch Pack
+  category: security
+  keywords:
+  - firewall
+  - acl
+  - blocked
+  - port 443
+  - port 9100
+  signals:
+  - Windows Defender Firewall blocked connection
+  - Network ACL denies
+  goal: Collapse Windows firewall profile/rules vs upstream ACL blocks.
+  preconditions:
+    basic_verification_completed: true # Inline comment: baseline troubleshooting must rule out user/device issues before firewall focus.
+  hypotheses:
+  - id: firewall_acl.local_firewall
+    hypothesis: Windows firewall profile/rules blocking traffic
+    confidence_hint: 0.45
+    discriminating_question: Does it fail only on one device and only certain ports/apps?
+    discriminating_tests:
+    - 'Test ports with Tier-A: port_test and compare to known-good device.'
+    - Escalate if firewall rule changes required (change-making, STOP).
+    command_refs:
+    - port_test
+  - id: firewall_acl.upstream_acl
+    hypothesis: Upstream firewall/ACL blocking segment
+    confidence_hint: 0.35
+    discriminating_question: Do multiple devices on same VLAN/subnet fail similarly?
+    discriminating_tests:
+    - 'Scope: same network segment vs isolated device.'
+    - 'Run Tier-A: route_trace and port_test from multiple devices if possible.'
+    - Escalate to network team with evidence (skill).
+    command_refs:
+    - route_trace
+    - port_test
+  - id: firewall_acl.app_layer
+    hypothesis: App-layer block/proxy
+    confidence_hint: 0.2
+    discriminating_question: Ports are open but app fails due to proxy/TLS inspection
+    discriminating_tests:
+    - Route to DNS/Proxy/TLS pack.
+    - Collect schannel_errors and winhttp_proxy outputs.
+    command_refs:
+    - schannel_errors
+    - winhttp_proxy
+- id: gpo_intune_drift
+  name: GPO/Intune Policy Drift Branch Pack
+  category: infrastructure
+  keywords:
+  - gpo
+  - intune
+  - policy
+  - compliance
+  - drift
+  - kfm
+  signals:
+  - Device non-compliant
+  - Recent policy push
+  goal: Collapse policy drift vs local config vs sync lag.
+  preconditions:
+    basic_verification_completed: true # Inline comment: confirms fundamentals so policy drift work doesnâ€™t skip guardrail checks.
+  hypotheses:
+  - id: gpo_intune_drift.policy_change
+    hypothesis: New GPO/Intune policy caused regression
+    confidence_hint: 0.4
+    discriminating_question: Did the issue start after a known change window or policy
+      push?
+    discriminating_tests:
+    - 'Ask: â€˜What changed recently?â€™ and capture last known good.'
+    - 'Scope: many devices/users vs single device.'
+    - Escalate to OHT/engineering to review policy assignments (skill).
+  - id: gpo_intune_drift.unsynced
+    hypothesis: Device hasnâ€™t synced policy / stale state
+    confidence_hint: 0.35
+    discriminating_question: Is the device out of compliance or hasnâ€™t checked in?
+    discriminating_tests:
+    - 'Run Tier-A: dsreg_status for join state.'
+    - Confirm management-plane access (m365_endpoint_reachability).
+    - Check time sync (time_sync_status).
+    command_refs:
+    - dsreg_status
+    - m365_endpoint_reachability
+    - time_sync_status
+  - id: gpo_intune_drift.local_drift
+    hypothesis: Local config override / drift
+    confidence_hint: 0.25
+    discriminating_question: Is the issue only on one device despite same policy group?
+    discriminating_tests:
+    - Compare baseline outputs with a known-good peer device.
+    - Collect evidence to support exception vs re-enroll (change-making, STOP).
+- id: m365_conditional_access
+  name: Entra ID Conditional Access Branch Pack
+  category: identity
+  keywords:
+  - conditional access
+  - ca
+  - compliant
+  - aadsts50158
+  - aadsts53003
+  signals:
+  - AADSTS/CAA codes referencing CA
+  - Device compliance required
+  goal: Collapse Conditional Access/policy blocks vs device/user/app issues quickly
+    with read-only evidence.
+  preconditions:
+    basic_verification_completed: true # Inline comment: requires basic troubleshooting data before enforcing Conditional Access logic.
+  hypotheses:
+  - id: m365_conditional_access.policy_block
+    hypothesis: Conditional Access policy is blocking sign-in (device/user/location/risk)
+    confidence_hint: 0.45
+    discriminating_question: What is the exact sign-in error text/code (AADSTS/CAA/0xâ€¦)
+      and does it mention Conditional Access/compliance?
+    discriminating_tests:
+    - Capture exact error text/code + screenshot reference.
+    - 'Scope split: one user vs many users; one device vs many devices.'
+    - Try same sign-in in browser on same device (office.com) and note if error differs.
+    - 'Run Tier-A: dsregcmd /status (dsreg_status) and confirm AzureAdJoined/DomainJoined/DeviceId/PRT
+      status.'
+    - 'Run Tier-A: time sync status (time_sync_status) and check for clock skew indicators.'
+    command_refs:
+    - dsreg_status
+    - time_sync_status
+  - id: m365_conditional_access.device_state
+    hypothesis: Device compliance / registration state causing block
+    confidence_hint: 0.35
+    discriminating_question: Does the sign-in succeed on other devices for the same
+      user, and is the affected device AAD-joined/Hybrid joined?
+    discriminating_tests:
+    - 'Run Tier-A: dsreg_status and record AzureAdJoined/WorkplaceJoined and SSO/PRT
+      presence.'
+    - Check if the device is listed as compliant in Intune (if available) or if compliance
+      is unknown.
+    - Confirm whether VPN/proxy/TLS inspection is in play on this device.
+    command_refs:
+    - dsreg_status
+    - m365_endpoint_reachability
+    - winhttp_proxy
+  - id: m365_conditional_access.tenant_outage
+    hypothesis: Tenant-wide auth outage or degraded service
+    confidence_hint: 0.2
+    discriminating_question: Are multiple unrelated apps/users failing across sites
+      right now?
+    discriminating_tests:
+    - Check M365 service health (if accessible) or ask OHT to confirm tenant health
+      quickly.
+    - 'Run Tier-A: m365_endpoint_reachability and note failures/timeouts.'
+    - Compare with another device on same network segment.
+    command_refs:
+    - m365_endpoint_reachability
+- id: m365_mfa_method
+  name: MFA Method Failure Branch Pack
+  category: identity
+  keywords:
+  - mfa
+  - authenticator
+  - sms
+  - phone prompt
+  - mfa timeout
+  signals:
+  - AADSTS500121 / 50097
+  - User replaced phone recently
+  goal: Collapse MFA method problems vs Conditional Access vs user/device auth issues.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures MFA issues arenâ€™t pursued until guardrail fundamentals are captured.
+  hypotheses:
+  - id: m365_mfa_method.prompt_failure
+    hypothesis: MFA method enrollment or prompt failure
+    confidence_hint: 0.45
+    discriminating_question: Does the user receive MFA prompts at all (Authenticator/SMS/call),
+      or do they time out?
+    discriminating_tests:
+    - Capture exact prompt behavior and any error codes.
+    - Have user attempt sign-in via browser on a known-good device; compare behavior.
+    - Ask if the user recently replaced phone, reinstalled Authenticator, or changed
+      number.
+  - id: m365_mfa_method.policy_requirement
+    hypothesis: Conditional Access requiring a method the user canâ€™t satisfy
+    confidence_hint: 0.3
+    discriminating_question: Does the error mention requiring compliant device, location,
+      or specific auth strength?
+    discriminating_tests:
+    - Capture AADSTS/CAA codes and text; note mention of CA/compliance.
+    - 'Run Tier-A: dsreg_status on affected device to check join/compliance signals
+      (if device involved).'
+    - Escalate to identity/OHT if CA policy adjustment is required (skill).
+    command_refs:
+    - dsreg_status
+  - id: m365_mfa_method.account_state
+    hypothesis: Account lockout / risky sign-in / security enforcement
+    confidence_hint: 0.25
+    discriminating_question: Is the account blocked, password expired, or risk-based
+      policy triggered?
+    discriminating_tests:
+    - Check for account lockout indicators (AD/Entra) if you have read access; otherwise
+      ping OHT.
+    - Ask user if they see â€œaccount locked/blockedâ€ messaging.
+    - Correlate with recent sign-in attempts from unusual locations/devices.
+- id: m365_office_activation
+  name: Office Activation/Licensing Branch Pack
+  category: m365
+  keywords:
+  - office activation
+  - unlicensed product
+  - ospp
+  - clicktorun
+  - outlook
+  signals:
+  - 0x80070005 / 0xC004F074
+  - Activation dialog
+  goal: Collapse Office activation/licensing issues vs Outlook/profile vs auth/network
+    causes.
+  preconditions:
+    basic_verification_completed: true # Inline comment: confirms baseline inputs so Office activation work isnâ€™t premature.
+  hypotheses:
+  - id: m365_office_activation.licensing
+    hypothesis: Office activation/licensing broken on this device
+    confidence_hint: 0.45
+    discriminating_question: Do multiple Office apps show activation prompts or â€˜Unlicensed
+      productâ€™?
+    discriminating_tests:
+    - 'Run Tier-A: office_activation_status (OSPP /dstatus) and capture licensing
+      state (no keys).'
+    - 'Run Tier-A: office_services_status to confirm ClickToRunSvc status.'
+    - 'Run Tier-A: office_version_files to capture Outlook version.'
+    command_refs:
+    - office_activation_status
+    - office_services_status
+    - office_version_files
+  - id: m365_office_activation.outlook_profile
+    hypothesis: Outlook profile/cached credentials corruption
+    confidence_hint: 0.3
+    discriminating_question: Does Outlook crash/fail while other Office apps sign
+      in fine?
+    discriminating_tests:
+    - Confirm whether Word/Excel sign-in works on same device.
+    - 'Check Outlook-specific errors: Run Tier-A: outlook_event_errors and wer_outlook_reports.'
+    - Identify if issue is tied to a specific profile vs any user on the device.
+    command_refs:
+    - outlook_event_errors
+    - wer_outlook_reports
+  - id: m365_office_activation.network_tls
+    hypothesis: Network/proxy/TLS blocking activation endpoints
+    confidence_hint: 0.25
+    discriminating_question: Does activation fail only on one network or device with
+      proxy/TLS inspection?
+    discriminating_tests:
+    - 'Run Tier-A: winhttp_proxy.'
+    - 'Run Tier-A: m365_endpoint_reachability.'
+    - 'Run Tier-A: schannel_errors for TLS issues.'
+    command_refs:
+    - winhttp_proxy
+    - m365_endpoint_reachability
+    - schannel_errors
+- id: m365_wam_msal
+  name: WAM/MSAL Token Cache Branch Pack
+  category: identity
+  keywords:
+  - wam
+  - msal
+  - '0xcaa'
+  - token cache
+  - broker
+  signals:
+  - AADSTS50173 / 0xCAA82EE2
+  - Modern auth loops
+  goal: Collapse modern-auth token cache corruption vs credentials vs network issues
+    for Office/Teams/Outlook sign-in.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ties WAM/MSAL work to the guardrail baseline confirmations.
+  hypotheses:
+  - id: m365_wam_msal.device_cache
+    hypothesis: WAM/AAD Broker token cache corruption on this device
+    confidence_hint: 0.45
+    discriminating_question: Does the failure reproduce for multiple users on the
+      same device, while those users work elsewhere?
+    discriminating_tests:
+    - 'Scope split: multi-user on one device vs single-user.'
+    - 'Run Tier-A: webauth_events and aad_broker_events; look for auth failures at
+      sign-in time.'
+    - 'Run Tier-A: schannel_errors to rule out TLS/cert path issues.'
+    - Confirm if browser sign-in works on same device (office.com).
+    command_refs:
+    - webauth_events
+    - aad_broker_events
+    - schannel_errors
+  - id: m365_wam_msal.user_credentials
+    hypothesis: Credentials/identity issue specific to the user
+    confidence_hint: 0.3
+    discriminating_question: Does the same user fail on multiple devices/apps?
+    discriminating_tests:
+    - Try sign-in on a known-good device or OWA; record whether failure follows the
+      user.
+    - Confirm MFA prompt behavior (stuck, loop, never appears).
+    - Ask for recent password/MFA changes.
+  - id: m365_wam_msal.proxy_tls
+    hypothesis: Proxy/TLS inspection interfering with token endpoints
+    confidence_hint: 0.25
+    discriminating_question: Does it fail only on this network or only on this device
+      with a proxy/VPN client?
+    discriminating_tests:
+    - 'Run Tier-A: winhttp_proxy and note if a proxy is configured.'
+    - 'Run Tier-A: m365_endpoint_reachability and note TLS/handshake clues.'
+    - 'Run Tier-A: schannel_errors for handshake failures.'
+    command_refs:
+    - winhttp_proxy
+    - m365_endpoint_reachability
+    - schannel_errors
+- id: onedrive_sync
+  name: OneDrive/SharePoint Sync Branch Pack
+  category: m365
+  keywords:
+  - onedrive
+  - sharepoint
+  - sync
+  - files on-demand
+  - kfm
+  signals:
+  - Sync error icons
+  - OneDrive sign-in loop
+  goal: Collapse OneDrive client issues vs auth vs Files On-Demand/KFM policy vs network.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures baseline guardrail info precedes OneDrive-specific troubleshooting.
+  hypotheses:
+  - id: onedrive_sync.auth
+    hypothesis: Auth/token issue prevents sync
+    confidence_hint: 0.4
+    discriminating_question: Does OneDrive show â€˜Sign inâ€™ loops or auth errors?
+    discriminating_tests:
+    - 'Run Tier-A: dsreg_status and webauth_events/aad_broker_events.'
+    - Test login.microsoftonline.com reachability (m365_endpoint_reachability).
+    - Check schannel_errors for TLS failures.
+    command_refs:
+    - dsreg_status
+    - webauth_events
+    - aad_broker_events
+    - m365_endpoint_reachability
+    - schannel_errors
+  - id: onedrive_sync.policy
+    hypothesis: Files On-Demand / KFM / policy conflict
+    confidence_hint: 0.35
+    discriminating_question: Is the issue limited to known folders or â€˜online-onlyâ€™
+      placeholders?
+    discriminating_tests:
+    - Confirm whether sync errors are for specific folders or everything.
+    - Check if Intune/GPO recently changed OneDrive settings.
+    - 'Scope: single user vs many users in org.'
+  - id: onedrive_sync.disk
+    hypothesis: Local disk/IO pressure prevents sync
+    confidence_hint: 0.25
+    discriminating_question: Is disk nearly full or does the device show IO errors?
+    discriminating_tests:
+    - 'Run Tier-A: disk_health.'
+    - Check System errors for disk/NTFS events (system_errors).
+    - Confirm whether sync resumes after freeing space (change-making, so STOP if
+      proposed).
+    command_refs:
+    - disk_health
+    - system_errors
+- id: only_this_device
+  name: Only This Device Branch Pack
+  category: endpoint
+  keywords:
+  - only this device
+  - single endpoint
+  - one pc
+  - workstation
+  signals:
+  - Other devices OK
+  - Local profile/cache suspicion
+  goal: Fast path for â€˜works elsewhere, fails only on this endpointâ€™ cases.
+  preconditions:
+    basic_verification_completed: true # Inline comment: confirms fundamentals captured before concluding itâ€™s a single-device issue.
+  hypotheses:
+  - id: only_this_device.local_cache
+    hypothesis: Local cache/profile/token corruption
+    confidence_hint: 0.4
+    discriminating_question: Does it affect multiple users on that device or just
+      one?
+    discriminating_tests:
+    - 'Scope split: multi-user vs single-user.'
+    - 'Run Tier-A: webauth_events/aad_broker_events and app_errors.'
+    - Test browser vs desktop app on same device.
+    command_refs:
+    - webauth_events
+    - aad_broker_events
+    - app_errors
+  - id: only_this_device.network_proxy
+    hypothesis: Device-specific network/proxy/TLS problem
+    confidence_hint: 0.35
+    discriminating_question: Does reachability differ from known-good peers?
+    discriminating_tests:
+    - 'Run Tier-A: winhttp_proxy, dns_resolve, m365_endpoint_reachability.'
+    - Check schannel_errors for TLS failures.
+    - Compare with another device on same subnet.
+    command_refs:
+    - winhttp_proxy
+    - dns_resolve
+    - m365_endpoint_reachability
+    - schannel_errors
+  - id: only_this_device.security_control
+    hypothesis: Local security control interference
+    confidence_hint: 0.25
+    discriminating_question: Is ThreatLocker/EDR present and blocking only this device?
+    discriminating_tests:
+    - Check ThreatLocker/EDR consoles/logs (read-only) for blocks/quarantines.
+    - Correlate with timestamps and error messages.
+    - Escalate if policy exception required (skill).
+- id: only_this_user
+  name: Only This User Branch Pack
+  category: cross_cutting
+  keywords:
+  - only this user
+  - license
+  - entitlement
+  - mailbox
+  - user specific
+  signals:
+  - License missing/unassigned
+  - User-level scope confirmed
+  goal: Fast path for â€˜fails only for this user across devicesâ€™ vs local profile issues.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures guardrail basics captured before single-user investigation.
+  hypotheses:
+  - id: only_this_user.account_state
+    hypothesis: User account state issue (lockout, password, MFA)
+    confidence_hint: 0.4
+    discriminating_question: Does the user fail on multiple devices/apps?
+    discriminating_tests:
+    - Test sign-in via browser on a known-good device.
+    - Capture error codes and prompt behavior.
+    - Route to MFA/Conditional Access pack as needed.
+  - id: only_this_user.license
+    hypothesis: License/entitlement missing
+    confidence_hint: 0.35
+    discriminating_question: Does the user lack required license while others work?
+    discriminating_tests:
+    - Check licensing in admin portal if you have read access; otherwise ping OHT.
+    - Capture which apps/services fail (Outlook only? Teams? OneDrive?).
+  - id: only_this_user.mailbox_rules
+    hypothesis: User-specific configuration or mailbox rule problem
+    confidence_hint: 0.25
+    discriminating_question: Is the symptom behavior-specific rather than sign-in?
+    discriminating_tests:
+    - Test in OWA vs Outlook desktop.
+    - Escalate if mailbox/rules investigation needed (skill/time).
+- id: howto_guidance
+  name: How-to / Knowledge Request Branch Pack
+  category: cross_cutting
+  keywords:
+  - how to
+  - documentation request
+  - instructions
+  - knowledge request
+  signals:
+  - Ticket explicitly asks for process walkthrough or enablement
+  goal: Provide deterministic handling for informational-only requests that do not require troubleshooting.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: howto_guidance.scope_validate
+    hypothesis: Confirm request is informational only and within quick-fix scope
+    confidence_hint: 0.45
+    discriminating_question: Does the user simply need instructions rather than a technical fix?
+    discriminating_tests:
+    - Clarify desired end state/deliverable.
+    - Confirm no blocking outage or multi-user impact.
+    notes: Escalate to Projects/Changes if the request exceeds the timebox.
+  - id: howto_guidance.doc_lookup
+    hypothesis: Existing runbook or SOP already covers the workflow
+    confidence_hint: 0.35
+    discriminating_question: Do we have an internal or vendor SOP for this scenario?
+    discriminating_tests:
+    - Search IT Glue/Confluence/SharePoint for matching documentation.
+    - Provide validated links/instructions within the ticket.
+  - id: howto_guidance.create_doc
+    hypothesis: Documentation gap requires quick SOP draft
+    confidence_hint: 0.2
+    discriminating_question: Is this a net-new workflow that needs capture for future reuse?
+    discriminating_tests:
+    - Capture the steps taken and attach to notes for follow-up.
+    - Flag documentation debt for the knowledge team if more than quick-fix effort.
+- id: print_subsystem
+  name: Print Subsystem Branch Pack
+  category: infrastructure
+  keywords:
+  - print
+  - printer
+  - spooler
+  - point-and-print
+  - 9100
+  signals:
+  - PrintService errors
+  - Spooler crashes
+  goal: Collapse spooler/driver issues vs permissions vs network path vs server-side
+    queue.
+  preconditions:
+    basic_verification_completed: true # Inline comment: requires baseline confirmations before deep-diving printer subsystems.
+  hypotheses:
+  - id: print_subsystem.spooler
+    hypothesis: Spooler/driver issue on endpoint
+    confidence_hint: 0.4
+    discriminating_question: Is printing failing from one workstation but others can
+      print?
+    discriminating_tests:
+    - 'Scope: one device vs many devices.'
+    - Check System/Application errors for PrintService events (system_errors/app_errors).
+    - Confirm printer install type (TCP/IP vs shared).
+  - id: print_subsystem.network_path
+    hypothesis: Network/VLAN/path to printer unavailable
+    confidence_hint: 0.35
+    discriminating_question: Does ping/port 9100/SMB fail to the printer/print server?
+    discriminating_tests:
+    - 'Run Tier-A: port_test to printer IP/hostname (9100/445 as relevant).'
+    - 'Run Tier-A: route_trace to printer/print server.'
+    - Verify DNS resolution for print server.
+    command_refs:
+    - port_test
+    - route_trace
+    - dns_resolve
+  - id: print_subsystem.permissions
+    hypothesis: Permission/GPO/Point-and-Print restriction
+    confidence_hint: 0.25
+    discriminating_question: Did a policy update recently and only some users affected?
+    discriminating_tests:
+    - Ask about recent Windows updates/GPO changes.
+    - 'Scope: user-based vs device-based failures.'
+    - Escalate if GPO/registry/policy changes needed (skill).
+- id: recent_change
+  name: Recent Change Regression Branch Pack
+  category: cross_cutting
+  keywords:
+  - recent change
+  - regression
+  - after update
+  - patch
+  - vendor update
+  signals:
+  - Patch Tuesday timing
+  - Office build bumps
+  goal: 'Collapse likely regression sources: patch, Office update, policy change,
+    vendor update.'
+  preconditions:
+    basic_verification_completed: true # Inline comment: guards against blaming recent changes before basics are checked.
+  hypotheses:
+  - id: recent_change.windows_update
+    hypothesis: Windows update regression
+    confidence_hint: 0.4
+    discriminating_question: Did issue start immediately after Patch Tuesday / reboot/update?
+    discriminating_tests:
+    - Capture â€˜last known goodâ€™ and â€˜first badâ€™ timestamps.
+    - Check event logs for update-related entries around that time.
+    - Escalate if rollback/reinstall needed (change-making; likely time).
+  - id: recent_change.office_update
+    hypothesis: Office update regression
+    confidence_hint: 0.3
+    discriminating_question: Outlook/Teams started failing after Office update
+    discriminating_tests:
+    - 'Run Tier-A: office_version_files and compare to known-good version if available.'
+    - Check Outlook WER/app errors for new module failures.
+    - Escalate if repair/rollback needed (time/skill).
+    command_refs:
+    - office_version_files
+    - outlook_event_errors
+  - id: recent_change.security_policy
+    hypothesis: Security policy change regression (ThreatLocker/EDR/CA)
+    confidence_hint: 0.3
+    discriminating_question: Did security policy change recently?
+    discriminating_tests:
+    - Use ThreatLocker pack if TL suspected; otherwise check EDR/CA packs.
+    - Capture evidence of policy update timing.
+    - Escalate to security/identity as needed (skill).
+- id: shared_mailbox_permissions
+  name: Shared Mailbox/Permissions Branch Pack
+  category: messaging
+  keywords:
+  - shared mailbox
+  - sendas
+  - sendonbehalf
+  - permissions
+  - calendar
+  signals:
+  - '"You do not have permission" errors'
+  - OWA works but Outlook fails
+  goal: Collapse permission/role issues vs client caching vs wrong identity.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures guardrail data gathered before adjusting mailbox permissions.
+  hypotheses:
+  - id: shared_mailbox_permissions.permission_gap
+    hypothesis: User lacks permission to shared mailbox / SendAs / SendOnBehalf
+    confidence_hint: 0.45
+    discriminating_question: Does the error mention permissions, or does Send fail
+      while mailbox opens?
+    discriminating_tests:
+    - Capture exact error text.
+    - Confirm whether issue is SendAs vs open mailbox vs calendar access.
+    - Try same action in OWA (often bypasses Outlook caching).
+  - id: shared_mailbox_permissions.cache
+    hypothesis: Outlook cache / stale token causing access mismatch
+    confidence_hint: 0.3
+    discriminating_question: Did permissions change recently and Outlook hasnâ€™t refreshed?
+    discriminating_tests:
+    - 'Ask: â€˜Were permissions changed recently?â€™'
+    - Try OWA to confirm server-side permission is effective.
+    - 'Run Tier-A: webauth_events/aad_broker_events if sign-in tokens are suspect.'
+    command_refs:
+    - webauth_events
+    - aad_broker_events
+  - id: shared_mailbox_permissions.identity
+    hypothesis: Wrong account signed into Outlook profile
+    confidence_hint: 0.25
+    discriminating_question: Is the user signed in with multiple identities or wrong
+      tenant?
+    discriminating_tests:
+    - Confirm the signed-in identity UPN.
+    - 'Run Tier-A: whoami_context (whoami /upn) if applicable.'
+    - Ask whether other M365 apps show the same signed-in account.
+    command_refs:
+    - whoami_context
+- id: time_skew
+  name: Time Skew Branch Pack
+  category: identity
+  keywords:
+  - clock skew
+  - time sync
+  - kerberos
+  - w32tm
+  - ntp
+  signals:
+  - AADSTS50020/50023 time errors
+  - Kerberos KRB_AP_ERR_SKEW
+  goal: Collapse authentication/Kerberos/token failures caused by clock drift vs other
+    causes.
+  preconditions:
+    basic_verification_completed: true # Inline comment: baseline guardrail inputs confirm time skew is relevant before branch work.
+  hypotheses:
+  - id: time_skew.clock_drift
+    hypothesis: Clock drift causing token/Kerberos failures
+    confidence_hint: 0.45
+    discriminating_question: Are there AADSTS errors that mention time, or Kerberos
+      errors in logs?
+    discriminating_tests:
+    - 'Run Tier-A: time_sync_status and record offset/last sync.'
+    - Check System errors for time service warnings/errors (system_errors).
+    - Confirm if issue affects domain login, file shares, or only M365 auth.
+    command_refs:
+    - time_sync_status
+    - system_errors
+  - id: time_skew.ntp_unreachable
+    hypothesis: NTP source unreachable / misconfigured
+    confidence_hint: 0.35
+    discriminating_question: Is time service configured to a dead source or blocked
+      port?
+    discriminating_tests:
+    - 'Run Tier-A: time_sync_status (configuration).'
+    - Confirm network path to NTP source (if internal).
+    - Escalate if NTP/GPO changes needed (skill).
+  - id: time_skew.false_lead
+    hypothesis: Not time-related; false lead
+    confidence_hint: 0.2
+    discriminating_question: Do tests show time is in sync but failures persist?
+    discriminating_tests:
+    - Proceed to DNS/Proxy/TLS pack or WAM/MSAL pack depending on symptoms.
+    - Record that time skew is ruled out (tests_run + results).
+- id: vpn_client
+  name: VPN Client Branch Pack
+  category: network
+  keywords:
+  - vpn
+  - anyconnect
+  - globalprotect
+  - forticlient
+  - split tunnel
+  signals:
+  - VPN error codes
+  - Tunnel connects but no internal access
+  goal: Collapse VPN auth vs split tunnel/DNS vs gateway outage vs local client issue.
+  preconditions:
+    basic_verification_completed: true # Inline comment: prevents VPN digression until guardrail checks confirm need.
+  hypotheses:
+  - id: vpn_client.gateway_outage
+    hypothesis: VPN gateway/outage or reachability issue
+    confidence_hint: 0.45
+    discriminating_question: Do multiple users report VPN issues at once?
+    discriminating_tests:
+    - Confirm scope across users/sites.
+    - 'Run Tier-A: route_trace to VPN gateway (if known).'
+    - Escalate if gateway appears down (time).
+    command_refs:
+    - route_trace
+  - id: vpn_client.dns_split_tunnel
+    hypothesis: DNS/split-tunnel misconfiguration
+    confidence_hint: 0.3
+    discriminating_question: Does VPN connect but internal resources fail while Internet
+      works?
+    discriminating_tests:
+    - 'Run Tier-A: net_snapshot and adapters to see DNS servers when VPN is up.'
+    - Test DNS resolve for internal resources.
+    - Check winhttp_proxy if relevant.
+    command_refs:
+    - net_snapshot
+    - adapters
+    - dns_resolve
+    - winhttp_proxy
+  - id: vpn_client.auth_mfa
+    hypothesis: Auth/MFA issue specific to user
+    confidence_hint: 0.25
+    discriminating_question: Does the same user fail on multiple devices?
+    discriminating_tests:
+    - Capture exact VPN client error codes/messages.
+    - Check MFA method or CA policies via identity pack.
+    - Escalate if user account changes needed (skill).
+- id: wan_isp_degradation
+  name: WAN/ISP Degradation Branch Pack
+  category: network
+  keywords:
+  - isp
+  - wan
+  - latency
+  - packet loss
+  - routing
+  signals:
+  - High latency/traceroute loss
+  - ISP incident notice
+  goal: Collapse ISP/routing/latency vs DNS vs local device issue.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures baseline verification before attributing outages to ISP.
+  hypotheses:
+  - id: wan_isp_degradation.isp_outage
+    hypothesis: ISP outage/degradation
+    confidence_hint: 0.45
+    discriminating_question: Multiple sites/users affected; high latency/packet loss?
+    discriminating_tests:
+    - 'Scope: many users vs single device.'
+    - 'Run Tier-A: route_trace to known external endpoint(s).'
+    - Use m365_endpoint_reachability to test critical services.
+    command_refs:
+    - route_trace
+    - m365_endpoint_reachability
+  - id: wan_isp_degradation.dns_provider
+    hypothesis: DNS provider issue
+    confidence_hint: 0.3
+    discriminating_question: Sites resolve inconsistently; switching DNS fixes?
+    discriminating_tests:
+    - 'Run Tier-A: dns_resolve for multiple domains.'
+    - Check configured DNS servers via net_snapshot.
+    - Escalate if DNS infra changes needed (skill).
+    command_refs:
+    - dns_resolve
+    - net_snapshot
+  - id: wan_isp_degradation.local_device
+    hypothesis: Local device/network issue
+    confidence_hint: 0.25
+    discriminating_question: Only one device impacted; others fine
+    discriminating_tests:
+    - Route to DHCP/IP conflict or local firewall/proxy packs.
+    - Collect baseline outputs for comparison.
+- id: wifi
+  name: Wiâ€‘Fi Connectivity Branch Pack
+  category: network
+  keywords:
+  - wifi
+  - wireless
+  - ssid
+  - rf
+  - captive portal
+  signals:
+  - Connected, no Internet
+  - Weak signal/drops
+  goal: Collapse RF/auth/captive portal vs driver vs AP issue.
+  preconditions:
+    basic_verification_completed: true # Inline comment: ensures guardrail checklist complete before RF/Wi-Fi analysis.
+  hypotheses:
+  - id: wifi.captive_portal
+    hypothesis: Captive portal / auth failure
+    confidence_hint: 0.4
+    discriminating_question: Does the device show connected but no Internet, and browser
+      prompts appear?
+    discriminating_tests:
+    - Confirm captive portal behavior in browser.
+    - 'Run Tier-A: net_snapshot to check DNS/gateway.'
+    - Compare with another Wiâ€‘Fi device at same location.
+    command_refs:
+    - net_snapshot
+  - id: wifi.rf_ap
+    hypothesis: RF/AP issue
+    confidence_hint: 0.35
+    discriminating_question: Multiple devices on same SSID dropping or poor signal?
+    discriminating_tests:
+    - 'Scope: many devices vs one device.'
+    - Collect timestamps and location.
+    - Escalate to network/AP monitoring (skill).
+  - id: wifi.driver
+    hypothesis: Driver/adapter issue on device
+    confidence_hint: 0.25
+    discriminating_question: Only one device has Wiâ€‘Fi issues; others fine
+    discriminating_tests:
+    - 'Run Tier-A: adapters and check link status.'
+    - Escalate if driver update required (change-making, STOP).
+    command_refs:
+    - adapters
+- id: windows_profile_corruption
+  name: Windows Profile Corruption Branch Pack
+  category: endpoint
+  keywords:
+  - profile corruption
+  - temp profile
+  - user profile service
+  - appdata
+  signals:
+  - Logged in with temporary profile
+  - Profile load errors
+  goal: Collapse user profile corruption vs app-only vs device-wide issues.
+  preconditions:
+    basic_verification_completed: true # Inline comment: confirms baseline troubleshooting prior to assuming profile corruption.
+  hypotheses:
+  - id: windows_profile_corruption.profile
+    hypothesis: User profile corruption causing app failures
+    confidence_hint: 0.45
+    discriminating_question: Does the problem reproduce only for one user on this
+      device?
+    discriminating_tests:
+    - 'Scope: same device, different user test (if possible).'
+    - Check Application errors around profile load / UWP / shell (app_errors).
+    - Confirm if issue affects multiple apps or just one.
+    command_refs:
+    - app_errors
+  - id: windows_profile_corruption.app_specific
+    hypothesis: App-specific issue, not profile
+    confidence_hint: 0.3
+    discriminating_question: Does the same user work fine on another device, and other
+      apps on this device are fine?
+    discriminating_tests:
+    - Test app behavior in browser vs desktop app.
+    - Collect app-specific logs/errors (event logs, WER).
+    - Proceed to app-specific branch pack (Outlook/OneDrive/etc.).
+  - id: windows_profile_corruption.system_corruption
+    hypothesis: Device-wide OS corruption
+    confidence_hint: 0.25
+    discriminating_question: Are multiple users/apps failing and SFC indicates corruption?
+    discriminating_tests:
+    - 'Run Tier-A: sfc_verify.'
+    - Check System/Application errors for widespread component failures.
+    - Escalate if repair/reimage needed (time/skill depending).
+    command_refs:
+    - sfc_verify
+    - system_errors
+- id: endpoint_privilege_elevation
+  name: Privilege Elevation / UAC Prompt Branch Pack
+  category: endpoint
+  keywords:
+  - admin prompt
+  - uac
+  - elevation
+  - installer needs admin
+  - admin credentials
+  - run as administrator
+  signals:
+  - UAC consent/credential prompt
+  goal: Determine if standard UAC elevation vs missing admin creds vs policy block.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: endpoint_privilege_elevation.standard_uac
+    hypothesis: Standard UAC elevation required; user not in elevated context
+    confidence_hint: 0.45
+    discriminating_question: Is this the normal Windows elevation prompt without an error?
+    discriminating_tests:
+    - Confirm exact prompt text and step in installer.
+    - Check if user has admin rights or available admin creds.
+  - id: endpoint_privilege_elevation.missing_admin
+    hypothesis: User lacks admin credentials needed for install
+    confidence_hint: 0.35
+    discriminating_question: Does the prompt require creds the user doesn’t have?
+    discriminating_tests:
+    - Confirm who can approve installs on this device.
+    - Escalate if admin credentials are required (skill/time).
+  - id: endpoint_privilege_elevation.policy_block
+    hypothesis: Security policy (e.g., ThreatLocker/allowlisting) blocks elevation
+    confidence_hint: 0.2
+    discriminating_question: Any policy or allowlisting prompts/blocks at install time?
+    discriminating_tests:
+    - Check ThreatLocker/EDR block logs (read-only).
+    - Capture exact block message and timestamps.
+
+# =============================================================================
+# BACKUP AND RESTORE PACKS (Taxonomy Gap Fill - 2026-02-19)
+# =============================================================================
+
+- id: backup_failure
+  name: Backup Failure Branch Pack
+  category: infrastructure
+  keywords:
+  - backup failed
+  - backup job
+  - backup error
+  - missed backup
+  - backup storage
+  - backup agent
+  signals:
+  - Backup job failure notification
+  - Storage quota exceeded
+  - Agent offline
+  goal: Diagnose backup job failures and restore backup operations.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: backup_failure.agent_offline
+    hypothesis: Backup agent is offline or not running
+    confidence_hint: 0.4
+    discriminating_question: Is the backup agent showing offline in the backup console?
+    discriminating_tests:
+    - Check agent service status on the target device.
+    - Verify network connectivity between agent and backup server.
+    - Check for recent Windows updates or reboots that may have stopped the service.
+  - id: backup_failure.storage_full
+    hypothesis: Backup storage destination is full or inaccessible
+    confidence_hint: 0.35
+    discriminating_question: Are other backups to the same destination also failing?
+    discriminating_tests:
+    - Check storage quota and available space in backup console.
+    - Verify network path or cloud storage connectivity.
+    - Review retention policies that may need adjustment.
+  - id: backup_failure.source_issue
+    hypothesis: Source data issues preventing backup completion
+    confidence_hint: 0.25
+    discriminating_question: Are specific files or volumes failing while others succeed?
+    discriminating_tests:
+    - Check for locked files (open databases, VSS issues).
+    - Review backup logs for specific file errors.
+    - Verify source disk health and accessibility.
+
+- id: backup_file_restore
+  name: File Restore Branch Pack
+  category: infrastructure
+  keywords:
+  - file restore
+  - recover file
+  - deleted file
+  - restore from backup
+  - previous version
+  signals:
+  - User requests file recovery
+  - Accidental deletion
+  goal: Locate and restore files from backup systems.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: backup_file_restore.recent_deletion
+    hypothesis: File was recently deleted and may be in recycle bin or previous versions
+    confidence_hint: 0.45
+    discriminating_question: When was the file deleted, and has the recycle bin been checked?
+    discriminating_tests:
+    - Check Recycle Bin on the source device.
+    - Check Previous Versions (VSS snapshots) on the file location.
+    - Verify file location and exact filename with user.
+  - id: backup_file_restore.backup_restore
+    hypothesis: File needs to be restored from backup system
+    confidence_hint: 0.35
+    discriminating_question: File is not in recycle bin or previous versions; backup restore required?
+    discriminating_tests:
+    - Identify which backup system covers the file location.
+    - Determine the date range when the file was last known good.
+    - Verify user has provided exact path and filename.
+  - id: backup_file_restore.no_backup
+    hypothesis: File location is not covered by backup
+    confidence_hint: 0.2
+    discriminating_question: Is the file location included in backup policies?
+    discriminating_tests:
+    - Review backup scope for the affected device/share.
+    - Check if file was in an excluded folder (temp, downloads).
+    - Inform user if recovery is not possible.
+
+- id: backup_workstation_recovery
+  name: Workstation Recovery Branch Pack
+  category: infrastructure
+  keywords:
+  - workstation recovery
+  - restore workstation
+  - bare metal restore
+  - system image
+  - reimage
+  signals:
+  - Full system restore required
+  - Device unbootable
+  goal: Plan and execute full workstation recovery from backup image.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: backup_workstation_recovery.image_available
+    hypothesis: Recent backup image exists and can be used for restore
+    confidence_hint: 0.4
+    discriminating_question: Is there a recent image backup of this workstation?
+    discriminating_tests:
+    - Check backup console for most recent image date.
+    - Verify image integrity and restore prerequisites.
+    - Confirm acceptable data loss window with user.
+  - id: backup_workstation_recovery.no_image
+    hypothesis: No image backup available; fresh build required
+    confidence_hint: 0.35
+    discriminating_question: Is there no usable image backup for this device?
+    discriminating_tests:
+    - Confirm no images exist or are too old to use.
+    - Plan fresh OS deployment.
+    - Identify user data that can be recovered separately.
+  - id: backup_workstation_recovery.hardware_issue
+    hypothesis: Hardware failure preventing restore; new hardware needed
+    confidence_hint: 0.25
+    discriminating_question: Is the original hardware failed and replacement needed?
+    discriminating_tests:
+    - Confirm hardware failure diagnosis.
+    - Plan restore to replacement hardware.
+    - Note driver compatibility considerations.
+
+# =============================================================================
+# PHONE SYSTEM PACKS (Taxonomy Gap Fill - 2026-02-19)
+# =============================================================================
+
+- id: phone_call_quality
+  name: Phone Call Quality Branch Pack
+  category: infrastructure
+  keywords:
+  - call quality
+  - jitter
+  - voip
+  - echo
+  - choppy audio
+  - dropped calls
+  - one way audio
+  signals:
+  - VoIP QoS issues
+  - Network latency affecting calls
+  goal: Diagnose VoIP call quality issues and network factors.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_call_quality.network_congestion
+    hypothesis: Network congestion or bandwidth issues affecting call quality
+    confidence_hint: 0.4
+    discriminating_question: Are call quality issues consistent or intermittent, and correlated with network usage?
+    discriminating_tests:
+    - Check bandwidth utilization during problem times.
+    - Verify QoS policies are in place and active.
+    - Test latency and jitter to phone system or SIP provider.
+  - id: phone_call_quality.endpoint_issue
+    hypothesis: Specific phone or headset hardware causing quality issues
+    confidence_hint: 0.35
+    discriminating_question: Do quality issues occur only with specific phones or headsets?
+    discriminating_tests:
+    - Test with different headset or handset.
+    - Check phone firmware version.
+    - Verify PoE power is adequate if using PoE phones.
+  - id: phone_call_quality.provider_issue
+    hypothesis: SIP trunk or provider-side quality degradation
+    confidence_hint: 0.25
+    discriminating_question: Are issues occurring on all calls, including internal to internal?
+    discriminating_tests:
+    - Test internal extension to extension calls.
+    - Check provider status page for known issues.
+    - Review SIP trunk registration and call logs.
+
+- id: phone_voicemail
+  name: Phone Voicemail Branch Pack
+  category: infrastructure
+  keywords:
+  - voicemail
+  - vm setup
+  - voicemail not working
+  - missed voicemail
+  - voicemail to email
+  signals:
+  - Voicemail setup or retrieval issues
+  goal: Resolve voicemail configuration and access issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_voicemail.not_setup
+    hypothesis: Voicemail not configured or greeting not recorded
+    confidence_hint: 0.4
+    discriminating_question: Has the user completed initial voicemail setup?
+    discriminating_tests:
+    - Verify voicemail box exists in phone system admin.
+    - Check if greeting has been recorded.
+    - Walk user through initial setup if needed.
+  - id: phone_voicemail.access_issue
+    hypothesis: User cannot access voicemail (PIN, routing)
+    confidence_hint: 0.35
+    discriminating_question: Can the user dial into voicemail but cannot authenticate?
+    discriminating_tests:
+    - Reset voicemail PIN if forgotten.
+    - Verify voicemail access number/method.
+    - Check for account lockout after failed attempts.
+  - id: phone_voicemail.notification_issue
+    hypothesis: Voicemail to email or notification not working
+    confidence_hint: 0.25
+    discriminating_question: Are voicemails being received but notifications not arriving?
+    discriminating_tests:
+    - Verify email address configured for voicemail to email.
+    - Check spam folder for voicemail notifications.
+    - Review phone system email delivery settings.
+
+- id: phone_howto
+  name: Phone System How-To Branch Pack
+  category: infrastructure
+  keywords:
+  - phone how to
+  - transfer call
+  - conference call
+  - hold call
+  - forward calls
+  - phone feature
+  signals:
+  - User training request
+  - Feature usage question
+  goal: Provide guidance on phone system features and usage.
+  notes: How-to requests may not need hypothesis-driven troubleshooting.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_howto.feature_usage
+    hypothesis: User needs guidance on standard phone feature
+    confidence_hint: 0.5
+    discriminating_question: What specific phone feature does the user need help with?
+    discriminating_tests:
+    - Identify the phone model and system type.
+    - Provide step-by-step instructions for the feature.
+    - Offer to send written documentation if available.
+  - id: phone_howto.feature_not_enabled
+    hypothesis: Requested feature is not enabled for this user/phone
+    confidence_hint: 0.3
+    discriminating_question: Is the feature the user is asking about enabled on their phone?
+    discriminating_tests:
+    - Check phone system admin for user permissions.
+    - Verify license level includes requested feature.
+    - Escalate if feature enablement is needed.
+  - id: phone_howto.training_needed
+    hypothesis: User needs comprehensive phone training
+    confidence_hint: 0.2
+    discriminating_question: Does the user have multiple feature questions suggesting training gap?
+    discriminating_tests:
+    - Assess breadth of questions.
+    - Schedule formal training session if warranted.
+    - Provide self-service training resources.
+
+- id: phone_changes
+  name: Phone Moves/Changes Branch Pack
+  category: infrastructure
+  keywords:
+  - phone move
+  - extension change
+  - new phone
+  - phone provisioning
+  - add extension
+  signals:
+  - Phone system change request
+  goal: Handle phone system provisioning and configuration changes.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_changes.new_user
+    hypothesis: New user needs phone/extension provisioned
+    confidence_hint: 0.4
+    discriminating_question: Is this a new hire needing phone setup?
+    discriminating_tests:
+    - Verify user account and extension assignment.
+    - Confirm phone hardware availability and location.
+    - Check if DID (direct number) is needed.
+  - id: phone_changes.move_extension
+    hypothesis: User moving desks and needs phone relocated
+    confidence_hint: 0.35
+    discriminating_question: Is the user physically moving and taking their extension?
+    discriminating_tests:
+    - Confirm new location has network connectivity for phone.
+    - Verify if physical phone move or just extension reassignment.
+    - Update phone system admin with new location info.
+  - id: phone_changes.config_change
+    hypothesis: Configuration change needed (DID, ring group, hours)
+    confidence_hint: 0.25
+    discriminating_question: Is this a configuration change on existing phone/extension?
+    discriminating_tests:
+    - Document the specific configuration change requested.
+    - Verify change approval if required.
+    - Plan implementation during appropriate change window.
+
+- id: phone_hardware
+  name: Phone Hardware Branch Pack
+  category: infrastructure
+  keywords:
+  - phone hardware
+  - phone broken
+  - handset
+  - headset
+  - phone power
+  - phone display
+  signals:
+  - Physical phone device issues
+  goal: Diagnose phone hardware failures and arrange replacement.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_hardware.power_issue
+    hypothesis: Phone not receiving power (PoE or adapter)
+    confidence_hint: 0.4
+    discriminating_question: Is the phone completely dark or not powering on?
+    discriminating_tests:
+    - Check network cable is seated properly.
+    - Verify PoE switch port is active and providing power.
+    - Test with power adapter if available.
+  - id: phone_hardware.display_audio
+    hypothesis: Phone powers on but display or audio not working
+    confidence_hint: 0.35
+    discriminating_question: Does the phone have power but specific functions not working?
+    discriminating_tests:
+    - Test handset and speaker audio separately.
+    - Check display for partial functionality.
+    - Try factory reset if possible without losing config.
+  - id: phone_hardware.replacement_needed
+    hypothesis: Phone hardware failed and needs replacement
+    confidence_hint: 0.25
+    discriminating_question: Has troubleshooting confirmed hardware failure?
+    discriminating_tests:
+    - Document failure symptoms for warranty/replacement.
+    - Check spare phone inventory.
+    - Plan replacement and configuration transfer.
+
+- id: phone_outage
+  name: Phone System Outage Branch Pack
+  category: infrastructure
+  keywords:
+  - phone outage
+  - phones down
+  - no dial tone
+  - cannot make calls
+  - phone system down
+  signals:
+  - Multiple users affected
+  - Complete phone service loss
+  goal: Diagnose and resolve phone system outages.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: phone_outage.network_outage
+    hypothesis: Network outage affecting phone system connectivity
+    confidence_hint: 0.4
+    discriminating_question: Are network services also affected, or just phones?
+    discriminating_tests:
+    - Check core network connectivity and switches.
+    - Verify VLAN and QoS configurations.
+    - Test connectivity to phone system/PBX.
+  - id: phone_outage.pbx_issue
+    hypothesis: Phone system/PBX server or service down
+    confidence_hint: 0.35
+    discriminating_question: Is the phone system server/service reachable and running?
+    discriminating_tests:
+    - Check phone system admin console accessibility.
+    - Verify PBX services are running.
+    - Check for recent changes or updates to phone system.
+  - id: phone_outage.provider_outage
+    hypothesis: SIP trunk or carrier outage
+    confidence_hint: 0.25
+    discriminating_question: Are internal calls working but external calls failing?
+    discriminating_tests:
+    - Test internal extension to extension calls.
+    - Check SIP trunk registration status.
+    - Contact provider to confirm outage status.
+
+# =============================================================================
+# POWER PACKS (Taxonomy Gap Fill - 2026-02-19)
+# =============================================================================
+
+- id: power_outage
+  name: Power Outage Branch Pack
+  category: infrastructure
+  keywords:
+  - power outage
+  - no power
+  - blackout
+  - power failure
+  - generator
+  signals:
+  - Site-wide power loss
+  - Utility outage
+  goal: Coordinate response to site power outages and assess impact.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: power_outage.utility_outage
+    hypothesis: Utility power outage affecting the area
+    confidence_hint: 0.45
+    discriminating_question: Is this a utility/grid outage affecting the building or area?
+    discriminating_tests:
+    - Confirm with utility company or outage map.
+    - Check if neighboring businesses also affected.
+    - Document estimated restoration time if available.
+  - id: power_outage.building_issue
+    hypothesis: Building electrical issue (breaker, panel, wiring)
+    confidence_hint: 0.35
+    discriminating_question: Is power out only in this building while neighbors have power?
+    discriminating_tests:
+    - Check main breaker panel for tripped breakers.
+    - Verify with building management or landlord.
+    - Escalate to electrician if internal wiring issue suspected.
+  - id: power_outage.partial_outage
+    hypothesis: Partial outage affecting specific circuits or areas
+    confidence_hint: 0.2
+    discriminating_question: Is power out only in certain areas or circuits?
+    discriminating_tests:
+    - Identify which circuits or areas are affected.
+    - Check individual breakers for the affected areas.
+    - Assess critical equipment affected (servers, network).
+
+- id: power_ups
+  name: UPS/Battery Backup Branch Pack
+  category: infrastructure
+  keywords:
+  - ups
+  - battery backup
+  - ups alarm
+  - ups beeping
+  - battery replacement
+  - ups overload
+  signals:
+  - UPS alarm or warning
+  - Battery runtime issues
+  goal: Diagnose UPS issues and ensure critical equipment protection.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: power_ups.battery_failure
+    hypothesis: UPS battery failed or needs replacement
+    confidence_hint: 0.4
+    discriminating_question: Is the UPS showing battery fault or reduced runtime?
+    discriminating_tests:
+    - Check UPS display or management software for battery status.
+    - Note battery age (typical lifespan 3-5 years).
+    - Plan battery replacement if indicated.
+  - id: power_ups.overload
+    hypothesis: UPS is overloaded with too much connected equipment
+    confidence_hint: 0.35
+    discriminating_question: Is the UPS showing overload alarm?
+    discriminating_tests:
+    - Check current load percentage on UPS.
+    - Identify equipment connected to UPS.
+    - Reduce load or upgrade UPS capacity if needed.
+  - id: power_ups.ups_failure
+    hypothesis: UPS unit itself has failed
+    confidence_hint: 0.25
+    discriminating_question: Is the UPS completely non-functional or showing critical fault?
+    discriminating_tests:
+    - Check for UPS display or LED indicators.
+    - Test output power with known-good device.
+    - Plan UPS replacement if unit has failed.
+- id: email_gsuite
+  name: Google Workspace Messaging Branch Pack
+  category: messaging
+  keywords:
+  - gsuite
+  - google workspace
+  - gmail
+  - workspace email
+  signals:
+  - Google Admin alert
+  - 5.7.x auth failures
+  goal: Separate user/account auth issues from Workspace service disruptions.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: email_gsuite.oauth_token
+    hypothesis: OAuth/2SV/token issue for specific user
+    confidence_hint: 0.45
+    discriminating_question: Does problem follow the user across devices/browsers?
+    discriminating_tests:
+    - Have user attempt login at workspace.google.com and capture exact error code.
+    - Review Admin console security log if accessible (read-only).
+    - Reconfirm App Password / 2SV configuration (change-making, STOP).
+    command_refs:
+    - email_headers
+    - email_trace
+  - id: email_gsuite.service_incident
+    hypothesis: Workspace service degradation/outage
+    confidence_hint: 0.35
+    discriminating_question: Are multiple users/sites seeing the same Workspace issue?
+    discriminating_tests:
+    - Check status.google.com + Admin alerts.
+    - Correlate timestamps with customer-reported incidents.
+    - Escalate to vendor or comms list if widespread.
+  - id: email_gsuite.relaysettings
+    hypothesis: Relay/SMTP settings drift (managed relays, filtering)
+    confidence_hint: 0.2
+    discriminating_question: Only routed mail via relay/custom gateway failing?
+    discriminating_tests:
+    - Review relay hostnames/IPs used (customer notes).
+    - Confirm MX/relay path unaffected for direct send.
+- id: email_apple
+  name: Apple Mail Client Branch Pack
+  category: messaging
+  keywords:
+  - apple mail
+  - mac mail
+  - mail.app
+  signals:
+  - Apple Mail account offline prompt
+  - keychain password prompt loop
+  goal: Distinguish profile/keychain issues vs server auth vs protocol limits.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: email_apple.keychain
+    hypothesis: Keychain/password cache corruption
+    confidence_hint: 0.5
+    discriminating_question: Does re-entering password immediately fail on Mac only?
+    discriminating_tests:
+    - Capture screenshots of prompts + error text.
+    - Confirm webmail/mobile access works.
+    - Recommend Keychain reset (change-making, STOP) if pattern matches.
+  - id: email_apple.protocol_setting
+    hypothesis: Wrong port/SSL/protocol configuration post-change
+    confidence_hint: 0.3
+    discriminating_question: Did provider recently change IMAP/SMTP requirements?
+    discriminating_tests:
+    - Compare account settings vs vendor doc.
+    - Verify outbound port 587/465 allowed (net_snapshot).
+  - id: email_apple.server_side
+    hypothesis: Server/account issue (quota, disabled account)
+    confidence_hint: 0.2
+    discriminating_question: Do other clients hit same error?
+    discriminating_tests:
+    - Check mailbox quota/disable state via admin portal.
+- id: email_third_party
+  name: Third-Party Email Client Branch Pack
+  category: messaging
+  keywords:
+  - thunderbird
+  - imap client
+  - pop client
+  - zoho mail
+  goal: Provide deterministic routing for non-Microsoft/Apple desktop clients.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: email_third_party.client_config
+    hypothesis: Client profile/config mismatch
+    confidence_hint: 0.45
+    discriminating_question: Is issue isolated to single client install?
+    discriminating_tests:
+    - Capture account/server settings (host, port, SSL).
+    - Compare to vendor baseline doc.
+  - id: email_third_party.security_block
+    hypothesis: AV/firewall blocking POP/IMAP/SMTP
+    confidence_hint: 0.3
+    discriminating_question: Does disabling AV/firewall (if allowed) resolve temporarily?
+    discriminating_tests:
+    - Check local firewall/security logs for blocked connections.
+    - Validate telnet to mail host/port (read-only).
+  - id: email_third_party.server_limitation
+    hypothesis: Provider-side limit/quota or OAuth requirements
+    confidence_hint: 0.25
+    discriminating_question: Does provider require OAuth-only or app password now?
+    discriminating_tests:
+    - Review provider change notices.
+- id: email_mobile
+  name: Mobile Email Client Branch Pack
+  category: messaging
+  keywords:
+  - iphone mail
+  - android mail
+  - activesync
+  - native mail app
+  goal: Cover mobile-specific sync/auth issues vs service blockers.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: email_mobile.device_profile
+    hypothesis: Device profile or app cache corruption
+    confidence_hint: 0.45
+    discriminating_question: Does removing/re-adding profile resolve temporarily?
+    discriminating_tests:
+    - Document device OS + client version.
+    - Confirm other devices work for same user.
+  - id: email_mobile.conditional_access
+    hypothesis: Conditional Access / compliance block on mobile
+    confidence_hint: 0.35
+    discriminating_question: Is device flagged non-compliant in Intune/AAD?
+    discriminating_tests:
+    - Check CA/compliance status (read-only).
+    - Capture exact error (AADSTS codes).
+  - id: email_mobile.service_outage
+    hypothesis: Provider-side mobile sync outage (EAS/Graph)
+    confidence_hint: 0.2
+    discriminating_question: Multiple users/devices impacted simultaneously?
+    discriminating_tests:
+    - Check service health dashboards.
+- id: server_hardware
+  name: Server Hardware Fault Branch Pack
+  category: infrastructure
+  keywords:
+  - raid degraded
+  - ilo alert
+  - server hardware
+  - hpe/dell alerts
+  signals:
+  - iLO/DRAC alerts
+  - Predictive failure warnings
+  goal: Drive deterministic triage for server hardware failures.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: server_hardware.drive_failure
+    hypothesis: Disk/array degraded
+    confidence_hint: 0.45
+    discriminating_question: Are there storage alerts tied to affected volumes?
+    discriminating_tests:
+    - Collect storage/RAID status screenshot/log.
+    - Correlate with disk events in system_errors.
+  - id: server_hardware.power_thermal
+    hypothesis: Power/thermal component failure
+    confidence_hint: 0.3
+    discriminating_question: Are fans/PSUs flagged or server shutting down?
+    discriminating_tests:
+    - Capture management controller log excerpt.
+  - id: server_hardware.other_component
+    hypothesis: Other hardware (memory/NIC) issue requiring vendor dispatch
+    confidence_hint: 0.25
+    discriminating_question: Are there uncorrectable ECC errors or NIC failures?
+    discriminating_tests:
+    - Document error codes, escalate to vendor.
+- id: server_virtualization
+  name: Virtualization Platform Branch Pack
+  category: infrastructure
+  keywords:
+  - hyper-v
+  - vmware
+  - esxi
+  - host down
+  signals:
+  - VM won't start
+  - Cluster failover
+  goal: Triage Hyper-V/VMware host vs guest vs management plane issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: server_virtualization.host_outage
+    hypothesis: Hypervisor host outage or paused nodes
+    confidence_hint: 0.4
+    discriminating_question: Are multiple VMs on same host impacted?
+    discriminating_tests:
+    - Capture cluster status screenshot.
+    - Verify management network connectivity (net_snapshot).
+  - id: server_virtualization.resource_pressure
+    hypothesis: CPU/RAM overcommit or storage IO ceiling
+    confidence_hint: 0.35
+    discriminating_question: Are VMs slow during resource spikes?
+    discriminating_tests:
+    - Review host metrics if available.
+    - Note upcoming capacity projects.
+  - id: server_virtualization.config_drift
+    hypothesis: VM configuration snapshot/ISO/drift
+    confidence_hint: 0.25
+    discriminating_question: Did config change recently (ISO mounted, snapshot left)?
+    discriminating_tests:
+    - Document snapshot state, escalate for removal (change).
+- id: server_wvd
+  name: Windows Virtual Desktop / AVD Branch Pack
+  category: m365
+  keywords:
+  - wvd
+  - avd
+  - cloud desktop
+  signals:
+  - AVD service alert
+  - WVD client error 0x
+  goal: Distinguish user/session issues vs host pool vs platform outage.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: server_wvd.session_host
+    hypothesis: Session host unhealthy/needs recycle
+    confidence_hint: 0.45
+    discriminating_question: Does issue tie to specific host?
+    discriminating_tests:
+    - Check host health in Azure portal (read-only).
+    - Correlate with other user sessions.
+  - id: server_wvd.client_stack
+    hypothesis: Old client/cache or device-specific issue
+    confidence_hint: 0.3
+    discriminating_question: Does reinstalling client resolve (user-level)?
+    discriminating_tests:
+    - Capture client version + platform.
+  - id: server_wvd.platform_outage
+    hypothesis: Microsoft platform incident
+    confidence_hint: 0.25
+    discriminating_question: Multiple tenants/host pools impacted simultaneously?
+    discriminating_tests:
+    - Check Azure Service Health.
+- id: app_unmanaged
+  name: Unmanaged / Custom Application Branch Pack
+  category: endpoint
+  keywords:
+  - custom app
+  - vertical app
+  - third party app
+  goal: Provide a deterministic bucket for unsupported/custom software issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_unmanaged.environment
+    hypothesis: Environmental dependency missing (prereq/driver)
+    confidence_hint: 0.4
+    discriminating_question: Did app break after OS/security update?
+    discriminating_tests:
+    - Collect install path/version/build.
+    - Capture recent change log.
+  - id: app_unmanaged.vendor_support
+    hypothesis: Requires vendor support escalation
+    confidence_hint: 0.35
+    discriminating_question: Does vendor maintainers already engaged?
+    discriminating_tests:
+    - Gather vendor contact info + contract notes.
+  - id: app_unmanaged.permissions
+    hypothesis: Needs elevation/UAC bypass
+    confidence_hint: 0.25
+    discriminating_question: Does app require admin each launch/install?
+    discriminating_tests:
+    - Reference endpoint_privilege_elevation pack if needed.
+- id: app_adobe_reader
+  name: Adobe Reader Branch Pack
+  category: endpoint
+  keywords:
+  - adobe reader
+  - pdf viewer
+  - acrord32
+  signals:
+  - AppCrash acrord32.exe
+  - PDF rendering errors
+  goal: Scope Adobe Reader-only crashes/perf issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_adobe_reader.crash_outdated
+    hypothesis: Reader build outdated/corrupt
+    confidence_hint: 0.45
+    discriminating_question: Does repairing/updating Reader resolve? (change)
+    discriminating_tests:
+    - Capture Reader version/build.
+    - Review app_errors for acrord32 faults.
+  - id: app_adobe_reader.addin_conflict
+    hypothesis: Integration/add-in causing crash (IE mode, AV, 3rd party)
+    confidence_hint: 0.3
+    discriminating_question: Does crash occur with plugins disabled?
+    discriminating_tests:
+    - Test opening file in Safe Mode (Reader).
+  - id: app_adobe_reader.file_specific
+    hypothesis: Corrupt/huge PDF only
+    confidence_hint: 0.25
+    discriminating_question: Do sample PDFs open normally?
+    discriminating_tests:
+    - Request sample file (if policy allows).
+- id: app_adobe_pro
+  name: Adobe Acrobat Standard/Pro Branch Pack
+  category: endpoint
+  keywords:
+  - adobe acrobat
+  - pdf editing
+  - electronic signature
+  goal: Cover licensing/cloud doc vs local install breakdowns.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_adobe_pro.licensing
+    hypothesis: Adobe ID/licensing mismatch
+    confidence_hint: 0.45
+    discriminating_question: Do users see sign-in/licensing prompts?
+    discriminating_tests:
+    - Capture screenshot of licensing error.
+    - Confirm user in correct Adobe console group (read-only).
+  - id: app_adobe_pro.plugin_conflict
+    hypothesis: Add-in/printer driver conflict
+    confidence_hint: 0.3
+    discriminating_question: Does disabling PDF printer/add-ins help?
+    discriminating_tests:
+    - Check installed add-ins/com plugins list.
+  - id: app_adobe_pro.document_cloud
+    hypothesis: Acrobat cloud services outage
+    confidence_hint: 0.25
+    discriminating_question: Are Document Cloud services down for multiple users?
+    discriminating_tests:
+    - Check Adobe status page.
+- id: app_quickbooks
+  name: QuickBooks Desktop Branch Pack
+  category: endpoint
+  keywords:
+  - quickbooks
+  - qb h202
+  - qb multi-user
+  signals:
+  - QuickBooks H202/H505 errors
+  goal: Route QuickBooks desktop/server share issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_quickbooks.multiuser
+    hypothesis: Multi-user hosting/DB service issue
+    confidence_hint: 0.5
+    discriminating_question: Can only one user access company file at a time?
+    discriminating_tests:
+    - Capture exact QB error code.
+    - Confirm QB Database Manager service state.
+    - Validate UNC path/permissions (file_share_permissions).
+  - id: app_quickbooks.network
+    hypothesis: Firewall/AV blocking QB ports
+    confidence_hint: 0.3
+    discriminating_question: Did security changes precede issue?
+    discriminating_tests:
+    - Review firewall logs/rules.
+  - id: app_quickbooks.file_corruption
+    hypothesis: Company file corruption
+    confidence_hint: 0.2
+    discriminating_question: Does Verify/Rebuild fail?
+    discriminating_tests:
+    - Request latest backup availability.
+- id: app_lob
+  name: Line-of-Business Application Branch Pack
+  category: endpoint
+  keywords:
+  - lob app
+  - vendor app
+  - industry software
+  goal: Provide metadata for routing specialized LOB issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_lob.update_change
+    hypothesis: Vendor pushed update/patch causing regression
+    confidence_hint: 0.4
+    discriminating_question: Did issue start immediately after vendor update?
+    discriminating_tests:
+    - Capture version/build + release notes.
+  - id: app_lob.environment
+    hypothesis: Dependency (SQL, .NET, Java) mismatch
+    confidence_hint: 0.35
+    discriminating_question: Are prerequisite versions documented/installed?
+    discriminating_tests:
+    - Collect dependency versions.
+  - id: app_lob.access_permission
+    hypothesis: User permission/license issue
+    confidence_hint: 0.25
+    discriminating_question: Does another user role work?
+    discriminating_tests:
+    - Review app role assignment (read-only).
+- id: app_browser
+  name: Browser / Extension Branch Pack
+  category: endpoint
+  keywords:
+  - browser
+  - chrome
+  - edge
+  - extension
+  goal: Drive deterministic handling for browser-only issues.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_browser.extension_conflict
+    hypothesis: Extension or profile corruption
+    confidence_hint: 0.45
+    discriminating_question: Does problem disappear in InPrivate/no extensions?
+    discriminating_tests:
+    - Capture list of installed extensions.
+    - Test with new profile (change).
+  - id: app_browser.policy_drift
+    hypothesis: GPO/Intune policy pushing undesired settings
+    confidence_hint: 0.3
+    discriminating_question: Are multiple devices impacted after policy push?
+    discriminating_tests:
+    - Review gpo_intune_drift outputs.
+  - id: app_browser.site_specific
+    hypothesis: Specific web app issue
+    confidence_hint: 0.25
+    discriminating_question: Does site work in alternate browser/network?
+    discriminating_tests:
+    - Gather HAR/screenshot if policy permits.
+- id: app_password_manager
+  name: Password Manager Branch Pack
+  category: identity
+  keywords:
+  - password manager
+  - keeper
+  - lastpass
+  - 1password
+  goal: Cover SaaS password vault issues (login, sharing, plugins).
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: app_password_manager.login
+    hypothesis: Vault login/authentication issue
+    confidence_hint: 0.45
+    discriminating_question: Is MFA or master password failing for multiple devices?
+    discriminating_tests:
+    - Capture exact error/mfa prompt.
+    - Validate service status dashboard.
+  - id: app_password_manager.extension
+    hypothesis: Browser extension malfunction/policy block
+    confidence_hint: 0.35
+    discriminating_question: Does extension fail but web vault works?
+    discriminating_tests:
+    - Check extension version + policy restrictions.
+  - id: app_password_manager.sharing
+    hypothesis: Permission/sharing issue
+    confidence_hint: 0.2
+    discriminating_question: Is user part of correct vault/role?
+    discriminating_tests:
+    - Review admin console membership (read-only).
+- id: endpoint_macos
+  name: macOS Endpoint Branch Pack
+  category: endpoint
+  keywords:
+  - macos
+  - mac workstation
+  - macbook
+  goal: Provide deterministic routing for Mac-specific troubleshooting.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: endpoint_macos.profile_management
+    hypothesis: MDM/profile/compliance issues on macOS
+    confidence_hint: 0.4
+    discriminating_question: Are profiles failing to apply or device out of compliance?
+    discriminating_tests:
+    - Capture MDM status (Intune/JAMF) read-only screenshot.
+  - id: endpoint_macos.os_version
+    hypothesis: Unsupported/outdated macOS version
+    confidence_hint: 0.35
+    discriminating_question: Is user running OS older than vendor requirement?
+    discriminating_tests:
+    - Collect `About This Mac` version info.
+  - id: endpoint_macos.hardware_specific
+    hypothesis: Hardware-specific fault (battery/keyboard)
+    confidence_hint: 0.25
+    discriminating_question: Are there Apple diagnostics or recurring hardware errors?
+    discriminating_tests:
+    - Capture logs/errors if available.
+- id: m365_teams
+  name: Microsoft Teams Branch Pack
+  category: m365
+  keywords:
+  - teams
+  - teams meeting
+  - teams login
+  signals:
+  - Teams status alerts
+  goal: Differentiate client cache/login vs service health vs tenant policy.
+  preconditions:
+    basic_verification_completed: true
+  hypotheses:
+  - id: m365_teams.client_cache
+    hypothesis: Teams client cache/profile corruption
+    confidence_hint: 0.45
+    discriminating_question: Does clearing cache/new profile resolve temporarily?
+    discriminating_tests:
+    - Document client version + platform.
+    - Capture timeframe of issue.
+  - id: m365_teams.auth_policy
+    hypothesis: Conditional Access/Teams policy block
+    confidence_hint: 0.3
+    discriminating_question: Is user restricted by meeting/calling policy?
+    discriminating_tests:
+    - Review Teams admin portal (read-only).
+  - id: m365_teams.service_health
+    hypothesis: Microsoft service incident
+    confidence_hint: 0.25
+    discriminating_question: Are multiple tenants/sites impacted simultaneously?
+    discriminating_tests:
+    - Check M365 Service Health dashboard.

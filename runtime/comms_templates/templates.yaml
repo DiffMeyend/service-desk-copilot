@@ -1,0 +1,466 @@
+# comms_templates/templates.yaml
+#
+# Template definitions for QF_Wiz DRAFT_* commands.
+# Source: QF_Wiz_TextBlaze_Export.json (28 snippets, "QF Wiz" folder)
+#
+# When operator calls DRAFT_NOTE / DRAFT_EMAIL / DRAFT_HANDOFF:
+#   1. Match the request to the closest template by trigger or description.
+#   2. Fill all [PLACEHOLDER] fields from active ticket context.
+#   3. Output clean plain text — no YAML, no bracket syntax visible to recipient.
+#   4. Apply global_output_rules to all generated content.
+#
+# TextBlaze shortcuts are preserved in each entry for reference.
+# {formtext} / {cursor} / {clipboard} are TextBlaze-only — ignore in GPT output.
+
+global_output_rules:
+  - Use only confirmed facts from ticket context. No guesses.
+  - Plain language. Short and skimmable. No big words.
+  - "No Markdown formatting. No bold (**), italic (*), headers (#), or code blocks. Plain dashes for bullets. Output must paste cleanly into Autotask and Outlook with no rendering artifacts."
+  - "Tone: conversational but competent. Write like you're explaining to a coworker, not filling out a form. Avoid stiff phrases like 'I have initiated' — say 'I started' or 'I kicked off'. Avoid 'in alignment with' — say 'per' or 'based on'. No corporate speak."
+  - Cap at 6 bullets per section. Extra detail goes under "Details (if needed)".
+  - Dispatch is non-technical (routing/scheduling only) — keep dispatch sections basic.
+  - Customer-facing content must never mention internal tools, CSS, tiers, or troubleshooting frameworks.
+  - Use [NEED: field] for any required value not present in ticket context.
+
+templates:
+
+  # ───────────────────────────────────────────────────────────────
+  # NOTES — Internal ticket notes (Autotask)
+  # Trigger: DRAFT_NOTE
+  # ───────────────────────────────────────────────────────────────
+
+  - id: rolling_note
+    shortcut: "/rn"
+    category: notes
+    audience: internal
+    trigger: DRAFT_NOTE rolling
+    description: >
+      In-progress note. Use when work is ongoing and the ticket is not resolved yet.
+      Shows what was tried, what was found, and what comes next.
+    body: |
+      [1–2 lines: what broke + what it wasn't + what fixed it so far (even if temporary).]
+
+      What I tried:
+        -
+      What I found:
+        -
+      What I changed:
+        -
+      Still needs: [best guess based on sections above]
+
+  - id: notes_summary
+    shortcut: "/ns"
+    category: notes
+    audience: internal
+    trigger: DRAFT_NOTE summary
+    description: >
+      Closing/wrap-up note. Use when the ticket is resolved or being handed off with a clear outcome.
+    body: |
+      [1–2 lines: what broke + what it wasn't + what fixed it.]
+
+      What I tried:
+        -
+      What I found:
+        -
+      What I changed:
+        -
+      Result: [outcome — resolved, workaround in place, user confirmed working, etc.]
+
+  - id: oht_note
+    shortcut: "/oht"
+    category: notes
+    audience: internal
+    trigger: DRAFT_NOTE oht
+    description: >
+      Quick Teams message to the Office Hours Tech asking for a consult.
+      Treat as an interruption — keep it punchy.
+    body: |
+      Are you available?
+      [paste ticket context here]
+
+      [1–2 lines: what broke + what I tried + what it wasn't.]
+
+  - id: pending_acceptance
+    shortcut: ";pe"
+    category: notes
+    audience: internal
+    trigger: DRAFT_NOTE pending
+    description: One-liner note when changing ticket status to pending/communication.
+    body: |
+      Reviewing service call and changing status - entry is "Communication"
+
+  # ───────────────────────────────────────────────────────────────
+  # ESCALATION — Escalation notes and handoff
+  # Trigger: DRAFT_HANDOFF
+  # ───────────────────────────────────────────────────────────────
+
+  - id: escalation_note
+    shortcut: "/en"
+    category: escalation
+    audience: internal
+    trigger: DRAFT_HANDOFF
+    description: >
+      Full escalation note for Autotask. Covers dispatch handoff + technical handoff.
+      Use when escalating to a Sr. engineer or scheduling team.
+    body: |
+      Reason for Escalation (Time or Skill): [Time OR Skill — one word only]
+      Was the Office Hours Tech Consulted? (Y or N):
+      If No, why?: [readers will want justification]
+
+      ============================================================
+                           USER / ISSUE INFORMATION
+      ============================================================
+
+      Affected User(s):
+      Preferred Contact Number:
+      Preferred Contact Follow-up Time:
+      Computer or Device Name:
+      What's going on: [1–2 lines: what broke + what it wasn't]
+
+      ============================================================
+                             DISPATCH HANDOFF
+      ============================================================
+
+      Next step: [routing/scheduling only — no technical deep-dive]
+      Urgency / scheduling:
+
+      ============================================================
+                         USER WORKABILITY STATUS
+      ============================================================
+
+      Is the user able to work right now? (Yes, No, or Degraded):
+      Known Workaround? (Yes or No):
+      If yes, describe:
+      Alternate device available? (Yes or No):
+      If yes, describe:
+
+      ============================================================
+                             TECHNICAL HANDOFF
+      ============================================================
+
+      What I tried:
+        -
+      What I found:
+        -
+      What I changed before escalation:
+        -
+      Still needs: [best guess]
+
+      Anything else the next engineer should know:
+      [Anything helpful to know before picking this up]
+
+  # ───────────────────────────────────────────────────────────────
+  # EMAILS — Customer-facing
+  # Trigger: DRAFT_EMAIL
+  # ───────────────────────────────────────────────────────────────
+  # Email formatting rules (applied to all DRAFT_EMAIL output):
+  #   - First person ("I", "we"). Voice = the operator.
+  #   - Email body only — no subject line or signature unless specified.
+  #   - Low-tech language. No acronyms unless recipient already used them.
+  #   - Structure: Greeting → 1–2 sentence context → 1 question or ≤3 requests
+  #                → 1 sentence what happens next → "Thanks, {technician_name}."
+  # ───────────────────────────────────────────────────────────────
+
+  - id: discovery_email
+    shortcut: "/de"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL discovery
+    description: >
+      Casual outreach asking clarifying questions. Keep it friendly.
+      Use when you need more info from the user before proceeding.
+    body: |
+      Hi [first name or "there"],
+
+      [1–2 sentences: why I'm reaching out — what I'm looking into.]
+
+      [1 clear question OR 1–3 brief bullet requests]
+
+      [1 sentence: what happens next.]
+
+      Thanks,
+      {technician_name}
+
+  - id: wrap_email
+    shortcut: "/wrap"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL wrap
+    description: >
+      Resolution/closing email. Summarizes what was done and closes the ticket.
+      Invite the user to reply if they need anything else. Include survey ask.
+    body: |
+      Hi [first name or "there"],
+
+      [Something brief, friendly, and contextually relevant.]
+
+      Summary: [plain-language resolution in 1 sentence]
+
+      I'll close the ticket for now. You can reply to this email to reopen it at any time, and I'll be happy to assist as needed.
+
+      If you receive a survey about my work today and have a minute, I would greatly appreciate your feedback.
+
+      Best,
+      {technician_name}
+
+  - id: escalation_email
+    shortcut: "/ee"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL escalation
+    description: >
+      Notifies the user their ticket is being escalated to a Sr. engineer.
+      Keep it brief — they don't need technical detail.
+    body: |
+      Hi [first name or "there"],
+
+      [Plain-language summary of next steps in 1 sentence.]
+
+      I'm passing your ticket to a Sr. engineer for a closer look.
+
+      Our scheduling team will reach out if they need anything on your end.
+
+      We'll keep you posted.
+
+      Thanks,
+      {technician_name}
+
+  - id: voicemail_email
+    shortcut: "/vm"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL voicemail
+    description: Short follow-up email after leaving a voicemail.
+    body: |
+      Hi [first name],
+
+      I reached out and got your voicemail. You can reach me at {support_phone} or respond to this email.
+
+      Thanks,
+      {technician_name}
+
+  - id: needs_attention_email
+    shortcut: ";ne"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL check-in
+    description: Follow-up check-in when you haven't heard back from the user.
+    body: |
+      Hey [first name],
+
+      Just checking in since my last attempt to reach you regarding [issue description]. Let me know if you still need assistance or if the issue has been resolved.
+
+      Thanks!
+      {technician_name}
+
+  - id: darkwebid_email
+    shortcut: "/dwid"
+    category: email
+    audience: customer
+    trigger: DRAFT_EMAIL darkwebid
+    description: >
+      Dark Web ID alert notification. Explains what was exposed and gives
+      clear, low-tech action steps for the user.
+    body: |
+      Hi [user's name],
+
+      Our Dark Web monitoring picked up your email address [account] in a [breach or leak — e.g., "data breach" or "leaked credentials list"]. The report is dated [date from ticket].
+
+      [1 sentence: what was exposed in plain terms — e.g., "It looks like your email and a password were included."]
+
+      Here's what I'd recommend:
+
+      1. Change your [platform] password right away.
+      2. If you use that same password (or something close) anywhere else, change those too — especially your main email, banking, VPN, and any password manager.
+      3. Turn on two-factor authentication for [platform] and your main email if you haven't already.
+      4. Check [platform]'s recent login activity and sign out any sessions you don't recognize.
+      5. Watch out for phishing emails about [platform] or password resets over the next few weeks — don't click anything unexpected.
+
+      If you can let me know whether that password was reused on any [Company Name] accounts, I can help you prioritize what to change first.
+
+      I'll close the ticket for now. You can reply to this email anytime to reopen it, or call us at {support_phone}.
+
+      Thanks,
+      {technician_name}
+
+  # ───────────────────────────────────────────────────────────────
+  # WORKFLOW — Ticket-type specific templates
+  # ───────────────────────────────────────────────────────────────
+
+  - id: phish_email
+    shortcut: "/phish"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL phishing
+    description: Closing email for a phishing report. Confirms sender blocked in Mailprotector.
+    body: |
+      Hi [first name],
+
+      Happy to assist you today. I've added [sender/domain] to the block list in Mailprotector.
+
+      I'll close the ticket for now. You can reply to this email to reopen it at any time if you have any further questions or concerns, and I'll be happy to assist as needed.
+
+      Best,
+      {technician_name}
+
+  - id: phish_notes
+    shortcut: "/2phish"
+    category: workflow
+    audience: internal
+    trigger: DRAFT_NOTE phishing
+    description: Internal note for a phishing ticket. Quick one-liner.
+    body: |
+      Blocked in MP > no other inbound from this sender in the last two weeks
+
+  - id: threatlocker_notes
+    shortcut: ";tlnote"
+    category: workflow
+    audience: internal
+    trigger: DRAFT_NOTE threatlocker
+    description: Internal note for a ThreatLocker approval ticket. Fill in applicable items.
+    body: |
+      [VT was clean / Ran in TL Sandbox] — select applicable
+      [added to existing / created] policy
+      Approved / deployed policies
+      [Waiting validation via email and SC DM / Validated functionality with user in SC DM] — select applicable
+
+  - id: threatlocker_dm
+    shortcut: ";tlscdm"
+    category: workflow
+    audience: internal
+    trigger: DRAFT_NOTE threatlocker dm
+    description: Quick ScreenConnect DM to user confirming ThreatLocker approval.
+    body: |
+      Hey [first name],
+
+      I reviewed and approved your ThreatLocker request. If you have a minute, test it out and let me know how it goes.
+
+  - id: threatlocker_email
+    shortcut: ";tlemail"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL threatlocker
+    description: Closing email for a ThreatLocker approval ticket.
+    body: |
+      Hi [first name],
+
+      I've approved your ThreatLocker request.
+
+      If you have any questions or experience any difficulties, you can reply to this email or give me a call at {support_phone}, and I'll be happy to assist.
+
+      Let me know if you need anything else!
+
+      Best,
+      {technician_name}
+
+  - id: dehire_initial_email
+    shortcut: "/idh"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL dehire initial
+    description: Initial email confirming offboarding has started and account is disabled.
+    body: |
+      Hi [first name],
+
+      I've started the offboarding for [de-hire name] per your form. The account is disabled.
+
+      We'll finish up the rest and update you when it's done.
+
+      Let us know if you have any questions in the meantime.
+
+      Best,
+      {technician_name}
+
+  - id: dehire_final_email
+    shortcut: "/fdh"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL dehire final
+    description: Final email confirming offboarding is complete. Includes link to file location.
+    body: |
+      Hi [first name],
+
+      The offboarding for [de-hire name] is all wrapped up per your form.
+
+      Here's the link to the current file location for convenience: [link to files]
+
+      If you have any questions, you can reply to this email to reopen the ticket, and we'll be happy to assist.
+
+      Let me know if you need anything else.
+
+      Best,
+      {technician_name}
+
+  - id: dehire_notes
+    shortcut: "/ndh"
+    category: workflow
+    audience: internal
+    trigger: DRAFT_NOTE dehire
+    description: Internal note for a de-hire ticket. Checklist of completed offboarding steps.
+    body: |
+      Ran Rewst
+
+      Completed steps — mark all that apply:
+        [ ] Blocked sign-in
+        [ ] Reset PW
+        [ ] Revoked sessions
+        [ ] Revoked MFA
+        [ ] Converted mailbox to shared and confirmed delegation to spec
+        [ ] Forwarded email
+        [ ] Set auto-reply to spec
+        [ ] Removed Groups
+        [ ] Removed license
+        [ ] Disabled User in on-prem AD
+        [ ] Moved to Disabled Users OU
+        [ ] Copied OneDrive files to DH site and granted access to spec
+        [ ] Paused in Backupify
+        [ ] Removed from Mailprotector
+        [ ] Removed Adobe account
+        [ ] Transferred Adobe data to spec
+        [ ] Revoked Bitwarden access
+
+      Dispatch: Proceed with scheduling next steps
+
+  - id: newhire_initial_email
+    shortcut: "/nh"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL newhire initial
+    description: Initial email confirming new hire account creation. Passes to Dispatch for next steps.
+    body: |
+      Hi [first name],
+
+      I have finished creating the user account for [new hire name].
+
+      I will pass this ticket to Dispatch for next steps. Let us know if you have any questions in the meantime.
+
+      Best,
+      {technician_name}
+
+  - id: newhire_notes
+    shortcut: "/Nnh"
+    category: workflow
+    audience: internal
+    trigger: DRAFT_NOTE newhire
+    description: Internal note for a new hire ticket. Confirms account setup steps completed.
+    body: |
+      Created user account to spec w/ Rewst
+      Set PW > Rewst saved in IT Glue (see notes below for link)
+      Licensed to KB spec
+      MFA is handled by CA or Security Defaults
+      Synced Mailprotector
+      Added Groups
+      Scheduled Welcome email
+
+  - id: welcome_email
+    shortcut: "/welcome"
+    category: workflow
+    audience: customer
+    trigger: DRAFT_EMAIL welcome
+    description: Welcome email for a new user at a client site. Introduces MSP and support resources.
+    body: |
+      Welcome to [company name]! Your company partners with {msp_name} to handle any technology issues you may come across throughout your workday. At {msp_name}, we aim to create summit level experiences that produce summit level outcomes for our clients.
+
+      To make sure we can help you quickly, here are a few ways you can reach us for support. We also have several layers of security in place to help protect you and your work. You can find a quick reference for all of this right here: Welcome!
+
+      Let us know if you have any questions or need help getting settled in.

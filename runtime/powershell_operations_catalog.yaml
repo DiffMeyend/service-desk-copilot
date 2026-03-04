@@ -1,0 +1,122 @@
+﻿# QF_Wiz Runtime v1.3.1 â€” PowerShell Operations Catalog
+version: '1.3.1'
+tier: C
+policy: CHANGE_MAKING operations. STOP block mandatory before execution.
+safety_banner: "\u26A0\uFE0F  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n OPERATIONS CATALOG \u2014 Tier\
+  \ C (Change-Making)\n ALL commands modify system state. STOP block required.\n\u26A0\
+  \uFE0F  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\
+  \u2550\u2550\u2550\u2550\u2550"
+commands:
+- id: exo_sandbox_bootstrap
+  purpose: Bootstrap Exchange Online + Graph modules in sandbox
+  tags:
+  - m365
+  - exchange_online
+  - bootstrap
+  - change_making
+  requires_stop: true
+  risks: Modifies DNS settings, installs packages, changes execution policy
+  rollback: Restore DNS settings, uninstall modules if needed, reset execution policy
+  notes: 'Change-making: adjusts DNS, installs modules, sets execution policy. Emit
+    STOP block before running.'
+  command: "$ErrorActionPreference = \"Stop\"\n\n# Fix DNS in Windows Sandbox by assigning\
+    \ static DNS (Google)\n$adapter = Get-NetAdapter | Where-Object { $_.Status -eq\
+    \ 'Up' }\nif (-not $adapter) {\n  Write-Error \"No active network adapter found.\"\
+    \n  exit 1\n}\nSet-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses\
+    \ (\"8.8.8.8\",\"8.8.4.4\")\n\nInstall-PackageProvider -Name NuGet -MinimumVersion\
+    \ 2.8.5.201 -Force\nSet-PSRepository -Name PSGallery -InstallationPolicy Trusted\n\
+    $graphModules = @(\n  \"Microsoft.Graph.Authentication\",\n  \"Microsoft.Graph.Applications\"\
+    ,\n  \"Microsoft.Graph.DeviceManagement\",\n  \"Microsoft.Graph.Groups\",\n  \"\
+    Microsoft.Graph.Identity.DirectoryManagement\",\n  \"Microsoft.Graph.Mail\",\n\
+    \  \"Microsoft.Graph.Reports\",\n  \"Microsoft.Graph.Sites\",\n  \"Microsoft.Graph.Teams\"\
+    ,\n  \"Microsoft.Graph.Users\"\n)\n$allModules = @(\"ExchangeOnlineManagement\"\
+    ) + $graphModules\nforeach ($moduleName in $allModules) {\n  Install-Module $moduleName\
+    \ -Scope CurrentUser -Force -AllowClobber\n}\nSet-ExecutionPolicy -Scope Process\
+    \ -ExecutionPolicy Bypass -Force\nImport-Module ExchangeOnlineManagement -Force\n"
+  mutates_state: true
+- id: time_resync
+  purpose: Force time resync
+  tags:
+  - time
+  - system
+  - change_making
+  requires_stop: true
+  risks: Forces immediate time synchronization which may temporarily disrupt time-sensitive
+    operations
+  rollback: Time sync is automatic; no rollback needed
+  notes: 'Change-making: forces w32tm resync. Emit STOP block before running.'
+  command: 'w32tm /resync /force
+
+    '
+  mutates_state: true
+- id: exo_connect
+  purpose: Connect to Exchange Online using delegated admin pattern
+  tags:
+  - exchange_online
+  - connection
+  - change_making
+  placeholders:
+    delegated_org: tenant.onmicrosoft.com
+    upn: admin@tenant.com
+  requires_stop: true
+  risks: Establishes remote session; misuse can alter tenant configuration
+  rollback: Disconnect-ExchangeOnline -Confirm:$false
+  notes: Requires explicit user approval and `-Env Exchange`. Emit STOP block and
+    wait for acknowledgment before running.
+  command: 'Connect-ExchangeOnline -DelegatedOrganization "{delegated_org}" -UserPrincipalName
+    "{upn}" -ShowBanner:$false
+
+    '
+  mutates_state: true
+- id: reset_tcpip_stack
+  purpose: Reset TCP/IP stack and Winsock catalog to defaults
+  tags:
+  - network
+  - remediation
+  - change_making
+  requires_stop: true
+  risks: Drops network connections; may require reboot for full effect
+  rollback: Reboot workstation and reapply custom network settings if needed
+  notes: Use when TCP/IP corruption suspected; emits STOP before running
+  command: |
+    netsh int ip reset
+    netsh winsock reset
+    ipconfig /flushdns
+  mutates_state: true
+- id: repair_windows_update_components
+  purpose: Repair Windows Update servicing stack and protected system files
+  tags:
+  - windows_update
+  - remediation
+  - change_making
+  requires_stop: true
+  risks: High CPU/disk utilization; modifies component store and system files
+  rollback: Run DISM with /RestoreHealth sourcing media if further corruption occurs
+  notes: Combine DISM and SFC repair operations; requires STOP acknowledgment
+  command: |
+    DISM.exe /Online /Cleanup-Image /RestoreHealth
+    sfc /scannow
+  mutates_state: true
+- id: restart_print_spooler_service
+  purpose: Restart Print Spooler after clearing pending jobs
+  tags:
+  - printing
+  - remediation
+  - change_making
+  requires_stop: true
+  risks: Cancels active print jobs; users must reprint
+  rollback: None; inform users to resubmit jobs
+  notes: Deletes spooler queue contents before restart
+  command: |
+    Stop-Service -Name Spooler -Force
+    Remove-Item -Path "$env:SystemRoot\System32\spool\PRINTERS\*" -Force
+    Start-Service -Name Spooler
+  mutates_state: true
+

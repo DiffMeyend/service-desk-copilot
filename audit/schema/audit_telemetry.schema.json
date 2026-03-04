@@ -1,0 +1,262 @@
+﻿{
+    "$schema":  "https://json-schema.org/draft/2020-12/schema",
+    "$id":  "qf_audit_telemetry.schema.json",
+    "$comment":  "QF_Wiz Runtime v1.3.1 â€” audit_telemetry.schema.json",
+    "title":  "QF CNTXT_Wiz Audit Telemetry",
+    "type":  "object",
+    "required":  [
+                     "meta",
+                     "ticket",
+                     "timer",
+                     "css",
+                     "decision",
+                     "branch",
+                     "evidence",
+                     "signals"
+                 ],
+    "properties":  {
+                       "meta":  {
+                                    "type":  "object",
+                                    "required":  [
+                                                     "generated_at",
+                                                     "timezone"
+                                                 ],
+                                    "properties":  {
+                                                       "generated_at":  {
+                                                                            "type":  "string",
+                                                                            "description":  "ISO-8601 timestamp when telemetry generated."
+                                                                        },
+                                                       "timezone":  {
+                                                                        "type":  "string"
+                                                                    }
+                                                   }
+                                },
+                       "ticket":  {
+                                      "type":  "object",
+                                      "required":  [
+                                                       "id",
+                                                       "priority",
+                                                       "hostname"
+                                                   ],
+                                      "properties":  {
+                                                         "id":  {
+                                                                    "type":  "string"
+                                                                },
+                                                         "priority":  {
+                                                                          "type":  "string",
+                                                                          "enum":  [
+                                                                                       "P1",
+                                                                                       "P2",
+                                                                                       "P3",
+                                                                                       "P4",
+                                                                                       "P5",
+                                                                                       "UNKNOWN"
+                                                                                   ]
+                                                                      },
+                                                         "hostname":  {
+                                                                          "type":  [
+                                                                                       "string",
+                                                                                       "null"
+                                                                                   ]
+                                                                      }
+                                                     }
+                                  },
+                       "timer":  {
+                                     "type":  "object",
+                                     "required":  [
+                                                      "elapsed_minutes"
+                                                  ],
+                                     "properties":  {
+                                                        "elapsed_minutes":  {
+                                                                                "type":  "integer",
+                                                                                "minimum":  0
+                                                                            }
+                                                    }
+                                 },
+                       "css":  {
+                                   "type":  "object",
+                                   "required":  [
+                                                    "initial",
+                                                    "final",
+                                                    "biggest_blocker",
+                                                    "delta_reason"
+                                                ],
+                                   "properties":  {
+                                                      "initial":  {
+                                                                      "type":  "integer",
+                                                                      "minimum":  0,
+                                                                      "maximum":  100
+                                                                  },
+                                                      "final":  {
+                                                                    "type":  "integer",
+                                                                    "minimum":  0,
+                                                                    "maximum":  100
+                                                                },
+                                                      "biggest_blocker":  {
+                                                                              "type":  "string"
+                                                                          },
+                                                      "delta_reason":  {
+                                                                           "type":  "string",
+                                                                           "description":  "Primary reason the CSS score changed between initial and final."
+                                                                       }
+                                                  }
+                               },
+                       "decision":  {
+                                        "type":  "object",
+                                        "required":  [
+                                                         "status",
+                                                         "reason"
+                                                     ],
+                                        "properties":  {
+                                                           "status":  {
+                                                                          "type":  "string",
+                                                                          "enum":  [
+                                                                                       "triage",
+                                                                                       "testing",
+                                                                                       "converging",
+                                                                                       "resolved",
+                                                                                       "escalated_time",
+                                                                                       "escalated_skill",
+                                                                                       "pending_customer_info",
+                                                                                       "resolve_pending_user_confirmation"
+                                                                                   ]
+                                                                      },
+                                                           "reason":  {
+                                                                          "type":  "string"
+                                                                      }
+                                                       }
+                                    },
+                       "branch":  {
+                                      "type":  "object",
+                                      "required":  [
+                                                       "source_pack",
+                                                       "manual_override",
+                                                       "current_best_guess",
+                                                       "hypotheses_evaluated"
+                                                   ],
+                                      "properties":  {
+                                                         "source_pack":  {
+                                                                             "type":  [
+                                                                                          "string",
+                                                                                          "null"
+                                                                                      ]
+                                                                         },
+                                                         "manual_override":  {
+                                                                                 "type":  "boolean"
+                                                                             },
+                                                         "current_best_guess":  {
+                                                                                    "type":  "string"
+                                                                                },
+                                                         "hypotheses_evaluated":  {
+                                                                                      "type":  "integer",
+                                                                                      "minimum":  0
+                                                                                  },
+                                                         "new_keywords":  {
+                                                                              "type":  "array",
+                                                                              "items":  {
+                                                                                            "type":  "string",
+                                                                                            "maxLength":  80
+                                                                                        },
+                                                                              "maxItems":  5,
+                                                                              "uniqueItems":  true
+                                                                          }
+                                                     }
+                                  },
+                       "evidence":  {
+                                        "type":  "object",
+                                        "required":  [
+                                                         "tests_run",
+                                                         "discriminating_test_logged"
+                                                     ],
+                                        "properties":  {
+                                                           "tests_run":  {
+                                                                             "type":  "array",
+                                                                             "items":  {
+                                                                                           "type":  "string"
+                                                                                       }
+                                                                         },
+                                                           "discriminating_test_logged":  {
+                                                                                              "type":  "boolean"
+                                                                                          }
+                                                       }
+                                    },
+                       "signals":  {
+                                       "type":  "object",
+                                       "required":  [
+                                                        "missing_scripts",
+                                                        "docs_used",
+                                                        "questions_asked",
+                                                        "remaining_blockers",
+                                                        "blocker_taxonomy",
+                                                        "powershell_usage"
+                                                    ],
+                                       "properties":  {
+                                                          "missing_scripts":  {
+                                                                                  "type":  "array",
+                                                                                  "items":  {
+                                                                                                "type":  "string"
+                                                                                            }
+                                                                              },
+                                                          "docs_used":  {
+                                                                            "type":  "array",
+                                                                            "items":  {
+                                                                                          "type":  "string"
+                                                                                      }
+                                                                        },
+                                                          "questions_asked":  {
+                                                                                  "type":  "integer",
+                                                                                  "minimum":  0
+                                                                              },
+                                                          "remaining_blockers":  {
+                                                                                     "type":  "array",
+                                                                                     "items":  {
+                                                                                                   "type":  "string"
+                                                                                               }
+                                                                                 },
+                                                          "blocker_taxonomy":  {
+                                                                                   "type":  "array",
+                                                                                   "items":  {
+                                                                                                 "type":  "string",
+                                                                                                 "enum":  [
+                                                                                                              "user_contact",
+                                                                                                              "authorization",
+                                                                                                              "evidence_missing",
+                                                                                                              "data_access",
+                                                                                                              "scheduling",
+                                                                                                              "other"
+                                                                                                          ]
+                                                                                             },
+                                                                                   "uniqueItems":  true
+                                                                               },
+                                                          "powershell_usage":  {
+                                                                                   "type":  "object",
+                                                                                   "required":  [
+                                                                                                    "commands_run",
+                                                                                                    "missing_catalog_entries"
+                                                                                                ],
+                                                                                   "properties":  {
+                                                                                                      "commands_run":  {
+                                                                                                                           "type":  "array",
+                                                                                                                           "items":  {
+                                                                                                                                         "type":  "string"
+                                                                                                                                     }
+                                                                                                                       },
+                                                                                                      "missing_catalog_entries":  {
+                                                                                                                                      "type":  "array",
+                                                                                                                                      "items":  {
+                                                                                                                                                    "type":  "string"
+                                                                                                                                                }
+                                                                                                                                  }
+                                                                                                  }
+                                                                               },
+                                                          "notes":  {
+                                                                        "type":  [
+                                                                                     "string",
+                                                                                     "null"
+                                                                                 ]
+                                                                    }
+                                                      }
+                                   }
+                   },
+    "additionalProperties":  false
+}

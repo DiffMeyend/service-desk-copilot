@@ -1,0 +1,533 @@
+# kb_articles/sops.yaml
+#
+# Standard Operating Procedures — QF_Wiz knowledge base.
+# Sources: MSP IR Mini Playbooks + Inky User Guide (Feb 2026)
+#
+# Usage: When a ticket's issue_type or symptoms match a SOP's applies_to tags,
+# surface the SOP id and title inline. Reference key steps, decision points,
+# and escalation triggers as relevant to the active ticket context.
+#
+# IR playbook execution order for a compromised account:
+#   ir_verification → ir_containment → ir_documentation (ongoing)
+#   → ir_remediation_recovery → ir_audit → close
+
+sops:
+
+  # ─────────────────────────────────────────────────────────────────
+  # IR — Verification
+  # First triage step before escalating to containment.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ir_verification
+    title: "IR — Verification (Pre-Containment Triage)"
+    type: sop
+    applies_to:
+      - security_incident
+      - suspicious_signin
+      - geo_anomaly
+      - impossible_travel
+      - compromised_account
+    summary: >
+      Determine if a suspicious login alert is legitimate (travel/VPN) before
+      escalating to containment. Branch on: documented travel, user reachable,
+      travel verified.
+    decision_tree:
+      - "Travel documented in Autotask Activity? → Yes: Suppress > Close > Resolve RocketCyber."
+      - "Travel undocumented, user reachable? → Contact user, ask 3 questions."
+      - "Travel undocumented, user unreachable? → Contact client POC/Primary (check Account Management if unsure)."
+      - "Travel verified? → Document dates in Autotask → Suppress/Close/Resolve."
+      - "Travel NOT verified? → BEGIN ir_containment immediately."
+    steps:
+      - step: 1
+        title: Check Autotask for documented travel
+        action: >
+          Autotask > Company/Contact > Activity. Look for documented travel or
+          remote work. If found: Suppress > Close > Resolve RocketCyber alert.
+          Done — no further action.
+      - step: 2
+        title: Contact user directly
+        action: >
+          Call or message the affected user. If unavailable, contact the client
+          POC/Primary. If unsure who that is, check with Account Management.
+      - step: 3
+        title: Ask verification questions
+        action: |
+          1. Are you currently traveling?
+          2. Are you using a VPN or remote access solution?
+          3. Did you recently work from a new device or location?
+      - step: 4
+        title: Document and close (if verified)
+        action: >
+          In Autotask: record who confirmed, method (call/email/ticket),
+          confirmation details, travel start/end dates.
+          Notify Triage/Dispatch if additional alerts are expected for the same event.
+          Then: Suppress > Close > Resolve RocketCyber.
+      - step: 5
+        title: Begin containment (if NOT verified)
+        action: >
+          Travel cannot be confirmed → escalate to ir_containment immediately.
+    escalation_triggers:
+      - "Travel not verified → ir_containment"
+      - "User AND POC unreachable → escalate to Account Management; begin containment proactively"
+    tools:
+      - Autotask
+      - RocketCyber
+      - Teams
+      - Microsoft Entra
+    last_updated: "2026-02-24"
+
+  # ─────────────────────────────────────────────────────────────────
+  # IR — Containment
+  # Revoke sessions, reset MFA, reset password.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ir_containment
+    title: "IR — Containment (Compromised Account)"
+    type: sop
+    applies_to:
+      - security_incident
+      - compromised_account
+      - account_takeover
+      - phishing_success
+    summary: >
+      Immediately lock down a suspected compromised M365 account: revoke sessions,
+      reset MFA, reset password, communicate internally, and escalate.
+    steps:
+      - step: 1
+        title: Run Rewst automation (try first)
+        action: |
+          Navigate to the Compromised User Response Rewst form. Fill in:
+            - Organization name
+            - Affected user(s)
+            - Start Date/Time = 48 hours before the alert ticket was created
+            - End Date/Time = now
+            - Leave all other fields at default
+            - Set ticket number to the primary ticket
+          Submit. Review the internal ticket note for completion.
+          Complete any unfinished steps manually (Steps 2–4).
+        conditions:
+          - "On-prem AD / hybrid domain clients: server-side profile must still be disabled manually on the DC — Rewst does not handle this."
+      - step: 2
+        title: Revoke sessions (manual)
+        action: >
+          Entra admin center > Users > All Users > select user >
+          Revoke sessions (top ribbon).
+        tools:
+          - Microsoft Entra
+      - step: 3
+        title: Reset MFA (manual)
+        action: >
+          Entra admin center > Users > All Users > select user >
+          Authentication methods > Revoke multifactor authentication sessions.
+        tools:
+          - Microsoft Entra
+      - step: 4
+        title: Reset password (manual)
+        action: |
+          M365 Admin center > Users > Active Users > select user > Reset password.
+          Set a secure temporary password.
+          Enable "Require this user to change their password when they first sign in."
+        tools:
+          - M365 Admin Center
+      - step: 5
+        title: Communicate internally via Teams
+        action: |
+          Create a Teams group chat with:
+            - Service Desk Manager
+            - Account Manager
+            - Dispatch
+            - Triage
+            - Other QF techs
+          First message must include:
+            - Ticket number + title (Autotask link)
+            - Company name
+            - Compromised username
+            - Compromise description (e.g. "jdoe@domain.com is sending phishing emails")
+            - Actions taken so far
+        tools:
+          - Teams
+          - Autotask
+      - step: 6
+        title: Escalate for Remediation & Recovery
+        action: >
+          Document all findings and actions in the Autotask ticket.
+          Use the Escalate speed code.
+          Note for Dispatch: "Escalate for Remediation & Recovery."
+        tools:
+          - Autotask
+    escalation_triggers:
+      - "After internal communication → escalate to ir_remediation_recovery"
+      - "On-prem/hybrid DC profile not yet disabled → complete manually before escalating"
+    tools:
+      - Rewst
+      - Microsoft Entra
+      - M365 Admin Center
+      - Teams
+      - Autotask
+      - Active Directory
+    last_updated: "2026-02-24"
+
+  # ─────────────────────────────────────────────────────────────────
+  # IR — Documentation
+  # Ongoing throughout the entire IR lifecycle.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ir_documentation
+    title: "IR — Documentation (Incident Ticket Notes)"
+    type: sop
+    applies_to:
+      - security_incident
+      - compromised_account
+      - documentation
+    summary: >
+      Standard Autotask note format for documenting security incidents.
+      Apply throughout the IR lifecycle — not a one-time step.
+    steps:
+      - step: 1
+        title: Summarize the alert
+        action: |
+          Record:
+            - Alert Title and Ticket ID
+            - Alert Source (RocketCyber, SaaS Alerts, Defender, etc.)
+            - Timestamp of alert
+            - Affected user(s) or device(s)
+            - Key indicators: IP address, sign-in app, geo location, rule action
+      - step: 2
+        title: Document the investigation
+        action: |
+          Record:
+            - Technician(s) who investigated
+            - Methods used (sign-in log review, inbox rule analysis, CA evaluation)
+            - Verdict: Benign / Malicious / Inconclusive
+      - step: 3
+        title: Record all remediation actions
+        action: |
+          Document everything done:
+            - Password resets
+            - Session/sign-out revocations
+            - Inbox rule removals
+            - GDAP/DAP access changes
+            - Conditional Access policy edits
+            - Device lockout or isolation (if applicable)
+      - step: 4
+        title: Outline follow-up and escalation
+        action: |
+          Document:
+            - Was ticket escalated? Who, when, why.
+            - Was user notified? How (call/email/ticket note).
+            - Any required follow-ups (e.g. recurrence check at 48 hours).
+      - step: 5
+        title: Paste final note in Autotask
+        action: |
+          Use this format:
+
+          DISPATCH SECTION
+          Reason for Escalation (Time or Skill):
+          Estimated Time to Complete Work:
+          Remaining Action Items Left on the Ticket:
+          Recommended Next Steps for Dispatch:
+
+          /=====================================================================================================/
+
+          INTERNAL NOTES
+          (Summarize all troubleshooting, findings, communications, and changes made.)
+
+          Computer Name:
+          Work completed today:
+    escalation_triggers:
+      - "Verdict = Malicious → escalate to ir_remediation_recovery; notify Account Management"
+      - "Verdict = Inconclusive → schedule 48-hour recurrence check"
+    tools:
+      - Autotask
+      - RocketCyber
+      - SaaS Alerts
+      - Microsoft Defender
+      - Microsoft Entra
+      - Exchange Online
+    last_updated: "2026-02-24"
+
+  # ─────────────────────────────────────────────────────────────────
+  # IR — Remediation & Recovery
+  # Post-containment cleanup and account restoration.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ir_remediation_recovery
+    title: "IR — Remediation & Recovery"
+    type: sop
+    applies_to:
+      - security_incident
+      - compromised_account
+      - account_takeover
+      - inbox_rules
+      - phishing_link
+      - data_exfiltration
+    summary: >
+      Post-containment: block phishing links, audit sign-in logs and inbox rules,
+      remove malicious rules and permissions, revoke tokens, and restore account access.
+    notes: >
+      PowerShell (Steps 3–7) is preferred for export and automation.
+      GUI (Steps 1–2) is acceptable for quick review. Skip to Step 3 for PowerShell.
+      All change-making PowerShell commands require a STOP block before execution.
+    steps:
+      - step: 1
+        title: Block phishing link (if applicable)
+        action: |
+          Review phishing email to identify the link. Use Sandbox or isolated VM — do not click directly.
+          Block at the firewall layer ASAP:
+            - Meraki: Security & SD-WAN > Firewall > Add Layer 7 rule
+                      (Deny / HTTP hostname / [phishing domain])
+            - Unifi: Settings > CyberSecure > Content Filter > add to blocklist
+            - Cisco Umbrella: Centralized Settings > Destination Lists > Global Block List
+          Block both domain and subdomain. Block any redirect targets too.
+        conditions:
+          - "Only applies if a phishing link was identified."
+      - step: 2
+        title: Review sign-in logs (GUI)
+        action: |
+          Entra admin center > Users > All Users > select user > Sign-in Logs.
+          Filters: Time Range (match incident), Status, Client App (flag Legacy Auth / REST / IMAP),
+                   Location (flag foreign or unfamiliar geos).
+          Review: IP (proxies, datacenter ranges), Device/Browser info, Risk State, MFA applied.
+        tools:
+          - Microsoft Entra
+      - step: 3
+        title: Gather evidence via PowerShell
+        action: |
+          Prerequisites: PS 7+, Connect-ExchangeOnline, Connect-MgGraph, Connect-IPPSSession
+
+          Export Unified Audit Log:
+            $UserUpn = 'user@domain.com'
+            $Start = (Get-Date).AddDays(-7); $End = Get-Date
+            Search-UnifiedAuditLog -UserIds $UserUpn -StartDate $Start -EndDate $End -ResultSize 5000 |
+              Export-Csv "UAL-$UserUpn.csv" -NoTypeInformation
+
+          Export Sign-In Logs:
+            Get-MgAuditLogSignIn -Filter "userPrincipalName eq '$UserUpn' and createdDateTime ge $($Start.ToString('s'))Z" -All |
+              Export-Csv "SignInLog-$UserUpn.csv" -NoTypeInformation
+
+          Message Trace (inbound + outbound):
+            $trace = @()
+            $trace += Get-MessageTraceV2 -SenderAddress $UserUpn -StartDate $Start -EndDate $End
+            $trace += Get-MessageTraceV2 -RecipientAddress $UserUpn -StartDate $Start -EndDate $End
+            $trace | Sort-Object Received | Export-Csv "MsgTrace-$UserUpn.csv" -NoTypeInformation
+
+          Check suspicious inbox rules (read-only):
+            Get-InboxRule -Mailbox $UserUpn |
+              Where-Object { $_.RedirectTo -or $_.ForwardTo -or $_.ForwardAsAttachmentTo } |
+              Format-Table Name, RedirectTo, ForwardTo
+        tools:
+          - PowerShell
+          - Exchange Online
+          - Microsoft Graph
+          - Microsoft Purview
+      - step: 4
+        title: Analyze audit results
+        action: |
+          In CSV exports, look for:
+            - External IPs / impossible travel
+            - App consent grants (malicious OAuth)
+            - Exchange inbox rules created during incident window
+            - File access events (SharePoint/OneDrive)
+      - step: 5
+        title: Remove malicious inbox rules
+        action: |
+          STOP block required — change-making command.
+
+          Get-InboxRule -Mailbox $UserUpn |
+            Where-Object { $_.RedirectTo -or $_.ForwardTo -or $_.ForwardAsAttachmentTo } |
+            Remove-InboxRule
+        conditions:
+          - "Fallback if PS skipped: Outlook Web App > Settings > Rules — review, screenshot, remove suspicious rules manually."
+        tools:
+          - PowerShell
+          - Exchange Online
+          - Outlook Web App (fallback)
+      - step: 6
+        title: Revoke delegates and permissions
+        action: |
+          STOP block required for all of the following.
+
+          Remove full access:
+            Remove-MailboxPermission -Identity $UserUpn -User <OtherUser> -AccessRights FullAccess -Confirm:$false
+
+          Remove SendAs:
+            Remove-RecipientPermission -Identity $UserUpn -Trustee <OtherUser> -AccessRights SendAs -Confirm:$false
+
+          Revoke OAuth (only if malicious consent grant confirmed/suspected):
+            Get-MgUserOauth2PermissionGrant -UserId $UserUpn |
+              Remove-MgUserOauth2PermissionGrant -UserId $UserUpn -ConsentGrantId $_.Id
+        conditions:
+          - "OAuth revocation: only if malicious consent grant is confirmed or suspected."
+        tools:
+          - PowerShell
+          - Exchange Online
+          - Microsoft Graph
+      - step: 7
+        title: Account recovery
+        action: |
+          STOP block required for the following commands.
+
+          Clear sign-in tokens (repeat even if done in containment — run after rule cleanup):
+            Invoke-MgInvalidateUserRefreshToken -UserId $UserUpn
+
+          Enable account:
+            Update-MgUser -UserId $UserUpn -AccountEnabled $true
+
+          Reset MFA (if not done in containment):
+            Reset-MgUserAuthenticationMethod -UserId $UserUpn
+
+          Call user and assist:
+            - Reset password using temp PW from containment
+            - Set up MFA (Microsoft Authenticator or per client standard)
+            - Confirm access to all Microsoft apps
+        conditions:
+          - "Conditional Access policy update: only if applicable to the client tenant."
+          - "MFA reset: only if not already completed in ir_containment."
+        tools:
+          - PowerShell
+          - Microsoft Graph
+          - Microsoft Entra
+          - Microsoft Authenticator
+    escalation_triggers:
+      - "Data exposure or file theft confirmed → escalate to Account Management"
+      - "On-prem/hybrid DC profile not yet disabled → complete manually before account recovery"
+    tools:
+      - PowerShell
+      - Microsoft Entra
+      - Exchange Online
+      - Microsoft Graph
+      - Meraki
+      - Unifi
+      - Cisco Umbrella
+      - Outlook Web App
+      - Microsoft Authenticator
+    last_updated: "2026-02-24"
+
+  # ─────────────────────────────────────────────────────────────────
+  # IR — Post-Compromise Audit (Microsoft Purview)
+  # Forensic review after containment and remediation.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: ir_audit
+    title: "IR — Post-Compromise Audit (Microsoft Purview)"
+    type: sop
+    applies_to:
+      - security_incident
+      - compromised_account
+      - data_exfiltration
+      - forensic_review
+    summary: >
+      Forensic audit of M365 activity via Microsoft Purview. Detect unauthorized
+      mail access, inbox rules, permission changes, and file access after a compromise.
+    steps:
+      - step: 1
+        title: Create Purview audit search
+        action: |
+          Microsoft Purview > Audit > Audit Search.
+          Name: "Account Compromise: [User Name & Ticket Number]"
+          Date range: Start = 1 day before breach began. End = midnight on day of search.
+          User: compromised account(s).
+          Activities to include (names change in Purview — use best judgment):
+            - MailItemsAccessed, Send, SendOnBehalf
+            - New-InboxRule, Set-InboxRule
+            - Add-MailboxPermission, Set-MailboxPermission
+            - FileAccessed, FileDownloaded (OneDrive/SharePoint)
+          Click Search. Typically completes within an hour; up to 24 hours per Microsoft.
+          Correlate suspicious IPs from the initial alert against audit results.
+        tools:
+          - Microsoft Purview
+      - step: 2
+        title: Review email actions
+        action: >
+          Look for unrecognized Send or SendOnBehalf events.
+          Cross-reference timestamps and IPs with the known phishing attempt window.
+      - step: 3
+        title: Review inbox rule activity
+        action: >
+          Check for forwarding, auto-delete, or hidden folder rules.
+          Record rule names, creation timestamps, and behavior.
+      - step: 4
+        title: Review permission changes
+        action: >
+          Look for external or abnormal delegate access.
+          Remove any unauthorized mailbox permissions immediately.
+          (STOP block required for removals.)
+      - step: 5
+        title: File access review (optional)
+        action: >
+          Only if file theft is suspected: audit SharePoint/OneDrive logs.
+          Check filenames, accessing users, and access timestamps.
+      - step: 6
+        title: Document and escalate
+        action: >
+          Add CSV exports or screenshots to the Autotask ticket.
+          Summarize findings and all actions taken.
+          If data exposure or confirmed data loss: escalate to Account Management immediately.
+        tools:
+          - Autotask
+    escalation_triggers:
+      - "Data exposure or loss confirmed → escalate to Account Management immediately"
+      - "Unauthorized permissions found → remove immediately (do not wait for escalation)"
+    tools:
+      - Microsoft Purview
+      - Autotask
+      - Microsoft Entra
+      - Exchange Online
+      - SharePoint
+      - OneDrive
+    last_updated: "2026-02-24"
+
+  # ─────────────────────────────────────────────────────────────────
+  # Inky Email Security — Technician Reference
+  # User-facing guide; useful for technician support tickets.
+  # ─────────────────────────────────────────────────────────────────
+
+  - id: inky_reference
+    title: "Inky Email Security — Technician Reference"
+    type: reference
+    applies_to:
+      - phishing
+      - email_security
+      - inky
+      - quarantine
+      - email_encryption
+      - spam
+    summary: >
+      Quick reference for Inky email security. Covers banner colors, quarantine,
+      graymail, and encryption. Primarily a user-facing guide; useful when supporting
+      end users with Inky-related questions or phishing reports.
+    notes: >
+      Full source: MSP - Inky Email Security User Guide & FAQ (2026-02-23).
+      Customer support escalation: support@example-msp.com
+    key_points:
+      banner_colors:
+        red: >
+          High risk. Do not click. Forward to support@example-msp.com and delete.
+          Users should rarely see red-banner emails in their inbox.
+        yellow: >
+          Caution — external sender. Verify before clicking. Graymail (bulk/promo)
+          shows yellow; user clicks "Not Graymail" to keep or "Spam" to reject.
+        blue_gray: >
+          No risk detected. Stay alert — not a guarantee of safety.
+      quarantine:
+        - Inky does NOT have its own quarantine. Uses Microsoft 365 quarantine.
+        - Access at https://security.microsoft.com/quarantine
+        - Quarantine digest email from Microsoft is legitimate — review carefully before releasing.
+        - Only release emails the user is confident are safe. When in doubt, contact support.
+      encryption:
+        - Type [ENCRYPT] in subject line with a space before the subject text.
+        - "Correct: [ENCRYPT] Q4 Financial Report"
+        - "Incorrect: [ENCRYPT]Q4 Financial Report (no space — will not encrypt)"
+        - Recipients authenticate via Microsoft, Google, or Magic Link.
+      if_user_clicked_link:
+        - Disconnect from Wi-Fi immediately.
+        - Contact support@example-msp.com right away.
+    escalation_triggers:
+      - "User clicked phishing link → disconnect from Wi-Fi, contact support@example-msp.com → likely triggers ir_verification or ir_containment"
+      - "Red-banner email reported → review in Mailprotector; block sender domain; consider ir_verification if account activity is suspicious"
+    tools:
+      - Inky
+      - Microsoft 365 Quarantine
+      - Outlook
+      - Mailprotector
+    last_updated: "2026-02-26"

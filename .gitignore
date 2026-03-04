@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+*.cover
+
+# Node
+node_modules/
+web/dist/
+.next/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ticket pipeline artifacts
+tickets/ready/*.json
+!tickets/ready/T20260218.0100.json
+tickets/processed/
+tickets/failed/
+
+# SOPs (proprietary)
+SOPs/

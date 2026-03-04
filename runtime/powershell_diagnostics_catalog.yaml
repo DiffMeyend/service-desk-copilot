@@ -1,0 +1,588 @@
+﻿# QF_Wiz Runtime v1.3.1 â€” PowerShell Diagnostics Catalog
+version: '1.3.1'
+tier: A
+policy: READ_ONLY guaranteed. All commands safe to run without approval.
+safety_banner: "â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n\
+  \ DIAGNOSTICS CATALOG â€” Tier A (Read-Only)\n All commands here are guaranteed safe.\
+  \ No STOP block required.\nâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•"
+commands:
+- id: net_snapshot
+  purpose: Baseline network configuration
+  tags:
+  - network
+  - baseline
+  - read_only
+  command: 'ipconfig /all
+
+    '
+  mutates_state: false
+- id: dns_resolve
+  purpose: DNS resolution for a hostname
+  tags:
+  - dns
+  - network
+  - read_only
+  placeholders:
+    host: example.com
+  command: 'Resolve-DnsName -Name "{host}" -ErrorAction SilentlyContinue
+
+    nslookup {host}
+
+    '
+  mutates_state: false
+  validation_patterns:
+    required_any:
+    - 'Address:'
+    - NXDOMAIN
+    - Non-existent domain
+    - can't find
+    - 'Name:'
+    - IP4Address
+    forbidden:
+    - is not recognized
+    - command not found
+  validation_hints:
+  - Paste the full output including all lines
+  - Include both Resolve-DnsName and nslookup results
+- id: port_test
+  purpose: TCP port reachability
+  tags:
+  - network
+  - tcp
+  - read_only
+  placeholders:
+    host: example.com
+    port: 443
+  command: 'Test-NetConnection -ComputerName "{host}" -Port {port}
+
+    '
+  mutates_state: false
+  validation_patterns:
+    required_any:
+    - TcpTestSucceeded
+    - ComputerName
+    - RemoteAddress
+    - PingSucceeded
+    forbidden:
+    - is not recognized
+    - command not found
+  validation_hints:
+  - Paste the complete Test-NetConnection output
+- id: route_trace
+  purpose: Route visibility to target
+  tags:
+  - network
+  - routing
+  - read_only
+  placeholders:
+    host: example.com
+  command: 'tracert {host}
+
+    '
+  mutates_state: false
+- id: whoami_context
+  purpose: Identity context
+  tags:
+  - identity
+  - read_only
+  command: 'whoami
+
+    whoami /groups
+
+    whoami /upn
+
+    '
+  mutates_state: false
+- id: machine_info
+  purpose: OS + domain info snapshot
+  tags:
+  - system
+  - baseline
+  - read_only
+  command: 'Get-ComputerInfo | Select-Object OSName, OSVersion, WindowsVersion, CsName,
+    CsDomain, CsDomainRole
+
+    '
+  mutates_state: false
+- id: adapters
+  purpose: Adapter status + IP config
+  tags:
+  - network
+  - adapters
+  - read_only
+  command: 'Get-NetAdapter | Sort-Object Status, Name | Format-Table -Auto
+
+    Get-NetIPConfiguration | Format-List
+
+    '
+  mutates_state: false
+- id: system_errors
+  purpose: Recent System errors/critical events
+  tags:
+  - logs
+  - eventlog
+  - read_only
+  command: "Get-WinEvent -LogName System -MaxEvents 50 |\n  Where-Object {$_.LevelDisplayName\
+    \ -in @(\"Error\",\"Critical\")} |\n  Select-Object TimeCreated, Id, ProviderName,\
+    \ Message\n"
+  mutates_state: false
+- id: app_errors
+  purpose: Recent Application errors/critical events
+  tags:
+  - logs
+  - eventlog
+  - read_only
+  command: "Get-WinEvent -LogName Application -MaxEvents 50 |\n  Where-Object {$_.LevelDisplayName\
+    \ -in @(\"Error\",\"Critical\")} |\n  Select-Object TimeCreated, Id, ProviderName,\
+    \ Message\n"
+  mutates_state: false
+- id: eventlog_security_4625
+  purpose: Recent failed logons (Security 4625)
+  tags:
+  - logs
+  - eventlog
+  - security
+  - read_only
+  placeholders:
+    count: 20
+  command: 'wevtutil qe Security /q:"*[System[(EventID=4625)]]" /rd:true /f:text /c:{count}
+
+    '
+  mutates_state: false
+- id: eventlog_netlogon_recent
+  purpose: Recent NETLOGON events from System log
+  tags:
+  - logs
+  - eventlog
+  - domain
+  - read_only
+  placeholders:
+    count: 30
+  command: 'wevtutil qe System /q:"*[System[Provider[@Name=''NETLOGON'']]]" /rd:true
+    /f:text /c:{count}
+
+    '
+  mutates_state: false
+- id: eventlog_query_generic
+  purpose: Generic wevtutil query for a specific log
+  tags:
+  - logs
+  - eventlog
+  - read_only
+  placeholders:
+    log: Security
+    query: '*[System[(EventID=4625)]]'
+    count: 20
+  command: 'wevtutil qe {log} /q:"{query}" /rd:true /f:text /c:{count}
+
+    '
+  mutates_state: false
+- id: defender_health
+  purpose: Microsoft Defender health snapshot
+  tags:
+  - defender
+  - security
+  - read_only
+  command: "Get-MpComputerStatus |\n  Select-Object AMServiceEnabled, AMServiceVersion,\
+    \ AntivirusEnabled, AntivirusSignatureVersion, NISSignatureVersion, FullScanAge,\
+    \ QuickScanAge\nGet-MpThreat -ErrorAction SilentlyContinue |\n  Select-Object\
+    \ Resources, ThreatName, SeverityID, InitialDetectionTime, LastThreatStatusChangeTime\n\
+    Get-MpThreatDetection -ErrorAction SilentlyContinue |\n  Select-Object Resources,\
+    \ ThreatName, DetectedTime, ThreatStatusErrorCode, ActionSuccess\n"
+  mutates_state: false
+- id: threatlocker_recent_events
+  purpose: ThreatLocker recent events and blocks
+  tags:
+  - threatlocker
+  - security
+  - logs
+  - read_only
+  command: "Get-WinEvent -ProviderName \"ThreatLocker\" -MaxEvents 50 -ErrorAction\
+    \ SilentlyContinue |\n  Select-Object TimeCreated, Id, LevelDisplayName, Message\n"
+  mutates_state: false
+- id: threatlocker_agent_status
+  purpose: ThreatLocker services and processes snapshot
+  tags:
+  - threatlocker
+  - security
+  - read_only
+  command: "Get-Service -DisplayName \"*ThreatLocker*\" -ErrorAction SilentlyContinue\
+    \ |\n  Select-Object Name, Status, StartType\nGet-Process -Name \"ThreatLockerConsole\"\
+    ,\"ThreatLockerService\",\"TLService\",\"TLTray\" -ErrorAction SilentlyContinue\
+    \ |\n  Select-Object Name, Id, StartTime\n"
+  mutates_state: false
+- id: aad_token_events
+  purpose: WAM / AAD authentication event log review
+  tags:
+  - aad
+  - m365
+  - auth
+  - read_only
+  command: "$log = \"Microsoft-Windows-AAD/Operational\"\nif (Get-WinEvent -ListLog\
+    \ $log -ErrorAction SilentlyContinue) {\n  Get-WinEvent -LogName $log -MaxEvents\
+    \ 50 |\n    Select-Object TimeCreated, Id, ProviderName, LevelDisplayName, Message\n\
+    } else {\n  Write-Output \"Log not found: $log\"\n}\n"
+  mutates_state: false
+- id: office_activation_status
+  purpose: Office licensing / activation snapshot
+  tags:
+  - m365
+  - office
+  - licensing
+  - read_only
+  command: "$paths = @(\n  (Join-Path $env:ProgramFiles 'Microsoft Office\\root\\\
+    Office16\\OSPP.VBS'),\n  (Join-Path ${env:ProgramFiles(x86)} 'Microsoft Office\\\
+    root\\Office16\\OSPP.VBS')\n)\nforeach ($path in $paths) {\n  if (Test-Path $path)\
+    \ {\n    cscript.exe //nologo $path /dstatus\n  }\n}\n"
+  mutates_state: false
+- id: disk_health
+  purpose: Disk space snapshot
+  tags:
+  - system
+  - storage
+  - read_only
+  command: "Get-Volume -ErrorAction SilentlyContinue |\n  Select-Object DriveLetter,\
+    \ FileSystemLabel, SizeRemaining, Size |\n  Format-Table -Auto\n"
+  mutates_state: false
+- id: outlook_event_errors
+  purpose: Outlook-specific Application log entries
+  tags:
+  - logs
+  - outlook
+  - read_only
+  command: "Get-WinEvent -LogName Application -MaxEvents 100 |\n  Where-Object { $_.ProviderName\
+    \ -like \"*Outlook*\" -or $_.Message -match \"Outlook\" } |\n  Select-Object TimeCreated,\
+    \ Id, ProviderName, Message\n"
+  mutates_state: false
+- id: dsreg_status
+  purpose: AAD join / device state snapshot
+  tags:
+  - aad
+  - device
+  - read_only
+  command: 'dsregcmd /status
+
+    '
+  mutates_state: false
+  validation_patterns:
+    required_any:
+    - AzureAdJoined
+    - DomainJoined
+    - Device State
+    - WorkplaceJoined
+    forbidden:
+    - is not recognized
+    - command not found
+  validation_hints:
+  - Paste the full dsregcmd /status output
+  - Include Device State and SSO State sections
+- id: time_sync_status
+  purpose: Time service status + configuration
+  tags:
+  - time
+  - system
+  - read_only
+  command: 'w32tm /query /status
+
+    w32tm /query /configuration
+
+    '
+  mutates_state: false
+- id: winhttp_proxy
+  purpose: WinHTTP proxy configuration
+  tags:
+  - network
+  - proxy
+  - read_only
+  command: 'netsh winhttp show proxy
+
+    '
+  mutates_state: false
+- id: m365_endpoint_reachability
+  purpose: Reachability to common M365 endpoints
+  tags:
+  - network
+  - m365
+  - connectivity
+  - read_only
+  command: 'Test-NetConnection -ComputerName outlook.office365.com -Port 443 -InformationLevel
+    Detailed
+
+    Test-NetConnection -ComputerName login.microsoftonline.com -Port 443 -InformationLevel
+    Detailed
+
+    Test-NetConnection -ComputerName autodiscover-s.outlook.com -Port 443 -InformationLevel
+    Detailed
+
+    '
+  mutates_state: false
+  validation_patterns:
+    required_any:
+    - TcpTestSucceeded
+    - outlook.office365.com
+    - login.microsoftonline.com
+    - RemoteAddress
+    forbidden:
+    - is not recognized
+    - command not found
+  validation_hints:
+  - Paste all three Test-NetConnection results
+  - Include results for outlook, login, and autodiscover endpoints
+- id: exo_mailbox_snapshot
+  purpose: Mailbox + archive + retention snapshot for a user
+  tags:
+  - m365
+  - exchange_online
+  - mailbox
+  - read_only
+  placeholders:
+    user: user@contoso.com
+  command: "Get-Mailbox {user} |\n  Select-Object UserPrincipalName, DisplayName,\
+    \ RecipientTypeDetails, ArchiveStatus, ProhibitSendQuota, IssueWarningQuota\n\
+    Get-MailboxStatistics {user} |\n  Select-Object DisplayName, ItemCount, TotalItemSize,\
+    \ LastLogonTime, LastLogoffTime\nGet-MailboxStatistics {user} -Archive |\n  Select-Object\
+    \ DisplayName, ItemCount, TotalItemSize, LastLogonTime, LastLogoffTime\nGet-RetentionPolicy\
+    \ |\n  Select-Object Name, IsDefault, RetentionPolicyTagLinks\nGet-RetentionPolicyTag\
+    \ |\n  Select-Object Name, Type, AgeLimitForRetention, RetentionAction\n"
+  mutates_state: false
+- id: exo_quarantine_list
+  purpose: List Exchange Online quarantine items
+  tags:
+  - m365
+  - exchange_online
+  - quarantine
+  - read_only
+  command: "Get-QuarantineMessage |\n  Select-Object ReceivedTime, SenderAddress,\
+    \ RecipientAddress, Subject, Identity, Type, Policy\n"
+  mutates_state: false
+- id: exo_quarantine_header
+  purpose: Retrieve headers for a quarantined message
+  tags:
+  - m365
+  - exchange_online
+  - quarantine
+  - read_only
+  placeholders:
+    identity: quarantine-identity-string
+  command: 'Get-QuarantineMessageHeader -Identity "{identity}"
+
+    '
+  mutates_state: false
+- id: schannel_errors
+  purpose: Recent Schannel TLS errors
+  tags:
+  - logs
+  - tls
+  - read_only
+  command: "Get-WinEvent -LogName System -MaxEvents 100 |\n  Where-Object { $_.ProviderName\
+    \ -eq \"Schannel\" -and $_.LevelDisplayName -in @(\"Error\",\"Critical\",\"Warning\"\
+    ) } |\n  Select-Object TimeCreated, Id, LevelDisplayName, Message\n"
+  mutates_state: false
+- id: webauth_events
+  purpose: WebAuth operational log snapshot
+  tags:
+  - auth
+  - m365
+  - logs
+  - read_only
+  command: "$log = \"Microsoft-Windows-WebAuth/Operational\"\nif (Get-WinEvent -ListLog\
+    \ $log -ErrorAction SilentlyContinue) {\n  Get-WinEvent -LogName $log -MaxEvents\
+    \ 50 |\n    Select-Object TimeCreated, Id, ProviderName, LevelDisplayName, Message\n\
+    } else {\n  Write-Output \"Log not found: $log\"\n}\n"
+  mutates_state: false
+- id: aad_broker_events
+  purpose: AAD Broker Plugin operational log snapshot
+  tags:
+  - aad
+  - auth
+  - logs
+  - read_only
+  command: "$log = \"Microsoft-Windows-AADBrokerPlugin/Operational\"\nif (Get-WinEvent\
+    \ -ListLog $log -ErrorAction SilentlyContinue) {\n  Get-WinEvent -LogName $log\
+    \ -MaxEvents 50 |\n    Select-Object TimeCreated, Id, ProviderName, LevelDisplayName,\
+    \ Message\n} else {\n  Write-Output \"Log not found: $log\"\n}\n"
+  mutates_state: false
+- id: office_services_status
+  purpose: Office Click-to-Run service status
+  tags:
+  - office
+  - m365
+  - service
+  - read_only
+  command: "Get-Service -Name \"ClickToRunSvc\" -ErrorAction SilentlyContinue |\n\
+    \  Select-Object Name, Status, StartType\n"
+  mutates_state: false
+- id: office_version_files
+  purpose: Outlook executable version info
+  tags:
+  - office
+  - outlook
+  - version
+  - read_only
+  command: "$paths = @(\n  (Join-Path $env:ProgramFiles 'Microsoft Office\\root\\\
+    Office16\\OUTLOOK.EXE'),\n  (Join-Path ${env:ProgramFiles(x86)} 'Microsoft Office\\\
+    root\\Office16\\OUTLOOK.EXE')\n)\n$existing = $paths | Where-Object { Test-Path\
+    \ $_ }\nif (-not $existing) {\n  Write-Output \"No Outlook.exe found in expected\
+    \ Office16 paths.\"\n} else {\n  foreach ($path in $existing) {\n    (Get-Item\
+    \ $path).VersionInfo | Select-Object FileName, ProductVersion, FileVersion\n \
+    \ }\n}\n"
+  mutates_state: false
+- id: wer_outlook_reports
+  purpose: Windows Error Reporting entries referencing Outlook
+  tags:
+  - logs
+  - outlook
+  - read_only
+  command: "Get-WinEvent -LogName Application -MaxEvents 200 |\n  Where-Object { $_.ProviderName\
+    \ -eq \"Windows Error Reporting\" -and $_.Message -match \"OUTLOOK\" } |\n  Select-Object\
+    \ TimeCreated, Id, ProviderName, Message\n"
+  mutates_state: false
+- id: hosts_file
+  purpose: Hosts file contents
+  tags:
+  - network
+  - diagnostics
+  - read_only
+  command: "$path = \"$env:SystemRoot\\System32\\drivers\\etc\\hosts\"\nif (Test-Path\
+    \ $path) {\n  Get-Content $path\n} else {\n  Write-Output \"Hosts file not found\
+    \ at $path\"\n}\n"
+  mutates_state: false
+- id: domain_dc_check
+  purpose: Domain controller discovery
+  tags:
+  - domain
+  - network
+  - read_only
+  command: "$domain = $env:USERDOMAIN\nif ([string]::IsNullOrWhiteSpace($domain))\
+    \ {\n  Write-Output \"USERDOMAIN not set; specify domain manually if needed.\"\
+    \n} else {\n  nltest /dsgetdc:$domain\n}\n"
+  mutates_state: false
+- id: ad_user_lookup
+  purpose: Active Directory user lookup (requires RSAT AD module)
+  tags:
+  - domain
+  - active_directory
+  - read_only
+  placeholders:
+    user: username
+  command: 'Import-Module ActiveDirectory -ErrorAction Stop
+
+    Get-ADUser -Identity {user} -Properties Enabled, LockedOut, LastLogonDate
+
+    '
+  mutates_state: false
+- id: net_user_domain
+  purpose: Domain user account summary
+  tags:
+  - domain
+  - identity
+  - read_only
+  placeholders:
+    user: username
+  command: 'net user {user} /domain
+
+    '
+  mutates_state: false
+- id: bitlocker_status
+  purpose: BitLocker status for a drive
+  tags:
+  - security
+  - bitlocker
+  - read_only
+  placeholders:
+    drive: 'C:'
+  command: 'manage-bde -status {drive}
+
+    '
+  mutates_state: false
+- id: file_hash
+  purpose: Compute file hash (SHA256)
+  tags:
+  - security
+  - integrity
+  - read_only
+  placeholders:
+    path: C:\path\to\file.ext
+  command: 'Get-FileHash -Algorithm SHA256 -Path "{path}"
+
+    '
+  mutates_state: false
+- id: exo_transport_rules
+  purpose: Exchange Online transport rules (mail flow)
+  tags:
+  - m365
+  - exchange_online
+  - mail_flow
+  - read_only
+  command: 'Get-TransportRule | Select-Object Name, State, Priority, Mode
+
+    '
+  mutates_state: false
+- id: exo_inbox_rules
+  purpose: Inbox rules for a mailbox
+  tags:
+  - m365
+  - exchange_online
+  - mailbox
+  - read_only
+  placeholders:
+    user: user@contoso.com
+  command: 'Get-InboxRule -Mailbox {user} | Select-Object Name, Enabled, Description
+
+    '
+  mutates_state: false
+- id: scheduled_task_info
+  purpose: Scheduled task details by name
+  tags:
+  - system
+  - tasks
+  - read_only
+  placeholders:
+    task: TaskName
+  command: "Get-ScheduledTask -TaskName \"{task}\" -ErrorAction SilentlyContinue |\n\
+    \  Get-ScheduledTaskInfo\n"
+  mutates_state: false
+- id: appx_packages_user
+  purpose: AppX packages for current user (WAM-related)
+  tags:
+  - system
+  - appx
+  - read_only
+  command: "Get-AppxPackage -ErrorAction SilentlyContinue |\n  Select-Object Name,\
+    \ PackageFullName\n"
+  mutates_state: false
+- id: registry_uninstall_apps
+  purpose: Installed apps (Uninstall registry keys)
+  tags:
+  - system
+  - apps
+  - read_only
+  command: "$paths = @(\n  'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\\
+    Uninstall',\n  'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\\
+    Uninstall',\n  'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'\n\
+    )\nforeach ($p in $paths) {\n  Get-ItemProperty -Path \"$p\\*\" -ErrorAction SilentlyContinue\
+    \ |\n    Select-Object DisplayName, DisplayVersion, Publisher, InstallDate\n}\n"
+  mutates_state: false
+- id: process_list_filtered
+  purpose: Process list filtered by name patterns
+  tags:
+  - system
+  - processes
+  - read_only
+  placeholders:
+    names: '*adobe*,*teams*'
+  command: "$names = \"{names}\" -split ','\nGet-Process -ErrorAction SilentlyContinue\
+    \ |\n  Where-Object { $n = $_.Name; $names | Where-Object { $n -like $_ } } |\n\
+    \  Select-Object Name, Id, StartTime\n"
+  mutates_state: false
+- id: sfc_verify
+  purpose: System file check (verify only)
+  tags:
+  - system
+  - integrity
+  - read_only
+  command: 'sfc /verifyonly
+
+    '
+  mutates_state: false
+

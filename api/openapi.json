@@ -1,0 +1,94 @@
+﻿{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "QF_Wiz Payload Fetch API",
+    "version": "0.1.0",
+    "description": "Local API to fetch Context Payload JSON by ticket id."
+  },
+  "servers": [
+    {
+      "url": "https://inf-pose-moments-vessel.trycloudflare.com"
+    }
+  ],
+  "paths": {
+    "/payload/{id}": {
+      "get": {
+        "operationId": "getPayloadById",
+        "summary": "Fetch a Context Payload by ticket id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Ticket id, e.g. T20260216.0014"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Context Payload JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { "ApiKeyAuth": [] }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}
+

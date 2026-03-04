@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "schema_version": "1.3.1",
+    "session_id": "T20260218.0100",
+    "last_updated": "2026-02-19T02:08:42Z",
+    "timezone": "America/Chicago"
+  },
+  "ticket": {
+    "id": "T20260218.0100",
+    "created_at": "",
+    "company": "",
+    "site": "",
+    "priority": "UNKNOWN",
+    "category": "",
+    "service": "",
+    "summary": "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
+    "raw_dump": "Ticket Number: T20260218.0100\nTitle: Teams call drops after VPN reconnect\n\nContact Info\nName: Jordan Lee\nEmail: jordan.lee@example.com\nPhone: 555-010-5555\n\nDescription\nLaptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,\nusually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN\nclient last week. Need confirmation that the NIC drivers are current.\n\nTroubleshooting Notes\n- Gathered screenshots from Teams notifications.\n- Verified ticket generated from mobile email.\n- Pending output from systeminfo.\n\nQuoted Thread (should be ignored by sanitizer)\n-----Original Message-----\nFrom: Jordan Lee <jordan.lee@example.com>\nSent: Monday, February 17, 2026 8:02 PM\nTo: MSP Helpdesk <helpdesk@examplemsp.com>\nSubject: RE: VPN keeps disconnecting\n\n> We already pushed the update. Does this still happen after reboot?\n>\n> Thanks,\n> Tier 1\n\nStill broken. Please advise.\n\n> On Mon, Feb 17, 2026 at 7:38 PM MSP Helpdesk <helpdesk@examplemsp.com> wrote:\n> -----Original Message-----\n> From: Jordan Lee <jordan.lee@example.com>\n> Sent: Monday, February 17, 2026 7:15 PM\n> Subject: VPN keeps disconnecting\n>\n> Drops network every 30 minutes. Need this fixed before tomorrow's webinar.",
+    "requester": {
+      "name": "Jordan Lee",
+      "contact": "Jordan Lee",
+      "phone": "555-010-5555",
+      "email": "jordan.lee@example.com"
+    }
+  },
+  "quickfix": {
+    "timebox_minutes": 15,
+    "hard_stop_minutes": 30,
+    "time_spent_minutes": 0,
+    "remaining_minutes": 15,
+    "allowed_scope": "quick_fix",
+    "escalation_paths": [
+      "time",
+      "skill"
+    ],
+    "timer": {
+      "start_time": "2026-02-19T02:08:42Z",
+      "elapsed_minutes": 0,
+      "minutes_since_first_payload_estimate": 0
+    }
+  },
+  "environment": {
+    "target_device": {
+      "hostname": "Jordan Lee",
+      "os": "UNKNOWN",
+      "ip": "UNKNOWN",
+      "on_domain": null,
+      "asset_tag": "Jordan Lee",
+      "serial_number": ""
+    },
+    "user_context": {
+      "username": "UNKNOWN",
+      "is_admin": null,
+      "is_remote": null
+    },
+    "network": {
+      "connection_type": "",
+      "dns_servers": [],
+      "vpn": null
+    },
+    "execution_context": {
+      "tooling": "ScreenConnect",
+      "run_as": "SYSTEM",
+      "privilege": "localadmin",
+      "sandbox_prepped": false
+    }
+  },
+  "problem": {
+    "symptoms": [
+      "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
+      "usually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN",
+      "client last week. Need confirmation that the NIC drivers are current.",
+      "Troubleshooting Notes",
+      "Gathered screenshots from Teams notifications."
+    ],
+    "impact": {
+      "who": "UNKNOWN",
+      "how_bad": "UNKNOWN",
+      "work_stopped": null
+    },
+    "scope": {
+      "single_user": null,
+      "multi_user": null,
+      "single_device": null,
+      "service_wide": null
+    },
+    "start_time": "",
+    "last_known_good": "",
+    "recent_changes": []
+  },
+  "constraints": {
+    "cannot_reboot": null,
+    "cannot_disconnect": null,
+    "change_freeze": null,
+    "security_sensitivity": "",
+    "security_controls": {
+      "threatlocker_present": null,
+      "threatlocker_notes": ""
+    }
+  },
+  "evidence": {
+    "observations": [
+      "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
+      "usually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN",
+      "client last week. Need confirmation that the NIC drivers are current.",
+      "Troubleshooting Notes",
+      "Gathered screenshots from Teams notifications."
+    ],
+    "tests_run": [],
+    "results": [],
+    "artifacts": {
+      "screenshots": [],
+      "logs": [],
+      "error_codes": []
+    },
+    "discriminating_test": ""
+  },
+  "branches": {
+    "active_hypotheses": [],
+    "collapsed_hypotheses": [],
+    "current_best_guess": "",
+    "source_pack": ""
+  },
+  "plan": {
+    "next_3_actions": [],
+    "best_branch_collapse_test": ""
+  },
+  "css": {
+    "score": 0,
+    "target": 90,
+    "domain_scores": {},
+    "missing_fields": [],
+    "contradictions": [],
+    "confidence_notes": ""
+  },
+  "decision": {
+    "status": "triage",
+    "recommended_outcome": "",
+    "reasoning": [],
+    "if_escalate": {
+      "type": "",
+      "to_team": "",
+      "handoff_pack": {}
+    },
+    "escalation_gate": {
+      "eligible": false,
+      "blocked_reason": "CALL not attempted yet"
+    }
+  },
+  "notes": {
+    "rolling": "",
+    "final": "",
+    "escalation": ""
+  }
+}
