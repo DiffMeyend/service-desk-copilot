@@ -1,4 +1,4 @@
-"""CSS service - calculates Context Sufficiency Score."""
+"""CSS service - calculates Context Stability Score."""
 
 from __future__ import annotations
 

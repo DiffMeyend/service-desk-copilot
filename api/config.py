@@ -34,7 +34,7 @@ class Settings(BaseSettings):
         return self.root_dir / "tickets" / "results"
 
     class Config:
-        env_prefix = "QF_WIZ_"
+        env_prefix = "SDC_"
         env_file = ".env"
 
 

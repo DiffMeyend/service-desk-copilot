@@ -1,4 +1,4 @@
-"""CSS (Context Sufficiency Score) calculator for QF_Wiz agent.
+"""CSS (Context Stability Score) calculator for QF_Wiz agent.
 
 Implements the scoring rules from css_scoring.yaml.
 """
@@ -112,7 +112,7 @@ def _evaluate_condition(condition: Dict[str, Any], cp: Dict[str, Any]) -> bool:
 
 
 class CSSCalculator:
-    """Calculates Context Sufficiency Score based on rules."""
+    """Calculates Context Stability Score based on rules."""
 
     def __init__(self, rules: Dict[str, Any]):
         self._rules = rules

@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "schema_version": "1.3.1",
+    "session_id": "",
+    "last_updated": "",
+    "timezone": "America/Chicago"
+  },
+  "ticket": {
+    "id": "",
+    "created_at": "",
+    "company": "",
+    "site": "",
+    "priority": "UNKNOWN",
+    "category": "",
+    "service": "",
+    "summary": "",
+    "raw_dump": "",
+    "requester": {
+      "name": "",
+      "contact": "",
+      "phone": "",
+      "email": ""
+    }
+  },
+  "quickfix": {
+    "timebox_minutes": 15,
+    "hard_stop_minutes": 30,
+    "time_spent_minutes": 0,
+    "remaining_minutes": 15,
+    "allowed_scope": "quick_fix",
+    "escalation_paths": ["time", "skill"],
+    "timer": {
+      "start_time": "",
+      "elapsed_minutes": 0,
+      "minutes_since_first_payload_estimate": 0
+    }
+  },
+  "environment": {
+    "target_device": {
+      "hostname": "",
+      "os": "UNKNOWN",
+      "ip": "UNKNOWN",
+      "on_domain": null,
+      "asset_tag": "",
+      "serial_number": ""
+    },
+    "user_context": {
+      "username": "UNKNOWN",
+      "is_admin": null,
+      "is_remote": null
+    },
+    "network": {
+      "connection_type": "",
+      "dns_servers": [],
+      "vpn": null
+    },
+    "execution_context": {
+      "tooling": "ScreenConnect",
+      "run_as": "SYSTEM",
+      "privilege": "localadmin",
+      "sandbox_prepped": false
+    }
+  },
+  "problem": {
+    "symptoms": [],
+    "impact": {
+      "who": "UNKNOWN",
+      "how_bad": "UNKNOWN",
+      "work_stopped": null
+    },
+    "scope": {
+      "single_user": null,
+      "multi_user": null,
+      "single_device": null,
+      "service_wide": null
+    },
+    "start_time": "",
+    "last_known_good": "",
+    "recent_changes": []
+  },
+  "constraints": {
+    "cannot_reboot": null,
+    "cannot_disconnect": null,
+    "change_freeze": null,
+    "security_sensitivity": "",
+    "security_controls": {
+      "threatlocker_present": null,
+      "threatlocker_notes": ""
+    }
+  },
+  "evidence": {
+    "observations": [],
+    "tests_run": [],
+    "results": [],
+    "artifacts": {
+      "screenshots": [],
+      "logs": [],
+      "error_codes": []
+    },
+    "discriminating_test": ""
+  },
+  "branches": {
+    "active_hypotheses": [],
+    "collapsed_hypotheses": [],
+    "current_best_guess": "",
+    "source_pack": [],
+    "manual_overrides": [],
+    "routing_method": ""
+  },
+  "plan": {
+    "next_3_actions": [],
+    "best_branch_collapse_test": ""
+  },
+  "css": {
+    "score": 0,
+    "target": 90,
+    "domain_scores": {},
+    "missing_fields": [],
+    "contradictions": [],
+    "confidence_notes": ""
+  },
+  "decision": {
+    "status": "triage",
+    "recommended_outcome": "",
+    "reasoning": [],
+    "if_escalate": {
+      "type": "",
+      "to_team": "",
+      "handoff_pack": {}
+    },
+    "escalation_gate": {
+      "eligible": false,
+      "blocked_reason": ""
+    }
+  },
+  "notes": {
+    "rolling": "",
+    "final": "",
+    "escalation": ""
+  }
+}

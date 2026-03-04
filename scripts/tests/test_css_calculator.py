@@ -1,4 +1,4 @@
-"""Tests for CSS (Context Sufficiency Score) calculator."""
+"""Tests for CSS (Context Stability Score) calculator."""
 
 from __future__ import annotations
 

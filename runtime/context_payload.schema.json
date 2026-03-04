@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Context Payload",
+  "description": "Schema for the QF_Wiz context payload — the structured state object that tracks everything known about an active ticket.",
+  "type": "object",
+  "required": ["meta", "ticket", "quickfix", "environment", "problem", "constraints", "evidence", "branches", "plan", "css", "decision", "notes"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["schema_version", "session_id", "last_updated"],
+      "properties": {
+        "schema_version": { "type": "string", "const": "1.3.1" },
+        "session_id": { "type": "string" },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "timezone": { "type": "string" }
+      }
+    },
+    "ticket": {
+      "type": "object",
+      "required": ["id", "priority", "summary"],
+      "properties": {
+        "id": { "type": "string" },
+        "created_at": { "type": "string" },
+        "company": { "type": "string" },
+        "site": { "type": "string" },
+        "priority": { "type": "string" },
+        "category": { "type": "string" },
+        "service": { "type": "string" },
+        "summary": { "type": "string" },
+        "raw_dump": { "type": "string" },
+        "requester": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "contact": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        }
+      }
+    },
+    "quickfix": {
+      "type": "object",
+      "properties": {
+        "timebox_minutes": { "type": "integer" },
+        "hard_stop_minutes": { "type": "integer" },
+        "time_spent_minutes": { "type": "number" },
+        "remaining_minutes": { "type": "number" },
+        "allowed_scope": { "type": "string" },
+        "escalation_paths": { "type": "array", "items": { "type": "string" } },
+        "timer": {
+          "type": "object",
+          "properties": {
+            "start_time": { "type": "string", "format": "date-time" },
+            "elapsed_minutes": { "type": "number" },
+            "minutes_since_first_payload_estimate": { "type": "number" }
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "target_device": {
+          "type": "object",
+          "properties": {
+            "hostname": { "type": "string" },
+            "os": { "type": "string" },
+            "ip": { "type": "string" },
+            "on_domain": { "type": ["boolean", "null"] },
+            "asset_tag": { "type": "string" },
+            "serial_number": { "type": "string" }
+          }
+        },
+        "user_context": {
+          "type": "object",
+          "properties": {
+            "username": { "type": "string" },
+            "is_admin": { "type": ["boolean", "null"] },
+            "is_remote": { "type": ["boolean", "null"] }
+          }
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "connection_type": { "type": "string" },
+            "dns_servers": { "type": "array", "items": { "type": "string" } },
+            "vpn": { "type": ["boolean", "null"] }
+          }
+        },
+        "execution_context": {
+          "type": "object",
+          "properties": {
+            "tooling": { "type": "string" },
+            "run_as": { "type": "string" },
+            "privilege": { "type": "string" },
+            "sandbox_prepped": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "properties": {
+        "symptoms": { "type": "array", "items": { "type": "string" } },
+        "impact": {
+          "type": "object",
+          "properties": {
+            "who": { "type": "string" },
+            "how_bad": { "type": "string" },
+            "work_stopped": { "type": ["boolean", "null"] }
+          }
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "single_user": { "type": ["boolean", "null"] },
+            "multi_user": { "type": ["boolean", "null"] },
+            "single_device": { "type": ["boolean", "null"] },
+            "service_wide": { "type": ["boolean", "null"] }
+          }
+        },
+        "start_time": { "type": "string" },
+        "last_known_good": { "type": "string" },
+        "recent_changes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "cannot_reboot": { "type": ["boolean", "null"] },
+        "cannot_disconnect": { "type": ["boolean", "null"] },
+        "change_freeze": { "type": ["boolean", "null"] },
+        "security_sensitivity": { "type": "string" },
+        "security_controls": {
+          "type": "object",
+          "properties": {
+            "threatlocker_present": { "type": ["boolean", "null"] },
+            "threatlocker_notes": { "type": "string" }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "observations": { "type": "array", "items": { "type": "string" } },
+        "tests_run": { "type": "array", "items": { "type": "string" } },
+        "results": { "type": "array", "items": { "type": "object" } },
+        "artifacts": {
+          "type": "object",
+          "properties": {
+            "screenshots": { "type": "array", "items": { "type": "string" } },
+            "logs": { "type": "array", "items": { "type": "string" } },
+            "error_codes": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "discriminating_test": { "type": "string" }
+      }
+    },
+    "branches": {
+      "type": "object",
+      "properties": {
+        "active_hypotheses": { "type": "array", "items": { "type": "object" } },
+        "collapsed_hypotheses": { "type": "array", "items": { "type": "object" } },
+        "current_best_guess": { "type": "string" },
+        "source_pack": { "type": "array", "items": { "type": "string" } },
+        "manual_overrides": { "type": "array", "items": { "type": "object" } },
+        "routing_method": { "type": "string" }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "next_3_actions": { "type": "array", "items": { "type": "string" } },
+        "best_branch_collapse_test": { "type": "string" }
+      }
+    },
+    "css": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "target": { "type": "integer" },
+        "domain_scores": { "type": "object" },
+        "missing_fields": { "type": "array", "items": { "type": "string" } },
+        "contradictions": { "type": "array", "items": { "type": "string" } },
+        "confidence_notes": { "type": "string" }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["triage", "testing", "converging", "decide", "resolved", "escalated_time", "escalated_skill"] },
+        "recommended_outcome": { "type": "string" },
+        "reasoning": { "type": "array", "items": { "type": "string" } },
+        "actual_root_cause": { "type": "string" },
+        "resolution_choice": { "type": "string" },
+        "resolution_confidence": { "type": "number" },
+        "resolution_time_mins": { "type": "number" },
+        "steps_taken": { "type": "array", "items": { "type": "string" } },
+        "if_escalate": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "to_team": { "type": "string" },
+            "handoff_pack": { "type": "object" }
+          }
+        },
+        "escalation_gate": {
+          "type": "object",
+          "properties": {
+            "eligible": { "type": "boolean" },
+            "blocked_reason": { "type": "string" }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "rolling": { "type": "string" },
+        "final": { "type": "string" },
+        "escalation": { "type": "string" }
+      }
+    }
+  }
+}

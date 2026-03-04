@@ -1,0 +1,87 @@
+# Workflow.yaml
+# Defines the ticket lifecycle workflow for the agent runtime.
+# Consumed by scripts/agent/runtime_loader.py (optional file).
+
+version: "1.3.1"
+
+workflow:
+  name: "Service Desk Copilot Workflow"
+  description: >
+    Ticket lifecycle from ingestion through resolution or escalation.
+    Each phase maps to a decision.status value in the context payload.
+
+  phases:
+    - id: ingest
+      name: "Ticket Ingestion"
+      description: "Parse raw ticket, build initial context payload, select branch pack."
+      entry_actions:
+        - "Parse ticket text into structured fields"
+        - "Run taxonomy-first branch pack selection"
+        - "Compute initial CSS score"
+      exit_conditions:
+        - "Context payload created with ticket.id populated"
+        - "Branch pack selected (or manual fallback noted)"
+      next: triage
+
+    - id: triage
+      name: "Triage"
+      description: "Run basic troubleshooting guardrail. Gather scope, error text, repro, connectivity, auth, service availability."
+      entry_actions:
+        - "Check basic troubleshooting guardrail (6 checks)"
+        - "Ask clarifying questions in batches of 3"
+      exit_conditions:
+        - "All applicable basic troubleshooting checks confirmed"
+        - "guardrails.basic_troubleshooting.confirmed = true"
+      next: testing
+
+    - id: testing
+      name: "Hypothesis Testing"
+      description: "Run diagnostics from active branch pack. Log results. Narrow hypotheses."
+      entry_actions:
+        - "Run diagnostic commands from pack (read-only first)"
+        - "Log results via LOG_RESULT"
+        - "Update CSS after each result"
+      exit_conditions:
+        - "Best guess identified with supporting evidence"
+        - "OR all hypotheses collapsed (load next pack or build manually)"
+      next: converging
+
+    - id: converging
+      name: "Converging"
+      description: "Strong signal on root cause. May run nondisruptive or operations-tier commands."
+      entry_actions:
+        - "Run targeted tests to confirm root cause"
+        - "STOP block required for any change-making command"
+      exit_conditions:
+        - "Root cause confirmed OR exhausted current approach"
+      next: decide
+
+    - id: decide
+      name: "Decision"
+      description: "Choose outcome: RESOLVE, ESCALATE_TIME, or ESCALATE_SKILL."
+      entry_actions:
+        - "Evaluate CSS, evidence strength, and time constraints"
+      outcomes:
+        resolve:
+          description: "Root cause identified, fix verified or risk acceptable"
+          next: resolved
+        escalate_time:
+          description: "SLA tight, coordination pending, or time + uncertainty > continued work"
+          next: escalated
+        escalate_skill:
+          description: "Beyond scope or tooling"
+          next: escalated
+
+    - id: resolved
+      name: "Resolved"
+      description: "Ticket resolved. Log case and draft closing comms."
+      entry_actions:
+        - "LOG_RESULT DONE (auto-emits LOG_CASE)"
+        - "DRAFT_EMAIL wrap or DRAFT_NOTE summary"
+
+    - id: escalated
+      name: "Escalated"
+      description: "Ticket escalated. Draft handoff and notify."
+      entry_actions:
+        - "DRAFT_HANDOFF (escalation note)"
+        - "DRAFT_EMAIL escalation (customer notification)"

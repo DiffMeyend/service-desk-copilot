@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://inf-pose-moments-vessel.trycloudflare.com"
+      "url": "http://localhost:8000"
     }
   ],
   "paths": {

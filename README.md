@@ -35,7 +35,7 @@ A raw ticket paste is parsed into a structured context payload. The router selec
 | **Ticket State** | Basic troubleshooting guardrail, hypothesis discipline, CSS scoring, decision mode |
 | **Memory + Comms** | Resolved case matching, SOP surfacing, templated communications |
 
-### Context Sufficiency Score (CSS)
+### Context Stability Score (CSS)
 
 CSS is a deterministic 0–100 measure of context completeness — a gut-check signal, not a gate. It tells the operator whether they have enough context to act or need to gather more.
 
@@ -161,7 +161,7 @@ pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
 
 **Taxonomy-first routing.** Branch pack selection uses the Autotask Issue/Sub-Issue taxonomy as the primary routing signal, not keyword heuristics. This gives deterministic, auditable routing for any ticket that has structured fields. Keyword matching is the fallback, not the default.
 
-**CSS as signal, not gate.** The Context Sufficiency Score tells the operator whether context is thin or rich. It never blocks a decision. A low CSS means "prioritize clarifiers"; a high CSS means "enough to act." This avoids the failure mode where automation refuses to help because a score is below a threshold.
+**CSS as signal, not gate.** The Context Stability Score tells the operator whether context is thin or rich. It never blocks a decision. A low CSS means "prioritize clarifiers"; a high CSS means "enough to act." This avoids the failure mode where automation refuses to help because a score is below a threshold.
 
 **STOP block as change gate.** Any PowerShell command that modifies state requires a structured approval block before execution. `UNLOCK_CHANGES` approves only the immediately next step — not a blanket authorization. This prevents accidental destructive operations while keeping the operator in control.
 

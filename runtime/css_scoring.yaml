@@ -1,0 +1,92 @@
+# css_scoring.yaml
+# Context Stability Score (CSS) scoring rules.
+# Consumed by scripts/agent/css_calculator.py
+#
+# CSS is a deterministic 0-100 measure of context stability.
+# It tells the operator whether context is thin or rich — signal, not gate.
+
+version: "1.3.1"
+target_css: 90
+
+# Domain weights (must sum to 100)
+domains:
+  evidence_strength:
+    weight: 35
+    description: "Tests run and diagnostic results"
+  branch_quality:
+    weight: 20
+    description: "Active hypotheses and collapse notes"
+  symptom_specificity:
+    weight: 15
+    description: "Symptoms documented and impact assessed"
+  environment_specificity:
+    weight: 10
+    description: "Device hostname, asset tag, serial number"
+  timeline_changes:
+    weight: 10
+    description: "Problem start time, recent changes, last known good"
+  constraints_risk:
+    weight: 10
+    description: "ThreatLocker presence, scope (single vs multi-user)"
+
+# Hard caps — enforce guardrails regardless of domain scores
+hard_caps:
+  - condition:
+      path: "environment.target_device.hostname"
+      op: "empty"
+    cap: 50
+    reason: "No hostname — cannot target diagnostics"
+  - condition:
+      path: "ticket.priority"
+      op: "empty"
+    cap: 60
+    reason: "Priority unknown — cannot assess urgency"
+  - condition:
+      all:
+        - path: "guardrails.basic_troubleshooting.confirmed"
+          op: "is_false"
+        - path: "branches.active_hypotheses"
+          op: "not_empty"
+    cap: 78
+    reason: "Basic troubleshooting not confirmed but hypotheses active"
+
+# Penalties — deducted from score
+penalties:
+  advanced_hypothesis_before_basics:
+    default: 15
+    description: "Hypotheses advanced before basic troubleshooting confirmed"
+  basic_guardrail_skipped:
+    per_missing_check: 2
+    max_penalty: 10
+    description: "Missing basic troubleshooting checks"
+
+# Bonuses — added to score for exceptional evidence
+bonuses:
+  - condition:
+      all:
+        - path: "evidence.tests_run"
+          op: "len_gt"
+          value: 3
+        - path: "branches.current_best_guess"
+          op: "not_empty"
+    points: 5
+    description: "Strong evidence with clear best guess"
+  - condition:
+      all:
+        - path: "guardrails.basic_troubleshooting.confirmed"
+          op: "is_true"
+        - path: "evidence.results"
+          op: "len_gt"
+          value: 2
+    points: 5
+    description: "Basics confirmed with multiple results"
+
+# Required evidence for CSS >= 90
+required_evidence_for_css_ge_90:
+  must_have:
+    - "ticket.priority (not UNKNOWN)"
+    - "environment.target_device.hostname (not empty)"
+    - "evidence.tests_run (>=1)"
+    - "branches.active_hypotheses (>=1)"
+    - "problem.symptoms (>=1)"
+    - "guardrails.basic_troubleshooting.confirmed (true)"

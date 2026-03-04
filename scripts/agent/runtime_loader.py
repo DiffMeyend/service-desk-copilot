@@ -5,7 +5,6 @@ Loads and caches all runtime YAML/JSON files at startup.
 
 from __future__ import annotations
 
-import functools
 import json
 import logging
 from pathlib import Path

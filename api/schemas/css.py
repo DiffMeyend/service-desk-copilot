@@ -1,4 +1,4 @@
-"""Pydantic schemas for CSS (Context Sufficiency Score) data."""
+"""Pydantic schemas for CSS (Context Stability Score) data."""
 
 from __future__ import annotations
 

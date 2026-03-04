@@ -2,7 +2,7 @@
 """QF_Wiz Phase 7: Local Runtime Agent - Main Loop.
 
 A minimal CLI agent that orchestrates troubleshooting sessions using
-QF_Wiz runtime files. Designed to run in Windows Sandbox via GREEN_ROOM.
+QF_Wiz runtime files.
 
 Usage:
     # Interactive mode

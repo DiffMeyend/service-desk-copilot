@@ -10,7 +10,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 - Treat ticket data as a product: validated, normalized, and observable.
 
 ## Glossary
-- **CSS (Context Sufficiency Score)**: Deterministic 0-100 measure of context completeness. Computed from 6 weighted domains (Evidence 35%, Reproduction 20%, Symptom Precision 15%, Environment 10%, Change Signals 10%, Identity & Scope 10%). CSS ≥ 90 = sufficient for accelerated resolution. See `runtime/css_source_of_truth.md` for full spec.
+- **CSS (Context Stability Score)**: Deterministic 0-100 measure of context completeness. Computed from 6 weighted domains (Evidence 35%, Reproduction 20%, Symptom Precision 15%, Environment 10%, Change Signals 10%, Identity & Scope 10%). CSS ≥ 90 = sufficient for accelerated resolution. See `runtime/css_source_of_truth.md` for full spec.
 
 ## Canonical Inputs
 - **Autotask Taxonomy**: `Help Desk Issue and Sub-Issue Types.csv` defines 11 Issue Types and ~69 Sub-Issue Types. Every raw ticket dump includes Issue + Sub-Issue as structured fields, enabling deterministic taxonomy-based routing.
@@ -246,7 +246,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 **Design Notes (Draft)**
 1. Primary knowledge = `runtime/*.yaml`, `runtime/*.json`, `runtime/*.md` with deterministic routing and guardrails from `runtime/router.txt`.
 2. Fallback knowledge = web queries only when runtime lacks the needed answer; results must be cited and cached locally.
-3. Execution context = local PowerShell + `GREEN_ROOM/tools` (Python, Git, VS Code), no external services required to function.
+3. Execution context = local PowerShell + local tools (Python, Git, VS Code), no external services required to function.
 4. Interface = interactive CLI loop in VS Code terminal; optional file-drop inputs for operator results.
 5. Safety = automatic web queries allowed; explicit approval required for any change-making action or downloads.
 

@@ -1,0 +1,57 @@
+# State_Machine.yaml
+# Defines valid state transitions for ticket decision.status.
+# Consumed by scripts/agent/runtime_loader.py (optional file).
+
+version: "1.3.1"
+
+states:
+  START:
+    description: "Initial state before ticket ingestion"
+    transitions: [INGESTED]
+
+  INGESTED:
+    description: "Ticket parsed, context payload created"
+    transitions: [TRIAGE]
+
+  TRIAGE:
+    description: "Basic troubleshooting guardrail active"
+    transitions: [TESTING]
+
+  TESTING:
+    description: "Running diagnostics, testing hypotheses"
+    transitions: [CONVERGING, DECIDE]
+
+  CONVERGING:
+    description: "Narrowing to root cause, strong signal"
+    transitions: [DECIDE, TESTING]
+
+  DECIDE:
+    description: "Decision gate — choose outcome"
+    transitions: [RESOLVED, ESCALATED_TIME, ESCALATED_SKILL]
+
+  RESOLVED:
+    description: "Ticket resolved, case logged"
+    transitions: []
+    terminal: true
+
+  ESCALATED_TIME:
+    description: "Escalated due to time constraints"
+    transitions: []
+    terminal: true
+
+  ESCALATED_SKILL:
+    description: "Escalated due to skill/tooling gap"
+    transitions: []
+    terminal: true
+
+# Valid transition matrix (for programmatic validation)
+valid_transitions:
+  START: [INGESTED]
+  INGESTED: [TRIAGE]
+  TRIAGE: [TESTING]
+  TESTING: [CONVERGING, DECIDE]
+  CONVERGING: [DECIDE, TESTING]
+  DECIDE: [RESOLVED, ESCALATED_TIME, ESCALATED_SKILL]
+  RESOLVED: []
+  ESCALATED_TIME: []
+  ESCALATED_SKILL: []
