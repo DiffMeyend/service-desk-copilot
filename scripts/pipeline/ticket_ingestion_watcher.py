@@ -29,11 +29,11 @@ SCRIPTS_ROOT = ROOT / "scripts"
 if str(SCRIPTS_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_ROOT))
 
-from parsing import parse_ticket, parse_ticket_pii  # noqa: E402
+from parsing import parse_ticket, parse_ticket_sanitize  # noqa: E402
 
 PARSER_MODULES = {
     "all": parse_ticket,
-    "pii": parse_ticket_pii,
+    "pii": parse_ticket_sanitize,
 }
 
 

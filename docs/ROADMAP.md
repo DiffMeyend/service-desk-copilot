@@ -93,7 +93,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 - [x] Device/user context pulled from systeminfo/ipconfig output (hostname/IP/username/domain)
 - [x] User-defined inline key:value fields captured under ticket.user_defined_fields
 
-**Key Artifacts**: `scripts/parsing/parse_ticket.py`, `scripts/parsing/parse_ticket_pii.py`, `scripts/Queue Scripts/ticket_ingestion_watcher.py`
+**Key Artifacts**: `scripts/parsing/parse_ticket.py`, `scripts/parsing/parse_ticket_sanitize.py`, `scripts/Queue Scripts/ticket_ingestion_watcher.py`
 
 ---
 
@@ -235,7 +235,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 - [ ] Training documentation complete
 - [ ] Monitoring alerts configured for errors
 
-**Key Artifacts**: `api/server.py`, `scripts/parsing/parse_ticket_pii.py`
+**Key Artifacts**: `api/server.py`, `scripts/parsing/parse_ticket_sanitize.py`
 
 ---
 

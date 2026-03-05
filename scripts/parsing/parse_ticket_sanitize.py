@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 if __package__ in (None, ""):
-    # Allow running the parser directly via `python scripts/parsing/parse_ticket_pii.py`
+    # Allow running the parser directly via `python scripts/parsing/parse_ticket_sanitize.py`
     SCRIPT_DIR = Path(__file__).resolve().parent
     SCRIPTS_ROOT = SCRIPT_DIR.parent
     if str(SCRIPTS_ROOT) not in sys.path:

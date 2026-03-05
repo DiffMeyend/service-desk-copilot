@@ -18,7 +18,7 @@ if str(SCRIPTS_ROOT) not in sys.path:
 DEFAULT_TICKET = ROOT / "tickets" / "processed" / "Untitled-1.md"
 PARSER_MAP = {
     "all": "parsing.parse_ticket",
-    "pii": "parsing.parse_ticket_pii",
+    "pii": "parsing.parse_ticket_sanitize",
 }
 
 
@@ -175,7 +175,7 @@ def run_cli_smoke() -> None:
     """Verify direct script invocation does not raise import errors."""
     scripts = (
         ROOT / "scripts" / "parsing" / "parse_ticket.py",
-        ROOT / "scripts" / "parsing" / "parse_ticket_pii.py",
+        ROOT / "scripts" / "parsing" / "parse_ticket_sanitize.py",
     )
     for script in scripts:
         cmd = (sys.executable, str(script), "--help")
