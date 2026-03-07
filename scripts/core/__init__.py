@@ -4,33 +4,34 @@ This module provides centralized exceptions, result types, and field path consta
 """
 
 from .exceptions import (
-    QFWizError,
+    CommandError,
     ConfigurationError,
-    RuntimeLoadError,
+    CPError,
     DataError,
     FileLoadError,
-    ParseError,
     OperationError,
-    CPError,
-    CommandError,
+    ParseError,
+    QFWizError,
+    RuntimeLoadError,
 )
-from .result import Result, Success, Failure, is_success, unwrap_or
 from .field_paths import (
-    MetaPaths,
-    TicketPaths,
-    EnvironmentPaths,
-    ProblemPaths,
-    EvidencePaths,
+    CP,
     BranchesPaths,
+    ConstraintsPaths,
     CSSPaths,
     DecisionPaths,
-    ConstraintsPaths,
+    EnvironmentPaths,
+    EvidencePaths,
     GuardrailsPaths,
+    MetaPaths,
     NotesPaths,
-    QuickfixPaths,
     PlanPaths,
-    CP,
+    ProblemPaths,
+    QuickfixPaths,
+    TicketPaths,
 )
+from .llm import LLMClient, get_client
+from .result import Failure, Result, Success, is_success, unwrap_or
 
 __all__ = [
     # Exceptions
@@ -49,6 +50,9 @@ __all__ = [
     "Failure",
     "is_success",
     "unwrap_or",
+    # LLM abstraction
+    "LLMClient",
+    "get_client",
     # Field paths
     "MetaPaths",
     "TicketPaths",
