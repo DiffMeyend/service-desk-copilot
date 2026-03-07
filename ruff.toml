@@ -1,0 +1,6 @@
+line-length = 120
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501", "E402", "F841"]  # E501: formatter handles; E402: sys.path pattern; F841: pre-existing unused vars

@@ -5,12 +5,12 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.config import settings
-from api.routers import tickets_router, commands_router, branch_packs_router
+from api.routers import branch_packs_router, commands_router, intake_router, tickets_router
 from api.services.runtime_service import runtime_service
 from api.websocket import ws_manager
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Startup and shutdown events."""
     # Startup: Initialize runtime loader
     if not runtime_service.initialize():
-        print(f"[qf-wiz-api] WARNING: Failed to load some runtime files:")
+        print("[qf-wiz-api] WARNING: Failed to load some runtime files:")
         for error in runtime_service.errors:
             print(f"  - {error}")
     else:
@@ -64,6 +64,7 @@ async def verify_api_key(request: Request) -> None:
 app.include_router(tickets_router, dependencies=[Depends(verify_api_key)])
 app.include_router(commands_router, dependencies=[Depends(verify_api_key)])
 app.include_router(branch_packs_router, dependencies=[Depends(verify_api_key)])
+app.include_router(intake_router, dependencies=[Depends(verify_api_key)])
 
 
 @app.get("/")

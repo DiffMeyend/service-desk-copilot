@@ -9,21 +9,19 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+# Import from centralized exceptions module
+from ..core.exceptions import CommandError
 from . import config
 from .cp_manager import CPManager
 from .runtime_loader import RuntimeLoader
 
-# Import from centralized exceptions module
-from ..core.exceptions import CommandError
-
 # Re-export for backward compatibility
 __all__ = ["CommandError", "CommandHandler"]
 
-# Import analytics module for resolution logging
+# Import IntakeAgent for resolution logging, pack stats, and patterns
 try:
-    from ..analytics.resolution_logger import ResolutionLogger
-    from ..analytics.pack_metrics import PackMetrics
-    from ..analytics.pattern_detector import PatternDetector
+    from ..intake.agent import IntakeAgent
+
     ANALYTICS_AVAILABLE = True
 except ImportError:
     ANALYTICS_AVAILABLE = False
@@ -71,14 +69,15 @@ class CommandHandler:
                 if len(parts) > 1:
                     # Strip surrounding quotes if present
                     output = parts[1].strip()
-                    if (output.startswith('"') and output.endswith('"')) or \
-                       (output.startswith("'") and output.endswith("'")):
+                    if (output.startswith('"') and output.endswith('"')) or (
+                        output.startswith("'") and output.endswith("'")
+                    ):
                         output = output[1:-1]
                 return ("LOG_RESULT", {"command_id": command_id, "output": output})
 
         # Check for JSON payload (LOG_RESULT with JSON)
         if raw_input.startswith("LOG_RESULT "):
-            json_part = raw_input[len("LOG_RESULT "):].strip()
+            json_part = raw_input[len("LOG_RESULT ") :].strip()
             if json_part.startswith("{"):
                 try:
                     payload = json.loads(json_part)
@@ -88,7 +87,7 @@ class CommandHandler:
 
         # Check for pack ID (LOAD_BRANCH_PACK pack_id)
         if raw_input.startswith("LOAD_BRANCH_PACK "):
-            pack_id = raw_input[len("LOAD_BRANCH_PACK "):].strip()
+            pack_id = raw_input[len("LOAD_BRANCH_PACK ") :].strip()
             return ("LOAD_BRANCH_PACK", {"pack_id": pack_id})
 
         # Check for PACK_STATS with optional pack_id
@@ -213,10 +212,12 @@ class CommandHandler:
         overrides = self._cp.get_value("branches.manual_overrides") or []
         if not isinstance(overrides, list):
             overrides = []
-        overrides.append({
-            "pack_id": pack_id,
-            "loaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        })
+        overrides.append(
+            {
+                "pack_id": pack_id,
+                "loaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            }
+        )
         self._cp.set_value("branches.manual_overrides", overrides)
 
         # Add to rolling notes
@@ -293,11 +294,11 @@ class CommandHandler:
         elapsed = timer.get("elapsed_minutes", 0)
         self._cp.set_value("decision.resolution_time_mins", elapsed)
 
-        # Log resolution to analytics if available
+        # Log resolution to analytics via IntakeAgent
         if ANALYTICS_AVAILABLE:
             try:
-                logger = ResolutionLogger()
-                log_file = logger.log_resolution(self._cp.cp)
+                intake = IntakeAgent()
+                log_file = intake.log_resolution(self._cp.cp)
                 resolution_note = f"\nResolution logged to {log_file.name}"
             except Exception as e:
                 resolution_note = f"\nFailed to log resolution: {e}"
@@ -329,25 +330,35 @@ class CommandHandler:
             return "ERROR: Analytics module not available. Check scripts/analytics/ setup."
 
         try:
-            metrics = PackMetrics()
+            intake = IntakeAgent()
+            stats_dict = intake.get_pack_stats(pack_id=pack_id)
+
+            if not stats_dict:
+                if pack_id:
+                    return f"No data for pack: {pack_id}"
+                return "No resolution data available yet. Resolve some tickets first!"
 
             if pack_id:
-                # Stats for specific pack
-                stats = metrics.get_pack_stats(pack_id)
-                if not stats:
-                    return f"No data for pack: {pack_id}"
-                return metrics.format_stats(stats)
+                # Format single pack stats
+                from ..analytics.pack_metrics import PackMetrics
+
+                metrics = PackMetrics()
+                stats_obj = metrics.get_pack_stats(pack_id)
+                if stats_obj:
+                    return metrics.format_stats(stats_obj)
+                return f"No data for pack: {pack_id}"
             else:
-                # Top 10 packs
-                top_packs = metrics.get_top_packs(n=10)
-                if not top_packs:
-                    return "No resolution data available yet. Resolve some tickets first!"
+                # Top 10 packs by resolution count
+                sorted_packs = sorted(
+                    stats_dict.items(),
+                    key=lambda x: x[1].get("total_resolutions", 0),
+                    reverse=True,
+                )[:10]
 
                 lines = ["Top 10 Packs by Resolution Count:", ""]
-                for stats in top_packs:
+                for pid, s in sorted_packs:
                     lines.append(
-                        f"  {stats.pack_id}: {stats.total_resolutions} resolutions, "
-                        f"{stats.avg_resolution_time_mins:.1f} min avg"
+                        f"  {pid}: {s['total_resolutions']} resolutions, {s['avg_resolution_time_mins']:.1f} min avg"
                     )
                 lines.append("")
                 lines.append("Use PACK_STATS <pack_id> for detailed hypothesis accuracy.")
@@ -362,6 +373,8 @@ class CommandHandler:
             return "ERROR: Analytics module not available. Check scripts/analytics/ setup."
 
         try:
+            from ..analytics.pattern_detector import PatternDetector
+
             detector = PatternDetector()
             report = detector.detect_patterns(days=30)
 
