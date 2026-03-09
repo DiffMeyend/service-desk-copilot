@@ -7,15 +7,15 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Tuple
 
-from . import config
 from ..core.field_paths import (
-    EvidencePaths,
     BranchesPaths,
-    ProblemPaths,
-    EnvironmentPaths,
     ConstraintsPaths,
+    EnvironmentPaths,
+    EvidencePaths,
     GuardrailsPaths,
+    ProblemPaths,
 )
+from . import config
 
 
 def _is_empty(value: Any) -> bool:
@@ -153,13 +153,11 @@ class CSSCalculator:
             weight = domain_info.get("weight", 0)
             # Calculate domain completeness (simplified heuristic)
             completeness = self._evaluate_domain_completeness(domain_id, cp)
-            total_score += int(weight * completeness)
+            total_score += round(weight * completeness)
 
         return total_score
 
-    def _evaluate_domain_completeness(
-        self, domain_id: str, cp: Dict[str, Any]
-    ) -> float:
+    def _evaluate_domain_completeness(self, domain_id: str, cp: Dict[str, Any]) -> float:
         """Evaluate completeness of a domain (0.0 to 1.0)."""
         # Evidence strength: tests_run and results
         if domain_id == "evidence_strength":
@@ -227,9 +225,7 @@ class CSSCalculator:
         # Unknown domain
         return 0.0
 
-    def _apply_hard_caps(
-        self, cp: Dict[str, Any], score: int
-    ) -> Tuple[int, List[str]]:
+    def _apply_hard_caps(self, cp: Dict[str, Any], score: int) -> Tuple[int, List[str]]:
         """Apply hard caps based on conditions."""
         blockers = []
         hard_caps = self._rules.get("hard_caps", [])
@@ -246,9 +242,7 @@ class CSSCalculator:
 
         return score, blockers
 
-    def _apply_penalties(
-        self, cp: Dict[str, Any], score: int
-    ) -> Tuple[int, List[str]]:
+    def _apply_penalties(self, cp: Dict[str, Any], score: int) -> Tuple[int, List[str]]:
         """Apply penalties based on conditions."""
         blockers = []
         penalties = self._rules.get("penalties", {})
@@ -256,9 +250,7 @@ class CSSCalculator:
         # Check for advanced hypothesis before basics
         adv_before = penalties.get("advanced_hypothesis_before_basics", {})
         if adv_before:
-            basics_confirmed = _get_nested(
-                cp, GuardrailsPaths.BasicTroubleshooting.CONFIRMED
-            )
+            basics_confirmed = _get_nested(cp, GuardrailsPaths.BasicTroubleshooting.CONFIRMED)
             hyps = _get_nested(cp, BranchesPaths.ACTIVE_HYPOTHESES) or []
             if basics_confirmed is False and len(hyps) > 0:
                 penalty = adv_before.get("default", 15)
@@ -268,9 +260,7 @@ class CSSCalculator:
         # Check for guardrail skipped
         guardrail_penalty = penalties.get("basic_guardrail_skipped", {})
         if guardrail_penalty:
-            missing = _get_nested(
-                cp, GuardrailsPaths.BasicTroubleshooting.MISSING_CHECKS
-            ) or []
+            missing = _get_nested(cp, GuardrailsPaths.BasicTroubleshooting.MISSING_CHECKS) or []
             if len(missing) > 0:
                 per_missing = guardrail_penalty.get("per_missing_check", 2)
                 max_pen = guardrail_penalty.get("max_penalty", 10)

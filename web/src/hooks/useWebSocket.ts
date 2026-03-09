@@ -27,17 +27,14 @@ export function useWebSocket({ ticketId, onMessage }: UseWebSocketOptions) {
     const ws = new WebSocket(`${WS_BASE_URL}/api/v1/tickets/${ticketId}/stream`);
 
     ws.onopen = () => {
-      console.log(`[WS] Connected to ticket ${ticketId}`);
       setConnected(true);
     };
 
     ws.onclose = () => {
-      console.log('[WS] Disconnected');
       setConnected(false);
 
       // Attempt reconnect after 3 seconds
       reconnectTimeoutRef.current = window.setTimeout(() => {
-        console.log('[WS] Attempting reconnect...');
         connect();
       }, 3000);
     };
@@ -49,7 +46,6 @@ export function useWebSocket({ ticketId, onMessage }: UseWebSocketOptions) {
     ws.onmessage = (event) => {
       try {
         const message: WSMessage = JSON.parse(event.data);
-        console.log('[WS] Message:', message.type);
 
         // Handle message types
         switch (message.type) {

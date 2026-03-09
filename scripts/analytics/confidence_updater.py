@@ -10,10 +10,8 @@ learned confidence scores.
 from __future__ import annotations
 
 import json
-import math
-from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +23,7 @@ from .resolution_logger import ResolutionLogger
 @dataclass
 class HypothesisOutcome:
     """Tracks outcomes for a single hypothesis."""
+
     hypothesis_id: str
     prior_confidence: float = 0.3  # Default prior
     confirmed: int = 0
@@ -81,6 +80,7 @@ class HypothesisOutcome:
 @dataclass
 class ConfidenceReport:
     """Report of confidence updates for a pack."""
+
     pack_id: str
     hypotheses: dict[str, HypothesisOutcome] = field(default_factory=dict)
     generated_at: str = ""
@@ -173,7 +173,7 @@ class ConfidenceUpdater:
                 if pack_id not in pack_reports:
                     pack_reports[pack_id] = ConfidenceReport(
                         pack_id=pack_id,
-                        generated_at=datetime.now().isoformat(),
+                        generated_at=datetime.now(timezone.utc).isoformat(),
                     )
 
                 report = pack_reports[pack_id]
@@ -225,7 +225,7 @@ class ConfidenceUpdater:
         # Deep copy catalog structure
         learned_catalog = {
             "version": "2.0-learned",
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "source_catalog": str(self.catalog_path.name),
             "analysis_days": days,
             "min_samples": min_samples,
@@ -330,9 +330,7 @@ class ConfidenceUpdater:
                 delta_str = f"+{delta:.2f}" if delta >= 0 else f"{delta:.2f}"
                 arrow = "↑" if delta > 0 else "↓" if delta < 0 else "→"
 
-                lines.append(
-                    f"  {h_id}: {posterior:.2f} {arrow} ({delta_str}, n={outcome.total_observations})"
-                )
+                lines.append(f"  {h_id}: {posterior:.2f} {arrow} ({delta_str}, n={outcome.total_observations})")
             lines.append("")
 
         return "\n".join(lines)
@@ -402,7 +400,9 @@ if __name__ == "__main__":
                 print(f"  Prior: {delta['prior']}")
                 print(f"  Posterior: {delta['posterior']}")
                 print(f"  Delta: {delta['delta']}")
-                print(f"  Samples: {delta['sample_size']} ({delta['confirmed']} confirmed, {delta['falsified']} falsified)")
+                print(
+                    f"  Samples: {delta['sample_size']} ({delta['confirmed']} confirmed, {delta['falsified']} falsified)"
+                )
         else:
             print(f"No data for hypothesis: {args.hypothesis}")
 

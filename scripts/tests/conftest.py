@@ -233,9 +233,9 @@ def basic_css_rules() -> Dict[str, Any]:
         "target_css": 90,
         "domains": {
             "evidence_strength": {"weight": 35},
-            "hypothesis_quality": {"weight": 25},
-            "problem_clarity": {"weight": 20},
-            "environment_known": {"weight": 20},
+            "branch_quality": {"weight": 25},
+            "symptom_specificity": {"weight": 20},
+            "environment_specificity": {"weight": 20},
         },
         "hard_caps": [],
         "penalties": {},

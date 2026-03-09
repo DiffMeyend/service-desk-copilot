@@ -5,6 +5,29 @@
 import { create } from 'zustand';
 import type { ContextPayload, TicketSummary } from '../types/contextPayload';
 
+function deepMerge<T extends object>(target: T, patch: Partial<T>): T {
+  const result = { ...target };
+  for (const key of Object.keys(patch) as Array<keyof T>) {
+    const patchVal = patch[key];
+    const targetVal = target[key];
+    if (
+      patchVal !== null &&
+      patchVal !== undefined &&
+      typeof patchVal === 'object' &&
+      !Array.isArray(patchVal) &&
+      targetVal !== null &&
+      targetVal !== undefined &&
+      typeof targetVal === 'object' &&
+      !Array.isArray(targetVal)
+    ) {
+      result[key] = deepMerge(targetVal as object, patchVal as object) as T[keyof T];
+    } else if (patchVal !== undefined) {
+      result[key] = patchVal as T[keyof T];
+    }
+  }
+  return result;
+}
+
 interface TroubleshootingStore {
   // Active session state
   activeTicketId: string | null;
@@ -54,7 +77,7 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
   updateContextPayload: (patch) =>
     set((state) => ({
       contextPayload: state.contextPayload
-        ? { ...state.contextPayload, ...patch }
+        ? deepMerge(state.contextPayload, patch)
         : null,
     })),
 
