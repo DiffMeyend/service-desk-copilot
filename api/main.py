@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 from api.config import settings
 from api.routers import branch_packs_router, commands_router, intake_router, tickets_router
@@ -96,6 +99,12 @@ async def ticket_stream(websocket: WebSocket, ticket_id: str) -> None:
     #     await websocket.close(code=4001)
     #     return
 
+    # Verify API key for WebSocket if configured
+    api_key = websocket.headers.get("X-API-Key")
+    if settings.api_key and api_key != settings.api_key:
+        await websocket.close(code=4001)
+        return
+
     await ws_manager.connect(websocket, ticket_id)
 
     try:
@@ -114,9 +123,10 @@ async def ticket_stream(websocket: WebSocket, ticket_id: str) -> None:
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Global exception handler."""
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc, exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={"error": str(exc)},
+        content={"error": "Internal server error"},
     )
 
 

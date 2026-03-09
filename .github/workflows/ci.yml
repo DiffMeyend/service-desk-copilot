@@ -14,4 +14,5 @@ jobs:
         with:
           python-version: '3.10'
       - run: pip install -r requirements.txt
-      - run: PYTHONPATH=. pytest scripts/tests/ -v
+      - run: ruff check scripts/ api/
+      - run: PYTHONPATH=. pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing

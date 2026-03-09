@@ -49,6 +49,7 @@ class CommandHandler:
     def __init__(self, cp_manager: CPManager, runtime: RuntimeLoader):
         self._cp = cp_manager
         self._runtime = runtime
+        self._session_start = datetime.now(timezone.utc)
 
     def parse_input(self, raw_input: str) -> Tuple[str, Optional[Dict[str, Any]]]:
         """Parse raw input into command and optional payload.
@@ -289,9 +290,8 @@ class CommandHandler:
         self._cp.set_value("decision.resolution_choice", "RESOLVE")
         self._cp.set_value("decision.resolution_confidence", css / 100.0)
 
-        # Calculate resolution time from timer
-        timer = self._cp.get_value("quickfix.timer") or {}
-        elapsed = timer.get("elapsed_minutes", 0)
+        # Calculate resolution time from session start
+        elapsed = round((datetime.now(timezone.utc) - self._session_start).total_seconds() / 60, 1)
         self._cp.set_value("decision.resolution_time_mins", elapsed)
 
         # Log resolution to analytics via IntakeAgent
