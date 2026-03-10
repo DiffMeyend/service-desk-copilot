@@ -3,14 +3,6 @@
 Public portfolio version of the production MSP service desk copilot (QF_Wiz).
 Referenced on resume and public GitHub. Demonstrates the architecture without proprietary data.
 
-## Sanitization Rules
-
-- **No proprietary SOPs** — kb_articles/ contains generic examples only
-- **No real ticket data** — tickets/ready/ has sample fixtures only
-- **No customer-specific playbooks** — branch packs are generic (55 examples)
-- **No internal references** — no Autotask API keys, ThreatLocker configs, or client names
-- When adding content, verify nothing proprietary leaks from QF_Wiz
-
 ## Tech Stack
 
 - **GPT Runtime:** OpenAI Custom GPT + Knowledge files (production architecture)
@@ -48,3 +40,11 @@ demonstrating a full-stack implementation beyond the GPT runtime.
 ```bash
 PYTHONPATH=. pytest scripts/tests/ -v
 ```
+
+## Guardrails
+
+- **No proprietary SOPs** — kb_articles/ contains generic examples only
+- **No real ticket data** — tickets/ready/ has sample fixtures only
+- **No customer-specific playbooks** — branch packs are generic (55 examples)
+- **No internal references** — no Autotask API keys, ThreatLocker configs, or client names
+- When adding content, verify nothing proprietary leaks from QF_Wiz
