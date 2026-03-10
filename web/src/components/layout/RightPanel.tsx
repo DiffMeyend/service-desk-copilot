@@ -58,23 +58,27 @@ export function RightPanel({ className = '', triage }: RightPanelProps) {
       )}
 
       {/* Guardrails Checklist */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-          Guardrails
-        </h3>
-        <GuardrailsChecklist checks={guardrails.basic_troubleshooting} />
-      </div>
+      {guardrails?.basic_troubleshooting && (
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            Guardrails
+          </h3>
+          <GuardrailsChecklist checks={guardrails.basic_troubleshooting} />
+        </div>
+      )}
 
       {/* Decision Gate */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-        <DecisionGate
-          ticketId={activeTicketId}
-          status={decision.status}
-          cssScore={css.score}
-          cssTarget={css.target}
-          bestGuess={contextPayload.branches.current_best_guess}
-        />
-      </div>
+      {decision && (
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <DecisionGate
+            ticketId={activeTicketId}
+            status={decision.status}
+            cssScore={css.score}
+            cssTarget={css.target}
+            bestGuess={contextPayload.branches.current_best_guess}
+          />
+        </div>
+      )}
 
       {/* AI Insights Panel */}
       <div className="p-4">
