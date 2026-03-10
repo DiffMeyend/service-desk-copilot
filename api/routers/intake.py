@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from api.services.intake_service import IntakeService
+from api.services.llm_analyst import llm_analyst
 
 router = APIRouter(prefix="/api/v1/intake", tags=["intake"])
 
@@ -25,6 +26,9 @@ class ParseResponse(BaseModel):
     context_payload: Dict[str, Any] = Field(..., description="Parsed Context Payload")
     ticket_id: str = Field("", description="Extracted ticket ID")
     source_pack: List[str] = Field(default_factory=list, description="Routed branch pack(s)")
+    # Claude triage fields — present when ANTHROPIC_API_KEY is set
+    routing_suggestion: Optional[str] = Field(None, description="Claude-suggested routing category")
+    triage_reasoning: Optional[str] = Field(None, description="Claude's triage explanation")
 
 
 class AlertsResponse(BaseModel):
@@ -53,10 +57,15 @@ async def parse_ticket(request: ParseRequest) -> ParseResponse:
     ticket_id = cp.get("ticket", {}).get("id", "")
     source_pack = cp.get("branches", {}).get("source_pack", [])
 
+    # Claude triage — gracefully degrades if no API key
+    triage = llm_analyst.analyze_ticket(request.raw_text, cp)
+
     return ParseResponse(
         context_payload=cp,
         ticket_id=ticket_id,
         source_pack=source_pack,
+        routing_suggestion=triage.routing_suggestion or None,
+        triage_reasoning=triage.triage_reasoning or None,
     )
 
 

@@ -13,6 +13,7 @@ if str(_root) not in sys.path:
 
 from api.services.css_service import CSSService
 from api.services.runtime_service import runtime_service
+from api.websocket import ws_manager
 from scripts.agent.command_handler import CommandHandler
 from scripts.agent.cp_manager import CPManager
 
@@ -20,12 +21,13 @@ from scripts.agent.cp_manager import CPManager
 class CommandService:
     """Service for executing commands against CPs."""
 
-    def __init__(self, cp_manager: CPManager):
+    def __init__(self, cp_manager: CPManager, ticket_id: str = "") -> None:
         self._cp = cp_manager
+        self._ticket_id = ticket_id
         self._handler = CommandHandler(cp_manager, runtime_service.get_loader())
         self._css_service = CSSService()
 
-    def log_result(
+    async def log_result(
         self,
         command_id: str,
         output: str,
@@ -45,23 +47,32 @@ class CommandService:
         message = self._handler.handle_log_result(payload)
 
         # Recalculate CSS after logging
-        score, _ = self._css_service.calculate(self._cp.cp)
+        score, blockers = self._css_service.calculate(self._cp.cp)
         self._cp.set_value("css.score", score)
+
+        # Broadcast real-time updates
+        if self._ticket_id:
+            await ws_manager.send_cp_update(self._ticket_id, self._cp.cp)
+            await ws_manager.send_css_update(self._ticket_id, score, blockers)
 
         return message, score
 
-    def load_branch_pack(self, pack_id: str) -> Tuple[str, int]:
+    async def load_branch_pack(self, pack_id: str) -> Tuple[str, int]:
         """Load a branch pack and return (message, hypothesis_count)."""
         message = self._handler.handle_load_branch_pack(pack_id)
 
         if message.startswith("ERROR"):
             return message, 0
 
-        # Get the hypothesis count
         hyps = self._cp.get_active_hypotheses()
+
+        # Broadcast updated CP after pack load
+        if self._ticket_id:
+            await ws_manager.send_cp_update(self._ticket_id, self._cp.cp)
+
         return message, len(hyps)
 
-    def decide(self, force: bool = False) -> Tuple[str, Dict[str, Any]]:
+    async def decide(self, force: bool = False) -> Tuple[str, Dict[str, Any]]:
         """Execute DECIDE command and return (message, decision_info)."""
         message = self._handler.handle_decide()
 
@@ -72,10 +83,14 @@ class CommandService:
             "warning": None,
         }
 
-        # Check if there was a warning
         if message.startswith("WARNING"):
             lines = message.split("\n")
             decision_info["warning"] = lines[0]
+
+        # Broadcast decision state
+        if self._ticket_id:
+            await ws_manager.send_decision_ready(self._ticket_id, decision_info["status"])
+            await ws_manager.send_cp_update(self._ticket_id, self._cp.cp)
 
         return message, decision_info
 
@@ -90,14 +105,12 @@ class CommandService:
             "discriminating_test": None,
         }
 
-        # Parse the message to extract structured info
         if "LOAD_BRANCH_PACK" in message:
             result["action"] = "load_pack"
         elif "DECIDE" in message:
             result["action"] = "decide"
         elif "discriminating test" in message.lower():
             result["action"] = "run_test"
-            # Try to extract hypothesis info
             hyps = self._cp.get_active_hypotheses()
             if hyps:
                 result["hypothesis_id"] = hyps[0].get("id", "")

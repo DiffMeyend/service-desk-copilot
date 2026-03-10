@@ -23,6 +23,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const activeTicketId = useStore((state) => state.activeTicketId);
+  const triageInfo = useStore((state) => state.triageInfo);
 
   // Fetch active ticket data
   useTicket(activeTicketId);
@@ -43,8 +44,8 @@ function AppContent() {
         {/* Main work area */}
         <MainWorkArea className="flex-1" />
 
-        {/* Right panel - CSS, Guardrails, Decision */}
-        <RightPanel className="w-72 flex-shrink-0" />
+        {/* Right panel - CSS, Guardrails, Decision, AI */}
+        <RightPanel className="w-72 flex-shrink-0" triage={triageInfo} />
       </div>
     </div>
   );

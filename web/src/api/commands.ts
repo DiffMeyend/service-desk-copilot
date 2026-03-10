@@ -11,6 +11,8 @@ import type {
   DecideRequest,
   DecideResponse,
   NextActionResponse,
+  ChatRequest,
+  ChatResponse,
 } from '../types/contextPayload';
 
 /**
@@ -61,6 +63,20 @@ export async function decide(
 export async function getNextAction(ticketId: string): Promise<NextActionResponse> {
   const response = await apiClient.get<NextActionResponse>(
     `/api/v1/tickets/${ticketId}/next-action`
+  );
+  return response.data;
+}
+
+/**
+ * Chat with Claude about a ticket
+ */
+export async function chatWithTicket(
+  ticketId: string,
+  request: ChatRequest
+): Promise<ChatResponse> {
+  const response = await apiClient.post<ChatResponse>(
+    `/api/v1/tickets/${ticketId}/chat`,
+    request
   );
   return response.data;
 }

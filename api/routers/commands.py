@@ -14,6 +14,7 @@ from api.schemas.commands import (
     NextActionResponse,
 )
 from api.services.command_service import CommandService
+from api.services.llm_analyst import llm_analyst
 from api.services.ticket_service import TicketService
 
 router = APIRouter(prefix="/api/v1/tickets", tags=["commands"])
@@ -29,7 +30,7 @@ def get_command_service(ticket_id: str, ticket_service: TicketService) -> Comman
     cp_manager = ticket_service.get_cp_manager(ticket_id)
     if cp_manager is None:
         raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
-    return CommandService(cp_manager)
+    return CommandService(cp_manager, ticket_id)
 
 
 @router.post("/{ticket_id}/log-result", response_model=LogResultResponse)
@@ -41,31 +42,31 @@ async def log_result(
     """Log a test result for a ticket."""
     cmd_service = get_command_service(ticket_id, ticket_service)
 
-    message, css_score = cmd_service.log_result(
+    message, css_score = await cmd_service.log_result(
         command_id=request.command_id,
         output=request.output,
         notes=request.notes,
         captured_at=request.captured_at,
     )
 
-    # Save the updated CP
-    cp_manager = ticket_service.get_cp_manager(ticket_id)
-    if cp_manager:
-        # Reload to get fresh state (command service has its own copy)
-        # Actually, command_service modifies cp_manager in place, so we save it
-        pass  # The cp_manager used in cmd_service is what we need
-
-    # Get tests run count from the command service's CP
     tests_run = cmd_service._cp.get_tests_run()
-
-    # Save changes
     ticket_service.save_ticket(ticket_id, cmd_service._cp)
+
+    # Claude evidence interpretation — gracefully degrades
+    hypotheses = cmd_service._cp.get_active_hypotheses()
+    interp = llm_analyst.interpret_evidence(
+        command_id=request.command_id,
+        output=request.output,
+        hypotheses=hypotheses,
+    )
+    claude_interp = interp.interpretation or None
 
     return LogResultResponse(
         status="ok",
         message=message,
         tests_run_count=len(tests_run),
         css_score=css_score,
+        claude_interpretation=claude_interp,
     )
 
 
@@ -78,12 +79,11 @@ async def load_branch_pack(
     """Load a branch pack for a ticket."""
     cmd_service = get_command_service(ticket_id, ticket_service)
 
-    message, hyp_count = cmd_service.load_branch_pack(request.pack_id)
+    message, hyp_count = await cmd_service.load_branch_pack(request.pack_id)
 
     if message.startswith("ERROR"):
         raise HTTPException(status_code=400, detail=message)
 
-    # Save changes
     ticket_service.save_ticket(ticket_id, cmd_service._cp)
 
     return LoadBranchPackResponse(
@@ -103,9 +103,8 @@ async def decide(
     """Execute DECIDE command for a ticket."""
     cmd_service = get_command_service(ticket_id, ticket_service)
 
-    message, decision_info = cmd_service.decide(force=request.force)
+    message, decision_info = await cmd_service.decide(force=request.force)
 
-    # Save changes
     ticket_service.save_ticket(ticket_id, cmd_service._cp)
 
     return DecideResponse(
@@ -128,9 +127,16 @@ async def get_next_action(
 
     result = cmd_service.get_next_action()
 
+    # Claude reasoning enrichment — gracefully degrades
+    ai = llm_analyst.suggest_next_step(cmd_service._cp.cp)
+    ai_reasoning = ai.reasoning or None
+    ai_commands = ai.suggested_commands or None
+
     return NextActionResponse(
         action=result["action"],
         suggestion=result["suggestion"],
         hypothesis_id=result.get("hypothesis_id"),
         discriminating_test=result.get("discriminating_test"),
+        ai_reasoning=ai_reasoning,
+        ai_suggested_commands=ai_commands,
     )

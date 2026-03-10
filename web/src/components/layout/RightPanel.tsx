@@ -3,6 +3,7 @@
  */
 
 import { useStore } from '../../store';
+import { AIInsightsPanel } from '../AIInsightsPanel';
 import { CSSGauge } from '../css/CSSGauge';
 import { DomainScores } from '../css/DomainScores';
 import { BlockersList } from '../css/BlockersList';
@@ -11,9 +12,10 @@ import { DecisionGate } from '../decision/DecisionGate';
 
 interface RightPanelProps {
   className?: string;
+  triage?: { routing_suggestion?: string; triage_reasoning?: string } | null;
 }
 
-export function RightPanel({ className = '' }: RightPanelProps) {
+export function RightPanel({ className = '', triage }: RightPanelProps) {
   const { contextPayload, activeTicketId } = useStore();
 
   if (!activeTicketId || !contextPayload) {
@@ -64,7 +66,7 @@ export function RightPanel({ className = '' }: RightPanelProps) {
       </div>
 
       {/* Decision Gate */}
-      <div className="p-4">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
         <DecisionGate
           ticketId={activeTicketId}
           status={decision.status}
@@ -72,6 +74,11 @@ export function RightPanel({ className = '' }: RightPanelProps) {
           cssTarget={css.target}
           bestGuess={contextPayload.branches.current_best_guess}
         />
+      </div>
+
+      {/* AI Insights Panel */}
+      <div className="p-4">
+        <AIInsightsPanel ticketId={activeTicketId} triage={triage} />
       </div>
     </aside>
   );
