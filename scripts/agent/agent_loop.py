@@ -22,8 +22,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from . import __version__, config
-from .command_handler import CommandHandler, CommandError
-from .cp_manager import CPManager, CPError
+from .command_handler import CommandError, CommandHandler
+from .cp_manager import CPError, CPManager
 from .css_calculator import CSSCalculator
 from .output_formatter import OutputFormatter
 from .runtime_loader import RuntimeLoader

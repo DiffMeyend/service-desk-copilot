@@ -11,11 +11,10 @@ _root = Path(__file__).resolve().parents[2]
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
+from api.services.css_service import CSSService
+from api.services.runtime_service import runtime_service
 from scripts.agent.command_handler import CommandHandler
 from scripts.agent.cp_manager import CPManager
-
-from api.services.runtime_service import runtime_service
-from api.services.css_service import CSSService
 
 
 class CommandService:

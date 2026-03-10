@@ -11,8 +11,8 @@ _root = Path(__file__).resolve().parents[2]
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from scripts.agent.runtime_loader import RuntimeLoader
 from scripts.agent import config as agent_config
+from scripts.agent.runtime_loader import RuntimeLoader
 
 
 class RuntimeService:

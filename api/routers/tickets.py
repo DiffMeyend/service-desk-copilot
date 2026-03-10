@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
-from api.schemas.ticket import TicketSummary, ContextPayload
 from api.schemas.css import CSSResponse
-from api.services.ticket_service import TicketService
+from api.schemas.ticket import TicketSummary
 from api.services.css_service import CSSService
-
+from api.services.ticket_service import TicketService
 
 router = APIRouter(prefix="/api/v1/tickets", tags=["tickets"])
 
