@@ -28,6 +28,11 @@ function deepMerge<T extends object>(target: T, patch: Partial<T>): T {
   return result;
 }
 
+interface TriageInfo {
+  routing_suggestion?: string;
+  triage_reasoning?: string;
+}
+
 interface TroubleshootingStore {
   // Active session state
   activeTicketId: string | null;
@@ -42,6 +47,12 @@ interface TroubleshootingStore {
   // UI state
   selectedHypothesisId: string | null;
 
+  // Claude triage info (set when intake/parse is called)
+  triageInfo: TriageInfo | null;
+
+  // Evidence interpretations keyed by command_id
+  evidenceInterpretations: Record<string, string>;
+
   // Actions
   setActiveTicket: (ticketId: string | null) => void;
   setContextPayload: (cp: ContextPayload | null) => void;
@@ -51,6 +62,8 @@ interface TroubleshootingStore {
   setError: (error: string | null) => void;
   setConnected: (connected: boolean) => void;
   setSelectedHypothesis: (id: string | null) => void;
+  setTriageInfo: (info: TriageInfo | null) => void;
+  addEvidenceInterpretation: (commandId: string, interpretation: string) => void;
 
   // Derived getters
   getCSSScore: () => number;
@@ -68,6 +81,8 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
   error: null,
   isConnected: false,
   selectedHypothesisId: null,
+  triageInfo: null,
+  evidenceInterpretations: {},
 
   // Actions
   setActiveTicket: (ticketId) => set({ activeTicketId: ticketId }),
@@ -90,6 +105,16 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
   setConnected: (isConnected) => set({ isConnected }),
 
   setSelectedHypothesis: (id) => set({ selectedHypothesisId: id }),
+
+  setTriageInfo: (info) => set({ triageInfo: info }),
+
+  addEvidenceInterpretation: (commandId, interpretation) =>
+    set((state) => ({
+      evidenceInterpretations: {
+        ...state.evidenceInterpretations,
+        [commandId]: interpretation,
+      },
+    })),
 
   // Derived getters
   getCSSScore: () => get().contextPayload?.css?.score ?? 0,

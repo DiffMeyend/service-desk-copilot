@@ -13,9 +13,7 @@ class LogResultRequest(BaseModel):
     command_id: str = Field(..., description="ID of the command/test being logged")
     output: str = Field(..., description="Output from the command execution")
     notes: Optional[str] = Field(None, description="Optional notes about the result")
-    captured_at: Optional[str] = Field(
-        None, description="ISO timestamp when result was captured"
-    )
+    captured_at: Optional[str] = Field(None, description="ISO timestamp when result was captured")
 
 
 class LogResultResponse(BaseModel):
@@ -25,6 +23,7 @@ class LogResultResponse(BaseModel):
     message: str
     tests_run_count: int
     css_score: int
+    claude_interpretation: Optional[str] = None
 
 
 class LoadBranchPackRequest(BaseModel):
@@ -45,9 +44,7 @@ class LoadBranchPackResponse(BaseModel):
 class DecideRequest(BaseModel):
     """Request body for DECIDE command."""
 
-    force: bool = Field(
-        False, description="Force decision even if CSS < target"
-    )
+    force: bool = Field(False, description="Force decision even if CSS < target")
 
 
 class DecideResponse(BaseModel):
@@ -68,3 +65,5 @@ class NextActionResponse(BaseModel):
     suggestion: str
     hypothesis_id: Optional[str] = None
     discriminating_test: Optional[str] = None
+    ai_reasoning: Optional[str] = None
+    ai_suggested_commands: Optional[list] = None

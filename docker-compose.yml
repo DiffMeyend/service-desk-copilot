@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8787:8787"
+    env_file: .env
+    volumes:
+      - ./tickets:/app/tickets
+      - ./runtime:/app/runtime
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8787/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy

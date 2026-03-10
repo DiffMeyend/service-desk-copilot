@@ -13,7 +13,7 @@ interface MainWorkAreaProps {
 }
 
 export function MainWorkArea({ className = '' }: MainWorkAreaProps) {
-  const { contextPayload, activeTicketId } = useStore();
+  const { contextPayload, activeTicketId, evidenceInterpretations } = useStore();
 
   if (!activeTicketId) {
     return (
@@ -81,7 +81,10 @@ export function MainWorkArea({ className = '' }: MainWorkAreaProps) {
       />
 
       {/* Evidence Log */}
-      <EvidenceLog evidence={contextPayload.evidence} />
+      <EvidenceLog
+        evidence={contextPayload.evidence}
+        interpretations={evidenceInterpretations}
+      />
     </main>
   );
 }

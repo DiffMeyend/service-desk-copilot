@@ -7,9 +7,16 @@ import type { Evidence, TestResult } from '../../types/contextPayload';
 
 interface EvidenceLogProps {
   evidence: Evidence;
+  interpretations?: Record<string, string>;
 }
 
-function EvidenceItem({ result }: { result: TestResult }) {
+function EvidenceItem({
+  result,
+  interpretation,
+}: {
+  result: TestResult;
+  interpretation?: string;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   const formatTime = (timestamp: string) => {
@@ -57,11 +64,23 @@ function EvidenceItem({ result }: { result: TestResult }) {
           </p>
         )}
       </div>
+
+      {/* Claude interpretation — collapsible */}
+      {interpretation && (
+        <details className="mt-1">
+          <summary className="text-xs text-violet-600 dark:text-violet-400 cursor-pointer hover:text-violet-700 select-none">
+            Claude interpretation
+          </summary>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 italic leading-relaxed">
+            {interpretation}
+          </p>
+        </details>
+      )}
     </div>
   );
 }
 
-export function EvidenceLog({ evidence }: EvidenceLogProps) {
+export function EvidenceLog({ evidence, interpretations = {} }: EvidenceLogProps) {
   const { results, tests_run, observations } = evidence;
 
   return (
@@ -94,7 +113,11 @@ export function EvidenceLog({ evidence }: EvidenceLogProps) {
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {/* Test results */}
           {results.map((result, index) => (
-            <EvidenceItem key={`${result.command_id}-${index}`} result={result} />
+            <EvidenceItem
+              key={`${result.command_id}-${index}`}
+              result={result}
+              interpretation={interpretations[result.command_id]}
+            />
           ))}
 
           {/* Observations */}

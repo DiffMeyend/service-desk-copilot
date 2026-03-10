@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 logger = logging.getLogger(__name__)
 
 from api.config import settings
-from api.routers import branch_packs_router, commands_router, intake_router, tickets_router
+from api.routers import agent_router, branch_packs_router, commands_router, intake_router, tickets_router
 from api.services.runtime_service import runtime_service
 from api.websocket import ws_manager
 
@@ -45,7 +45,7 @@ app = FastAPI(
 # CORS middleware for web UI
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Vite dev server
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -68,6 +68,7 @@ app.include_router(tickets_router, dependencies=[Depends(verify_api_key)])
 app.include_router(commands_router, dependencies=[Depends(verify_api_key)])
 app.include_router(branch_packs_router, dependencies=[Depends(verify_api_key)])
 app.include_router(intake_router, dependencies=[Depends(verify_api_key)])
+app.include_router(agent_router, dependencies=[Depends(verify_api_key)])
 
 
 @app.get("/")

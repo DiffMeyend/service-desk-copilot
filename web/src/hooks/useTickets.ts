@@ -4,8 +4,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listTickets, getTicket, getTicketCSS } from '../api/tickets';
-import { logResult, loadBranchPack, decide, getNextAction } from '../api/commands';
-import type { LogResultRequest, LoadBranchPackRequest, DecideRequest } from '../types/contextPayload';
+import { logResult, loadBranchPack, decide, getNextAction, chatWithTicket } from '../api/commands';
+import type { LogResultRequest, LoadBranchPackRequest, DecideRequest, ChatRequest } from '../types/contextPayload';
 import { useStore } from '../store';
 
 // Query keys
@@ -87,11 +87,14 @@ export function useNextAction(ticketId: string | null) {
  */
 export function useLogResult(ticketId: string) {
   const queryClient = useQueryClient();
+  const addInterpretation = useStore((state) => state.addEvidenceInterpretation);
 
   return useMutation({
     mutationFn: (request: LogResultRequest) => logResult(ticketId, request),
-    onSuccess: () => {
-      // Invalidate ticket queries to refresh data
+    onSuccess: (data, variables) => {
+      if (data.claude_interpretation) {
+        addInterpretation(variables.command_id, data.claude_interpretation);
+      }
       queryClient.invalidateQueries({ queryKey: ticketKeys.detail(ticketId) });
       queryClient.invalidateQueries({ queryKey: ticketKeys.css(ticketId) });
       queryClient.invalidateQueries({ queryKey: ticketKeys.nextAction(ticketId) });
@@ -126,5 +129,14 @@ export function useDecide(ticketId: string) {
       queryClient.invalidateQueries({ queryKey: ticketKeys.detail(ticketId) });
       queryClient.invalidateQueries({ queryKey: ticketKeys.list() });
     },
+  });
+}
+
+/**
+ * Hook for Claude chat about a ticket
+ */
+export function useChatMutation(ticketId: string) {
+  return useMutation({
+    mutationFn: (request: ChatRequest) => chatWithTicket(ticketId, request),
   });
 }

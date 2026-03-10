@@ -237,6 +237,7 @@ export interface LogResultResponse {
   message: string;
   tests_run_count: number;
   css_score: number;
+  claude_interpretation?: string;
 }
 
 export interface LoadBranchPackRequest {
@@ -268,6 +269,25 @@ export interface NextActionResponse {
   suggestion: string;
   hypothesis_id?: string;
   discriminating_test?: string;
+  ai_reasoning?: string;
+  ai_suggested_commands?: string[];
+}
+
+// ============ AI / Chat Types ============
+
+export interface ChatRequest {
+  message: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  hypothesis_updates: Record<string, string>;
+  suggested_commands: string[];
+}
+
+export interface TriageInfo {
+  routing_suggestion?: string;
+  triage_reasoning?: string;
 }
 
 // ============ Branch Pack Types ============
