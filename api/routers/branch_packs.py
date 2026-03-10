@@ -6,10 +6,9 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException
 
-from api.schemas.branch_pack import BranchPackSummary, BranchPackDetail
+from api.schemas.branch_pack import BranchPackDetail, BranchPackSummary
 from api.schemas.ticket import Hypothesis
 from api.services.runtime_service import runtime_service
-
 
 router = APIRouter(prefix="/api/v1/branch-packs", tags=["branch-packs"])
 

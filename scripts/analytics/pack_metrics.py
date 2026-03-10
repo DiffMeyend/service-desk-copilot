@@ -8,7 +8,6 @@ Computes statistics from resolution logs to measure pack and hypothesis effectiv
 from __future__ import annotations
 
 import json
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +17,7 @@ from typing import Any
 @dataclass
 class HypothesisStats:
     """Statistics for a single hypothesis."""
+
     hypothesis_id: str
     confirmed: int = 0
     falsified: int = 0
@@ -45,6 +45,7 @@ class HypothesisStats:
 @dataclass
 class PackStats:
     """Statistics for a branch pack."""
+
     pack_id: str
     total_resolutions: int = 0
     avg_resolution_time_mins: float = 0.0
@@ -56,9 +57,7 @@ class PackStats:
             "pack_id": self.pack_id,
             "total_resolutions": self.total_resolutions,
             "avg_resolution_time_mins": round(self.avg_resolution_time_mins, 1),
-            "hypothesis_accuracy": {
-                h_id: h.to_dict() for h_id, h in self.hypotheses.items()
-            },
+            "hypothesis_accuracy": {h_id: h.to_dict() for h_id, h in self.hypotheses.items()},
         }
 
 
@@ -151,15 +150,11 @@ class PackMetrics:
             # Sort by fastest resolution (ascending)
             sorted_stats = sorted(
                 all_stats.values(),
-                key=lambda s: s.avg_resolution_time_mins if s.avg_resolution_time_mins > 0 else float('inf')
+                key=lambda s: s.avg_resolution_time_mins if s.avg_resolution_time_mins > 0 else float("inf"),
             )
         else:
             # Sort by most resolutions (descending)
-            sorted_stats = sorted(
-                all_stats.values(),
-                key=lambda s: s.total_resolutions,
-                reverse=True
-            )
+            sorted_stats = sorted(all_stats.values(), key=lambda s: s.total_resolutions, reverse=True)
 
         return sorted_stats[:n]
 
@@ -173,15 +168,10 @@ class PackMetrics:
             "  Hypothesis Accuracy:",
         ]
 
-        for h_id, h_stats in sorted(
-            stats.hypotheses.items(),
-            key=lambda x: x[1].total_uses,
-            reverse=True
-        ):
+        for h_id, h_stats in sorted(stats.hypotheses.items(), key=lambda x: x[1].total_uses, reverse=True):
             accuracy_pct = h_stats.accuracy * 100
             lines.append(
-                f"    {h_id}: {accuracy_pct:.0f}% "
-                f"({h_stats.confirmed} confirmed, {h_stats.falsified} falsified)"
+                f"    {h_id}: {accuracy_pct:.0f}% ({h_stats.confirmed} confirmed, {h_stats.falsified} falsified)"
             )
 
         return "\n".join(lines)
@@ -239,5 +229,7 @@ if __name__ == "__main__":
         else:
             print(f"Top {args.top} Packs by Resolution Count:\n")
             for stats in top_packs:
-                print(f"  {stats.pack_id}: {stats.total_resolutions} resolutions, "
-                      f"{stats.avg_resolution_time_mins:.1f} min avg")
+                print(
+                    f"  {stats.pack_id}: {stats.total_resolutions} resolutions, "
+                    f"{stats.avg_resolution_time_mins:.1f} min avg"
+                )

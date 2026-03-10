@@ -9,9 +9,10 @@ Outputs a summary to stdout listing:
 - pack override counts / missing keywords
 - missing catalog keywords aggregated
 """
+
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 

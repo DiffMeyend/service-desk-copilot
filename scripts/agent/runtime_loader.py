@@ -12,11 +12,9 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-from . import config
-from ..core.result import Result, Success, Failure, is_success
-
 # Use centralized exceptions
-from ..core.exceptions import RuntimeLoadError
+from ..core.result import Failure, Result, Success
+from . import config
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +35,7 @@ def _load_yaml_file(path: Path) -> Result[Dict[str, Any]]:
         return Failure(f"Permission denied: {path}", error_type="permission_denied")
 
     # Sanitize non-printable characters
-    safe_text = "".join(
-        ch for ch in text
-        if (32 <= ord(ch) <= 126) or ch in "\n\r\t" or ord(ch) >= 160
-    )
+    safe_text = "".join(ch for ch in text if (32 <= ord(ch) <= 126) or ch in "\n\r\t" or ord(ch) >= 160)
     try:
         data = yaml.safe_load(safe_text)
         if not isinstance(data, dict):

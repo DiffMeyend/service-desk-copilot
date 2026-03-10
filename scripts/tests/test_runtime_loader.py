@@ -5,15 +5,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
 # Add project root to path for package imports
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.agent.runtime_loader import RuntimeLoader, _load_yaml_file, _load_json_file
-from scripts.core.result import Success, Failure, is_success
+from scripts.agent.runtime_loader import RuntimeLoader, _load_json_file, _load_yaml_file
+from scripts.core.result import Failure, is_success
 
 
 class TestLoadYamlFile:

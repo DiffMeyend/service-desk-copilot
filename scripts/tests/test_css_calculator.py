@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Dict
 
 import pytest
 
@@ -15,12 +14,12 @@ if str(ROOT) not in sys.path:
 
 from scripts.agent.css_calculator import (
     CSSCalculator,
+    _evaluate_condition,
+    _get_nested,
     _is_empty,
     _is_not_empty,
     _len_eq,
     _len_gt,
-    _get_nested,
-    _evaluate_condition,
 )
 
 

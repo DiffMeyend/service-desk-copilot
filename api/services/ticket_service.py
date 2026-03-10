@@ -12,9 +12,9 @@ _root = Path(__file__).resolve().parents[2]
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from scripts.agent.cp_manager import CPManager
 from api.config import settings
 from api.schemas.ticket import TicketSummary
+from scripts.agent.cp_manager import CPManager
 
 
 class TicketService:

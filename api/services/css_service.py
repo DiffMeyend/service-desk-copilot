@@ -11,11 +11,9 @@ _root = Path(__file__).resolve().parents[2]
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from scripts.agent.css_calculator import CSSCalculator
-from scripts.agent import config as agent_config
-
-from api.services.runtime_service import runtime_service
 from api.schemas.css import CSSResponse
+from api.services.runtime_service import runtime_service
+from scripts.agent.css_calculator import CSSCalculator
 
 
 class CSSService:
