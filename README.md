@@ -100,7 +100,8 @@ Local agent that mirrors the GPT runtime with deterministic routing and full obs
 ```
 scripts/
 ├── agent/       # Agent loop, command handler, CSS calculator, CP manager
-├── core/        # Field path constants, exceptions, result models
+├── core/        # Field path constants, exceptions, result models, LLM Protocol
+├── intake/      # Multi-agent orchestrator: ingest, analytics, alert surfacing
 ├── parsing/     # Ticket parser, PII-scrubbing variant, branch pack selector
 ├── analytics/   # Pattern detection, confidence scoring, resolution logging
 ├── pipeline/    # Ticket ingestion watcher, payload generation
@@ -144,10 +145,10 @@ Three-panel workbench UI for visualizing ticket state and troubleshooting progre
 
 ```bash
 # Run full test suite
-pytest scripts/tests/ -v
+PYTHONPATH=. pytest scripts/tests/ -v
 
 # Run with coverage
-pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
+PYTHONPATH=. pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
 
 # Smoke test (manual regression)
 # See tests/smoke_test.md for the 10-scenario harness
