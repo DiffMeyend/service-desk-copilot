@@ -31,7 +31,7 @@ async def list_branch_packs() -> List[BranchPackSummary]:
                 category=pack.get("category", ""),
                 goal=pack.get("goal", ""),
                 hypothesis_count=len(pack.get("hypotheses", [])),
-                keywords=pack.get("keywords", []),
+                keywords=[k for k in pack.get("keywords", []) if isinstance(k, str)],
             )
         )
 
