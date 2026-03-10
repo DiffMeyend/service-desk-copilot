@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +25,7 @@ from .resolution_logger import ResolutionLogger
 @dataclass
 class DevicePattern:
     """Pattern for a recurring device issue."""
+
     hostname: str
     ticket_count: int
     categories: dict[str, int] = field(default_factory=dict)  # category -> count
@@ -35,6 +36,7 @@ class DevicePattern:
 @dataclass
 class UserPattern:
     """Pattern for a recurring user issue."""
+
     user_name: str
     ticket_count: int
     categories: dict[str, int] = field(default_factory=dict)
@@ -45,6 +47,7 @@ class UserPattern:
 @dataclass
 class TemporalPattern:
     """Time-based pattern."""
+
     pattern_type: str  # "hour_of_day" or "day_of_week"
     peak_value: int  # Hour (0-23) or day (0-6)
     peak_label: str  # "8-9am" or "Monday"
@@ -55,6 +58,7 @@ class TemporalPattern:
 @dataclass
 class SymptomCluster:
     """Cluster of co-occurring symptoms."""
+
     symptoms: tuple[str, ...]
     occurrences: int
     common_hypothesis: str = ""
@@ -64,6 +68,7 @@ class SymptomCluster:
 @dataclass
 class PatternReport:
     """Complete pattern analysis report."""
+
     generated_at: str
     analysis_days: int
     total_resolutions: int
@@ -163,12 +168,8 @@ class PatternDetector:
             return report
 
         # Run all detectors
-        report.recurring_devices = self._detect_device_recurrence(
-            resolutions, min_tickets=min_device_tickets
-        )
-        report.recurring_users = self._detect_user_recurrence(
-            resolutions, min_tickets=min_user_tickets
-        )
+        report.recurring_devices = self._detect_device_recurrence(resolutions, min_tickets=min_device_tickets)
+        report.recurring_users = self._detect_user_recurrence(resolutions, min_tickets=min_user_tickets)
         report.temporal_patterns = self._detect_temporal_patterns(resolutions)
         report.symptom_clusters = self._detect_symptom_clusters(resolutions)
         report.blast_radius_events = self._detect_blast_radius(resolutions)
@@ -216,9 +217,7 @@ class PatternDetector:
         for hostname, data in device_data.items():
             if data["count"] >= min_tickets:
                 avg_time = (
-                    sum(data["resolution_times"]) / len(data["resolution_times"])
-                    if data["resolution_times"]
-                    else 0
+                    sum(data["resolution_times"]) / len(data["resolution_times"]) if data["resolution_times"] else 0
                 )
                 patterns.append(
                     DevicePattern(
@@ -301,9 +300,7 @@ class PatternDetector:
         day_counts: dict[int, int] = defaultdict(int)
 
         # Also track by category
-        category_hour_counts: dict[str, dict[int, int]] = defaultdict(
-            lambda: defaultdict(int)
-        )
+        category_hour_counts: dict[str, dict[int, int]] = defaultdict(lambda: defaultdict(int))
 
         for r in resolutions:
             timestamp = r.get("timestamp", "")
@@ -332,7 +329,7 @@ class PatternDetector:
                 TemporalPattern(
                     pattern_type="hour_of_day",
                     peak_value=peak_hour,
-                    peak_label=f"{peak_hour}:00-{peak_hour+1}:00",
+                    peak_label=f"{peak_hour}:00-{peak_hour + 1}:00",
                     ticket_count=hour_counts[peak_hour],
                 )
             )
@@ -359,7 +356,7 @@ class PatternDetector:
                         TemporalPattern(
                             pattern_type="category_hour",
                             peak_value=peak_hour,
-                            peak_label=f"{peak_hour}:00-{peak_hour+1}:00",
+                            peak_label=f"{peak_hour}:00-{peak_hour + 1}:00",
                             ticket_count=hours[peak_hour],
                             category=category,
                         )
@@ -374,9 +371,7 @@ class PatternDetector:
     ) -> list[SymptomCluster]:
         """Find symptoms that frequently co-occur."""
         # Track symptom pair co-occurrences
-        pair_counts: dict[tuple, dict] = defaultdict(
-            lambda: {"count": 0, "hypotheses": defaultdict(int)}
-        )
+        pair_counts: dict[tuple, dict] = defaultdict(lambda: {"count": 0, "hypotheses": defaultdict(int)})
 
         for r in resolutions:
             symptoms = r.get("symptoms", [])
@@ -388,7 +383,7 @@ class PatternDetector:
 
             # Count all pairs
             for i, s1 in enumerate(symptoms):
-                for s2 in symptoms[i + 1:]:
+                for s2 in symptoms[i + 1 :]:
                     pair = (s1, s2)
                     pair_counts[pair]["count"] += 1
 
@@ -465,22 +460,24 @@ class PatternDetector:
                     for p in e.get("source_pack", []):
                         common_packs[p] += 1
 
-                blast_events.append({
-                    "time_window": window_key,
-                    "affected_devices": len(devices),
-                    "affected_users": len(users),
-                    "ticket_count": len(events),
-                    "common_symptoms": sorted(
-                        common_symptoms.items(),
-                        key=lambda x: x[1],
-                        reverse=True,
-                    )[:3],
-                    "common_packs": sorted(
-                        common_packs.items(),
-                        key=lambda x: x[1],
-                        reverse=True,
-                    )[:3],
-                })
+                blast_events.append(
+                    {
+                        "time_window": window_key,
+                        "affected_devices": len(devices),
+                        "affected_users": len(users),
+                        "ticket_count": len(events),
+                        "common_symptoms": sorted(
+                            common_symptoms.items(),
+                            key=lambda x: x[1],
+                            reverse=True,
+                        )[:3],
+                        "common_packs": sorted(
+                            common_packs.items(),
+                            key=lambda x: x[1],
+                            reverse=True,
+                        )[:3],
+                    }
+                )
 
         blast_events.sort(key=lambda e: e["ticket_count"], reverse=True)
         return blast_events[:5]
@@ -511,9 +508,7 @@ class PatternDetector:
             for d in report.recurring_devices:
                 if d.hostname == device:
                     cats = ", ".join(f"{k}({v})" for k, v in list(d.categories.items())[:3])
-                    alerts.append(
-                        f"⚠️ {device} has had {d.ticket_count} tickets in last {days} days [{cats}]"
-                    )
+                    alerts.append(f"⚠️ {device} has had {d.ticket_count} tickets in last {days} days [{cats}]")
                     break
 
         # Check user recurrence
@@ -521,9 +516,7 @@ class PatternDetector:
             for u in report.recurring_users:
                 if u.user_name == user:
                     cats = ", ".join(f"{k}({v})" for k, v in list(u.categories.items())[:3])
-                    alerts.append(
-                        f"⚠️ {user} has reported {u.ticket_count} issues in last {days} days [{cats}]"
-                    )
+                    alerts.append(f"⚠️ {user} has reported {u.ticket_count} issues in last {days} days [{cats}]")
                     break
 
         # Check symptom clusters
@@ -586,8 +579,7 @@ class PatternDetector:
             lines.append("Blast Radius Events:")
             for b in report.blast_radius_events[:3]:
                 lines.append(
-                    f"  - {b['time_window'][:16]}: {b['affected_devices']} devices, "
-                    f"{b['affected_users']} users"
+                    f"  - {b['time_window'][:16]}: {b['affected_devices']} devices, {b['affected_users']} users"
                 )
             lines.append("")
 

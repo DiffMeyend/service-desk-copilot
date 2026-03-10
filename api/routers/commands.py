@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from api.schemas.commands import (
-    LogResultRequest,
-    LogResultResponse,
-    LoadBranchPackRequest,
-    LoadBranchPackResponse,
     DecideRequest,
     DecideResponse,
+    LoadBranchPackRequest,
+    LoadBranchPackResponse,
+    LogResultRequest,
+    LogResultResponse,
     NextActionResponse,
 )
-from api.services.ticket_service import TicketService
 from api.services.command_service import CommandService
-
+from api.services.ticket_service import TicketService
 
 router = APIRouter(prefix="/api/v1/tickets", tags=["commands"])
 

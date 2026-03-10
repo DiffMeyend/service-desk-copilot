@@ -24,7 +24,6 @@ if str(SCRIPTS_ROOT) not in sys.path:
 
 from parsing.branch_pack_selector import select_branch_pack_seed
 
-
 # ============================================================================
 # Test Data
 # ============================================================================
@@ -93,8 +92,7 @@ BRANCH_PACK_TEST_CASES = [
     pytest.param(
         "shared_mailbox_permissions",
         "Cannot send as shared mailbox",
-        "User has Full Access but SendAs permissions missing on shared mailbox. "
-        "Need to verify Exchange permissions.",
+        "User has Full Access but SendAs permissions missing on shared mailbox. Need to verify Exchange permissions.",
         ["shared_mailbox_permissions"],
         id="shared_mailbox_permissions",
     ),
@@ -102,16 +100,14 @@ BRANCH_PACK_TEST_CASES = [
     pytest.param(
         "disk_io_pressure",
         "System running extremely slow with disk at 100%",
-        "Task Manager shows disk at 100%. Low disk space warning. "
-        "NTFS errors in event log. storahci warnings present.",
+        "Task Manager shows disk at 100%. Low disk space warning. NTFS errors in event log. storahci warnings present.",
         ["disk_io_pressure"],
         id="disk_io_pressure",
     ),
     pytest.param(
         "print_subsystem",
         "Printer queue stuck and spooler crashing",
-        "Print spooler service keeps stopping. Queue shows pending jobs. "
-        "Point and Print driver installation failed.",
+        "Print spooler service keeps stopping. Queue shows pending jobs. Point and Print driver installation failed.",
         ["print_subsystem"],
         id="print_subsystem",
     ),
@@ -119,8 +115,7 @@ BRANCH_PACK_TEST_CASES = [
     pytest.param(
         "recent_change",
         "Application broken after Windows update",
-        "Issue started after Patch Tuesday. Recent change in Office build. "
-        "Regression from previous working state.",
+        "Issue started after Patch Tuesday. Recent change in Office build. Regression from previous working state.",
         ["recent_change"],
         id="recent_change",
     ),
@@ -136,8 +131,7 @@ BRANCH_PACK_TEST_CASES = [
     pytest.param(
         "vpn_plus_recent_change",
         "VPN stopped working after Windows update",
-        "AnyConnect VPN was working until Patch Tuesday. Recent change broke it. "
-        "Split tunnel configuration unchanged.",
+        "AnyConnect VPN was working until Patch Tuesday. Recent change broke it. Split tunnel configuration unchanged.",
         ["vpn_client", "recent_change"],
         id="vpn_plus_recent_change",
     ),
@@ -153,9 +147,7 @@ class TestBranchPackSelector:
     """Tests for branch pack selection logic."""
 
     @pytest.mark.parametrize("test_id,summary,body,expected_packs", BRANCH_PACK_TEST_CASES)
-    def test_pack_selection(
-        self, test_id: str, summary: str, body: str, expected_packs: List[str]
-    ):
+    def test_pack_selection(self, test_id: str, summary: str, body: str, expected_packs: List[str]):
         """Verify correct pack selection for given ticket content."""
         result = select_branch_pack_seed(summary, body)
         actual_packs = result.get("pack_ids", [])
@@ -183,9 +175,7 @@ class TestBranchPackSelector:
 
     def test_hypotheses_returned(self):
         """Verify hypotheses list is always present."""
-        result = select_branch_pack_seed(
-            "VPN disconnects", "AnyConnect VPN connection drops"
-        )
+        result = select_branch_pack_seed("VPN disconnects", "AnyConnect VPN connection drops")
         assert "hypotheses" in result
         assert isinstance(result["hypotheses"], list)
 
@@ -264,29 +254,25 @@ TEST_CASES: List[Tuple[str, str, str, List[str]]] = [
     (
         "shared_mailbox_permissions",
         "Cannot send as shared mailbox",
-        "User has Full Access but SendAs permissions missing on shared mailbox. "
-        "Need to verify Exchange permissions.",
+        "User has Full Access but SendAs permissions missing on shared mailbox. Need to verify Exchange permissions.",
         ["shared_mailbox_permissions"],
     ),
     (
         "disk_io_pressure",
         "System running extremely slow with disk at 100%",
-        "Task Manager shows disk at 100%. Low disk space warning. "
-        "NTFS errors in event log. storahci warnings present.",
+        "Task Manager shows disk at 100%. Low disk space warning. NTFS errors in event log. storahci warnings present.",
         ["disk_io_pressure"],
     ),
     (
         "print_subsystem",
         "Printer queue stuck and spooler crashing",
-        "Print spooler service keeps stopping. Queue shows pending jobs. "
-        "Point and Print driver installation failed.",
+        "Print spooler service keeps stopping. Queue shows pending jobs. Point and Print driver installation failed.",
         ["print_subsystem"],
     ),
     (
         "recent_change",
         "Application broken after Windows update",
-        "Issue started after Patch Tuesday. Recent change in Office build. "
-        "Regression from previous working state.",
+        "Issue started after Patch Tuesday. Recent change in Office build. Regression from previous working state.",
         ["recent_change"],
     ),
     (
@@ -299,8 +285,7 @@ TEST_CASES: List[Tuple[str, str, str, List[str]]] = [
     (
         "vpn_plus_recent_change",
         "VPN stopped working after Windows update",
-        "AnyConnect VPN was working until Patch Tuesday. Recent change broke it. "
-        "Split tunnel configuration unchanged.",
+        "AnyConnect VPN was working until Patch Tuesday. Recent change broke it. Split tunnel configuration unchanged.",
         ["vpn_client", "recent_change"],
     ),
 ]
@@ -322,10 +307,7 @@ def run_tests() -> Tuple[int, int, List[str]]:
         if missing:
             failed += 1
             failures.append(
-                f"FAIL: {name}\n"
-                f"  Expected: {expected_packs}\n"
-                f"  Actual:   {actual_packs}\n"
-                f"  Missing:  {missing}"
+                f"FAIL: {name}\n  Expected: {expected_packs}\n  Actual:   {actual_packs}\n  Missing:  {missing}"
             )
         else:
             passed += 1

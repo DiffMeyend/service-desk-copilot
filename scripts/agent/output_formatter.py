@@ -6,7 +6,7 @@ Generates compact block output per router.txt format.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from . import config
 
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 # Optional analytics import for confidence deltas
 try:
     from ..analytics.confidence_updater import ConfidenceUpdater
+
     ANALYTICS_AVAILABLE = True
 except ImportError:
     ANALYTICS_AVAILABLE = False
@@ -172,7 +173,7 @@ class OutputFormatter:
             return "HYPOTHESES: None (run LOAD_BRANCH_PACK to add)"
 
         lines = ["HYPOTHESES:"]
-        for i, hyp in enumerate(hyps[:config.MAX_ACTIVE_HYPOTHESES], 1):
+        for i, hyp in enumerate(hyps[: config.MAX_ACTIVE_HYPOTHESES], 1):
             if isinstance(hyp, dict):
                 # Try 'hypothesis' field first (branch pack format), then 'name'
                 name = hyp.get("hypothesis") or hyp.get("name", "Unknown")
@@ -241,7 +242,7 @@ class OutputFormatter:
 
     def format_input_hint(self) -> str:
         """Format the input hint."""
-        return "INPUT:\n  Paste with: LOG_RESULT {\"command_id\": \"...\", \"output\": \"...\"}"
+        return 'INPUT:\n  Paste with: LOG_RESULT {"command_id": "...", "output": "..."}'
 
     def render_compact_block(self) -> str:
         """Render the full compact block output."""

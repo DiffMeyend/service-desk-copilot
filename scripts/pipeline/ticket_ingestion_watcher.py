@@ -17,7 +17,6 @@ import re
 import shutil
 import sys
 import time
-import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -38,9 +37,7 @@ PARSER_MODULES = {
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Watch the ticket inbox directory and emit Context Payload JSON."
-    )
+    parser = argparse.ArgumentParser(description="Watch the ticket inbox directory and emit Context Payload JSON.")
     parser.add_argument(
         "--inbox",
         type=Path,
@@ -130,9 +127,6 @@ def _safe_move_to_error(file_path: Path, error_dir: Path) -> Optional[Path]:
         return None
 
 
-
-
-
 def iter_evidence_sidecars(base_path: Path) -> List[Path]:
     """Return possible sidecar evidence files for a ticket text file."""
     return [
@@ -156,7 +150,7 @@ def parse_evidence_lines(lines: List[str]) -> List[dict]:
             continue
 
         if line.startswith("LOG_RESULT "):
-            json_part = line[len("LOG_RESULT "):].strip()
+            json_part = line[len("LOG_RESULT ") :].strip()
             try:
                 payload = json.loads(json_part)
             except json.JSONDecodeError:
@@ -258,7 +252,7 @@ def process_file(
         clean_text, extracted = raw_text, []
 
     payload = parser_module.build_payload(clean_text)
-    ticket_id = (payload.get("ticket", {}).get("id") or payload.get("case", {}).get("id") or "UNSPECIFIED")
+    ticket_id = payload.get("ticket", {}).get("id") or payload.get("case", {}).get("id") or "UNSPECIFIED"
 
     merged = merge_evidence(payload, extracted + load_sidecar_evidence(file_path))
 
@@ -283,6 +277,7 @@ def process_file(
     source_pack = payload.get("branches", {}).get("source_pack", [])
     if source_pack:
         print(f"[{now_ts()}][ticket-ingest][{parser_mode}]   source_pack: {source_pack}", flush=True)
+
 
 def summarize_top_level_changes(previous: dict | None, current: dict) -> str:
     if previous is None:
@@ -321,7 +316,7 @@ def process_processed_file(
         clean_text, extracted = raw_text, []
 
     payload = parser_module.build_payload(clean_text)
-    ticket_id = (payload.get("ticket", {}).get("id") or payload.get("case", {}).get("id") or "UNSPECIFIED")
+    ticket_id = payload.get("ticket", {}).get("id") or payload.get("case", {}).get("id") or "UNSPECIFIED"
 
     merged = merge_evidence(payload, extracted + load_sidecar_evidence(file_path))
 
@@ -349,7 +344,6 @@ def process_processed_file(
     source_pack = payload.get("branches", {}).get("source_pack", [])
     if source_pack:
         print(f"[{now_ts()}][ticket-reingest][{parser_mode}]   source_pack: {source_pack}", flush=True)
-
 
 
 def main() -> int:
@@ -391,20 +385,20 @@ def main() -> int:
                 # Expected errors during file processing
                 error_target = _safe_move_to_error(file_path, args.error_dir)
                 suffix = f" (moved to {error_target.name})" if error_target else ""
-                logger.error(
-                    "[ticket-ingest][%s] ERROR processing %s: %s%s",
-                    args.parser, file_path.name, exc, suffix
+                logger.error("[ticket-ingest][%s] ERROR processing %s: %s%s", args.parser, file_path.name, exc, suffix)
+                print(
+                    f"[ticket-ingest][{args.parser}] ERROR processing {file_path.name}: {exc}{suffix}", file=sys.stderr
                 )
-                print(f"[ticket-ingest][{args.parser}] ERROR processing {file_path.name}: {exc}{suffix}", file=sys.stderr)
             except Exception as exc:
                 # Unexpected error - log full traceback for debugging
                 error_target = _safe_move_to_error(file_path, args.error_dir)
                 suffix = f" (moved to {error_target.name})" if error_target else ""
                 logger.exception(
-                    "[ticket-ingest][%s] UNEXPECTED ERROR processing %s%s",
-                    args.parser, file_path.name, suffix
+                    "[ticket-ingest][%s] UNEXPECTED ERROR processing %s%s", args.parser, file_path.name, suffix
                 )
-                print(f"[ticket-ingest][{args.parser}] ERROR processing {file_path.name}: {exc}{suffix}", file=sys.stderr)
+                print(
+                    f"[ticket-ingest][{args.parser}] ERROR processing {file_path.name}: {exc}{suffix}", file=sys.stderr
+                )
 
         try:
             processed_files = [path for path in args.processed_dir.iterdir() if path.is_file()]
@@ -441,10 +435,7 @@ def main() -> int:
                 processed_seen[file_path] = mtime
             except (OSError, IOError, json.JSONDecodeError, UnicodeDecodeError) as exc:
                 # Expected errors during file re-processing
-                logger.error(
-                    "[ticket-reingest][%s] ERROR processing %s: %s",
-                    args.parser, file_path.name, exc
-                )
+                logger.error("[ticket-reingest][%s] ERROR processing %s: %s", args.parser, file_path.name, exc)
                 print(
                     f"[ticket-reingest][{args.parser}] ERROR processing {file_path.name}: {exc}",
                     file=sys.stderr,
@@ -452,10 +443,7 @@ def main() -> int:
                 processed_seen[file_path] = mtime
             except Exception as exc:
                 # Unexpected error - log full traceback for debugging
-                logger.exception(
-                    "[ticket-reingest][%s] UNEXPECTED ERROR processing %s",
-                    args.parser, file_path.name
-                )
+                logger.exception("[ticket-reingest][%s] UNEXPECTED ERROR processing %s", args.parser, file_path.name)
                 print(
                     f"[ticket-reingest][{args.parser}] ERROR processing {file_path.name}: {exc}",
                     file=sys.stderr,
@@ -469,5 +457,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-

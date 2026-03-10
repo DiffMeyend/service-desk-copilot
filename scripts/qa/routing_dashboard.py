@@ -12,6 +12,7 @@ from typing import Dict, Iterable, List, Sequence
 
 import yaml
 
+
 def gather_payload_files(inputs: Sequence[Path]) -> List[Path]:
     files: List[Path] = []
     for item in inputs:
@@ -99,11 +100,7 @@ def analyze_payloads(files: Iterable[Path], pack_categories: Dict[str, str]) -> 
         for pack_id in pack_ids:
             pack_counts[pack_id] += 1
 
-        non_cross = sum(
-            1
-            for pid in set(pack_ids or [])
-            if pack_categories.get(pid, "unknown") != "cross_cutting"
-        )
+        non_cross = sum(1 for pid in set(pack_ids or []) if pack_categories.get(pid, "unknown") != "cross_cutting")
         if non_cross > 1:
             collision_count += 1
 
@@ -156,8 +153,8 @@ def print_summary(summary: Dict[str, object]) -> None:
     alias = summary["alias_matches"]
     fallback = summary["taxonomy_fallbacks"]
     if total:
-        print(f"Alias-applied taxonomy routes: {alias} ({alias/total*100:.1f}%)")
-        print(f"Taxonomy fallback usage: {fallback} ({fallback/total*100:.1f}%)")
+        print(f"Alias-applied taxonomy routes: {alias} ({alias / total * 100:.1f}%)")
+        print(f"Taxonomy fallback usage: {fallback} ({fallback / total * 100:.1f}%)")
         print()
         print(
             f"Collision rate (multiple non-cross-cutting packs): "
@@ -195,9 +192,7 @@ def print_summary(summary: Dict[str, object]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Summarize routing metadata for QA. Defaults to tickets/ready/*.json."
-    )
+    parser = argparse.ArgumentParser(description="Summarize routing metadata for QA. Defaults to tickets/ready/*.json.")
     parser.add_argument(
         "paths",
         nargs="*",
