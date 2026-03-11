@@ -1,5 +1,5 @@
-﻿#!/usr/bin/env python3
-"""Parse raw Autotask ticket text into the QF_Wiz context payload schema."""
+#!/usr/bin/env python3
+"""Parse raw PSA ticket text into the QF_Wiz context payload schema."""
 
 from __future__ import annotations
 
@@ -391,11 +391,7 @@ SECTION_ALIASES = {
     ],
 }
 
-SECTION_ALIAS_LOOKUP = {
-    alias: canonical
-    for canonical, aliases in SECTION_ALIASES.items()
-    for alias in aliases
-}
+SECTION_ALIAS_LOOKUP = {alias: canonical for canonical, aliases in SECTION_ALIASES.items() for alias in aliases}
 DESCRIPTION_STOPS = SECTION_BREAKS.union(
     {
         "**created via incoming email processor**",
@@ -504,10 +500,11 @@ def split_lines(text: str) -> List[str]:
 
 def normalized(line: str) -> str:
     cleaned = line.strip().lower()
-    cleaned = cleaned.strip('*#>-| ')
-    cleaned = re.sub(r'[:：\-]+$', '', cleaned).strip()
+    cleaned = cleaned.strip("*#>-| ")
+    cleaned = re.sub(r"[:：\-]+$", "", cleaned).strip()
     cleaned = re.sub(r"\s+", " ", cleaned)
     return cleaned
+
 
 def canonical_heading(label: str) -> str:
     norm = normalized(label)
@@ -557,25 +554,25 @@ def harvest_key_values(lines: List[str]) -> Dict[str, str]:
         if not raw_line:
             continue
         stripped = raw_line.strip()
-        if not stripped or stripped.startswith('**'):
+        if not stripped or stripped.startswith("**"):
             continue
         low = stripped.lower()
-        if low.startswith('attachment |') or low.startswith('ticket note |'):
+        if low.startswith("attachment |") or low.startswith("ticket note |"):
             continue
         matches = []
         for match in RE_INLINE_KEYVALUE.finditer(stripped):
             start = match.start()
             if start > 0 and stripped[start - 1].isalnum():
                 continue
-            after = stripped[match.end(): match.end() + 1]
-            if after in {'/', '\\'}:
+            after = stripped[match.end() : match.end() + 1]
+            if after in {"/", "\\"}:
                 continue
             matches.append(match)
         if not matches:
             continue
         for idx, match in enumerate(matches):
             key = normalized(match.group(1))
-            if not key or key.startswith('http') or key in SECTION_BREAKS:
+            if not key or key.startswith("http") or key in SECTION_BREAKS:
                 continue
             start = match.end()
             end = matches[idx + 1].start() if idx + 1 < len(matches) else len(stripped)
@@ -674,6 +671,7 @@ def extract_block(lines: List[str], heading: str) -> List[str]:
         return block
     return []
 
+
 def extract_description(lines: List[str]) -> str:
     for idx, line in enumerate(lines):
         if canonical_heading(line) != "description":
@@ -685,8 +683,7 @@ def extract_description(lines: List[str]) -> str:
         for current in lines[start:]:
             cur_norm = canonical_heading(current)
             if cur_norm and (
-                cur_norm in DESCRIPTION_STOPS
-                or any(cur_norm.startswith(prefix) for prefix in DESCRIPTION_STOPS)
+                cur_norm in DESCRIPTION_STOPS or any(cur_norm.startswith(prefix) for prefix in DESCRIPTION_STOPS)
             ):
                 break
             if is_reply_marker(current):
@@ -750,11 +747,13 @@ def extract_ticket_notes(lines: List[str], max_notes: int = 5) -> List[Dict[str,
 
         body = "\n".join(body_lines).strip()
         if body:  # Only include notes with actual content
-            notes.append({
-                "timestamp": timestamp,
-                "author": author,
-                "body": body,
-            })
+            notes.append(
+                {
+                    "timestamp": timestamp,
+                    "author": author,
+                    "body": body,
+                }
+            )
         i = j
 
     # Keep most recent notes if we exceed max_notes
@@ -893,25 +892,37 @@ def parse_contact(lines: List[str], raw_text: str, kv: Dict[str, str]) -> Dict[s
     inline_email = extract_inline_field(raw_text, "Your email")
     inline_phone = extract_inline_field(raw_text, "Your phone number")
 
-    name = name or inline_name or pick_kv(
-        kv,
-        [
-            "requester",
-            "requester name",
-            "requestor",
-            "requestor name",
-            "contact",
-            "contact name",
-            "name",
-        ],
+    name = (
+        name
+        or inline_name
+        or pick_kv(
+            kv,
+            [
+                "requester",
+                "requester name",
+                "requestor",
+                "requestor name",
+                "contact",
+                "contact name",
+                "name",
+            ],
+        )
     )
-    email = email or inline_email or pick_kv(
-        kv,
-        ["email", "email address", "contact email", "requester email", "requestor email"],
+    email = (
+        email
+        or inline_email
+        or pick_kv(
+            kv,
+            ["email", "email address", "contact email", "requester email", "requestor email"],
+        )
     )
-    phone = phone or inline_phone or pick_kv(
-        kv,
-        ["phone", "phone number", "contact phone", "mobile", "mobile phone"],
+    phone = (
+        phone
+        or inline_phone
+        or pick_kv(
+            kv,
+            ["phone", "phone number", "contact phone", "mobile", "mobile phone"],
+        )
     )
 
     info = {"name": name or "Unknown"}
@@ -920,6 +931,7 @@ def parse_contact(lines: List[str], raw_text: str, kv: Dict[str, str]) -> Dict[s
     if phone:
         info["phone"] = phone
     return info
+
 
 def extract_inline_field(text: str, label: str) -> Optional[str]:
     label_pattern = re.compile(rf"^\s*{re.escape(label)}\s*:\s*(.*)$", re.I)
@@ -968,9 +980,12 @@ def parse_environment(lines: List[str], kv: Dict[str, str]) -> Dict[str, str]:
     if not env.get("company"):
         env["company"] = pick_kv(kv, ["company", "account", "client", "customer", "organization"])
     if not env.get("site"):
-        env["site"] = pick_kv(kv, ["site", "location", "site/location", "site details", "address"]) or env.get("site", "")
+        env["site"] = pick_kv(kv, ["site", "location", "site/location", "site details", "address"]) or env.get(
+            "site", ""
+        )
 
     return env
+
 
 def parse_impact(raw_text: str) -> Dict[str, str]:
     impact: Dict[str, str] = {}
@@ -1013,9 +1028,7 @@ def parse_symptoms(description: str) -> Dict[str, object]:
     error_codes = RE_ERROR_CODE.findall(description)
     if error_codes:
         symptoms["error_codes"] = sorted(set(code.upper() for code in error_codes))
-        symptoms["error_messages"] = [
-            f"Error code {code}" for code in symptoms["error_codes"]
-        ]
+        symptoms["error_messages"] = [f"Error code {code}" for code in symptoms["error_codes"]]
     return symptoms
 
 
@@ -1085,9 +1098,7 @@ def parse_attachments(lines: List[str]) -> List[Dict[str, str]]:
                 url = lines[j + 1].strip()
                 j += 2
                 continue
-            if label in SECTION_BREAKS or lines[j].strip().lower().startswith(
-                "attachment |"
-            ):
+            if label in SECTION_BREAKS or lines[j].strip().lower().startswith("attachment |"):
                 break
             j += 1
         if name:
@@ -1131,7 +1142,7 @@ def parse_created_at(lines: List[str]) -> str:
 
 
 def parse_issue_type(lines: List[str]) -> str:
-    """Extract the Autotask Issue Type field specifically."""
+    """Extract the PSA Issue Type field specifically."""
     block = extract_block(lines, "issue type")
     for val in block:
         if val:
@@ -1140,7 +1151,7 @@ def parse_issue_type(lines: List[str]) -> str:
 
 
 def parse_sub_issue_type(lines: List[str]) -> str:
-    """Extract the Autotask Sub-Issue Type field specifically."""
+    """Extract the PSA Sub-Issue Type field specifically."""
     block = extract_block(lines, "sub-issue type")
     for val in block:
         if val:
@@ -1194,6 +1205,7 @@ def normalize_priority(raw: str) -> str:
         return "P5"
     return ""
 
+
 def parse_priority(lines: List[str]) -> str:
     block = extract_block(lines, "priority")
     raw = ""
@@ -1204,6 +1216,7 @@ def parse_priority(lines: List[str]) -> str:
     normalized_priority = normalize_priority(raw)
     return normalized_priority or "UNKNOWN"
 
+
 def find_first_match(text: str, patterns: List[str], clamp_inline: bool = False) -> str:
     for pattern in patterns:
         match = re.search(pattern, text, re.I | re.MULTILINE)
@@ -1212,6 +1225,7 @@ def find_first_match(text: str, patterns: List[str], clamp_inline: bool = False)
             if value:
                 return value
     return ""
+
 
 def parse_device_details(lines: List[str], raw_text: str, kv: Dict[str, str]) -> Dict[str, str]:
     hostname = (
@@ -1250,14 +1264,11 @@ def parse_device_details(lines: List[str], raw_text: str, kv: Dict[str, str]) ->
         or find_first_match(raw_text, SYSTEMINFO_PATTERNS.get("internal_ip", []), clamp_inline=True)
         or find_ipv4(lines)
     )
-    external_ip = (
-        pick_kv(
-            kv,
-            ["external ip", "public ip", "network address", "internet ip", "wan ip"],
-            clamp_inline=True,
-        )
-        or find_first_match(raw_text, SYSTEMINFO_PATTERNS.get("external_ip", []), clamp_inline=True)
-    )
+    external_ip = pick_kv(
+        kv,
+        ["external ip", "public ip", "network address", "internet ip", "wan ip"],
+        clamp_inline=True,
+    ) or find_first_match(raw_text, SYSTEMINFO_PATTERNS.get("external_ip", []), clamp_inline=True)
 
     serial = (
         find_labeled_value(lines, ["Serial Number", "System Serial Number", "Serial"], clamp_inline=True)
@@ -1290,8 +1301,6 @@ def parse_device_details(lines: List[str], raw_text: str, kv: Dict[str, str]) ->
     }
 
 
-
-
 def parse_user_details(lines: List[str], raw_text: str, kv: Dict[str, str]) -> Dict[str, str]:
     username = (
         find_labeled_value(lines, ["User Name", "Logged On User", "Last User", "Username"], clamp_inline=True)
@@ -1314,6 +1323,7 @@ def parse_user_details(lines: List[str], raw_text: str, kv: Dict[str, str]) -> D
         "username": username,
         "domain": domain,
     }
+
 
 def build_payload(raw_text: str) -> Dict[str, object]:
     lines = split_lines(raw_text)
@@ -1536,28 +1546,21 @@ def build_payload(raw_text: str) -> Dict[str, object]:
 
     return scrub_value(payload)
 
+
 def write_audit_log(payload: Dict[str, object], audit_dir: Path) -> None:
     """Write the payload to an audit log directory for decision tracing."""
     audit_dir.mkdir(parents=True, exist_ok=True)
     meta = payload.get("meta", {})
     session_id = meta.get("session_id") or "UNSPECIFIED"
     timestamp = meta.get("last_updated") or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    safe_ts = (
-        timestamp.replace(":", "")
-        .replace("-", "")
-        .replace("T", "_")
-        .replace("Z", "")
-        .strip()
-    )
+    safe_ts = timestamp.replace(":", "").replace("-", "").replace("T", "_").replace("Z", "").strip()
     filename = f"{session_id}_{safe_ts or 'audit'}.json"
     target = audit_dir / filename
     target.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Convert a raw ticket file into the QF_Wiz context payload schema."
-    )
+    parser = argparse.ArgumentParser(description="Convert a raw ticket file into the QF_Wiz context payload schema.")
     parser.add_argument("input", type=Path, help="Path to the raw ticket text")
     parser.add_argument(
         "-o",

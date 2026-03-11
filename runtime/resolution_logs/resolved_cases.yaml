@@ -6,8 +6,8 @@
 # Format:
 #   - id: T20260101.0001          # ticket ID
 #     date: "2026-01-01"
-#     issue_type: Workstation      # Autotask Issue Type
-#     sub_issue: Slow Performance  # Autotask Sub-Issue Type
+#     issue_type: Workstation      # PSA Issue Type
+#     sub_issue: Slow Performance  # PSA Sub-Issue Type
 #     summary: "One-line description of the problem"
 #     root_cause: "What it actually was"
 #     resolution: "What fixed it"

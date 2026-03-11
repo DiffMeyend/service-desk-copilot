@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parse raw Autotask ticket text into the QF_Wiz context payload schema."""
+"""Parse raw PSA ticket text into the QF_Wiz context payload schema."""
 
 from __future__ import annotations
 
@@ -1207,7 +1207,7 @@ def parse_created_at(lines: List[str]) -> str:
 
 
 def parse_issue_type(lines: List[str]) -> str:
-    """Extract the Autotask Issue Type field specifically."""
+    """Extract the PSA Issue Type field specifically."""
     block = extract_block(lines, "issue type")
     for val in block:
         if val:
@@ -1216,7 +1216,7 @@ def parse_issue_type(lines: List[str]) -> str:
 
 
 def parse_sub_issue_type(lines: List[str]) -> str:
-    """Extract the Autotask Sub-Issue Type field specifically."""
+    """Extract the PSA Sub-Issue Type field specifically."""
     block = extract_block(lines, "sub-issue type")
     for val in block:
         if val:

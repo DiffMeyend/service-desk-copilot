@@ -46,5 +46,5 @@ PYTHONPATH=. pytest scripts/tests/ -v
 - **No proprietary SOPs** — kb_articles/ contains generic examples only
 - **No real ticket data** — tickets/ready/ has sample fixtures only
 - **No customer-specific playbooks** — branch packs are generic (55 examples)
-- **No internal references** — no Autotask API keys, ThreatLocker configs, or client names
+- **No internal references** — no PSA API keys, endpoint security configs, or client names
 - When adding content, verify nothing proprietary leaks from QF_Wiz

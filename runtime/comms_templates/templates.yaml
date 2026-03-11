@@ -15,7 +15,7 @@
 global_output_rules:
   - Use only confirmed facts from ticket context. No guesses.
   - Plain language. Short and skimmable. No big words.
-  - "No Markdown formatting. No bold (**), italic (*), headers (#), or code blocks. Plain dashes for bullets. Output must paste cleanly into Autotask and Outlook with no rendering artifacts."
+  - "No Markdown formatting. No bold (**), italic (*), headers (#), or code blocks. Plain dashes for bullets. Output must paste cleanly into PSA and Outlook with no rendering artifacts."
   - "Tone: conversational but competent. Write like you're explaining to a coworker, not filling out a form. Avoid stiff phrases like 'I have initiated' — say 'I started' or 'I kicked off'. Avoid 'in alignment with' — say 'per' or 'based on'. No corporate speak."
   - Cap at 6 bullets per section. Extra detail goes under "Details (if needed)".
   - Dispatch is non-technical (routing/scheduling only) — keep dispatch sections basic.
@@ -25,7 +25,7 @@ global_output_rules:
 templates:
 
   # ───────────────────────────────────────────────────────────────
-  # NOTES — Internal ticket notes (Autotask)
+  # NOTES — Internal ticket notes (PSA)
   # Trigger: DRAFT_NOTE
   # ───────────────────────────────────────────────────────────────
 
@@ -100,7 +100,7 @@ templates:
     audience: internal
     trigger: DRAFT_HANDOFF
     description: >
-      Full escalation note for Autotask. Covers dispatch handoff + technical handoff.
+      Full escalation note for PSA. Covers dispatch handoff + technical handoff.
       Use when escalating to a Sr. engineer or scheduling team.
     body: |
       Reason for Escalation (Time or Skill): [Time OR Skill — one word only]

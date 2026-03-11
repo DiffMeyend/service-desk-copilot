@@ -13,7 +13,7 @@ Core
 - LOG_RESULT DONE       — ticket resolved; prompt to save case to resolved_cases.yaml
 
 Memory + Comms
-- DRAFT_NOTE            — draft an Autotask internal ticket note
+- DRAFT_NOTE            — draft an internal ticket note
 - DRAFT_EMAIL           — draft a customer-facing email using comms_templates/
 - DRAFT_HANDOFF         — draft an escalation handoff note
 - LOG_CASE              — emit a resolved_cases.yaml entry for the operator to save

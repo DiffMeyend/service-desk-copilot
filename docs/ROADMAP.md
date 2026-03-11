@@ -13,7 +13,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 - **CSS (Context Stability Score)**: Deterministic 0-100 measure of context completeness. Computed from 6 weighted domains (Evidence 35%, Reproduction 20%, Symptom Precision 15%, Environment 10%, Change Signals 10%, Identity & Scope 10%). CSS ≥ 90 = sufficient for accelerated resolution. See `runtime/css_source_of_truth.md` for full spec.
 
 ## Canonical Inputs
-- **Autotask Taxonomy**: `Help Desk Issue and Sub-Issue Types.csv` defines 11 Issue Types and ~69 Sub-Issue Types. Every raw ticket dump includes Issue + Sub-Issue as structured fields, enabling deterministic taxonomy-based routing.
+- **PSA Taxonomy**: `Help Desk Issue and Sub-Issue Types.csv` defines 11 Issue Types and ~69 Sub-Issue Types. Every raw ticket dump includes Issue + Sub-Issue as structured fields, enabling deterministic taxonomy-based routing.
 - **Issue Types**: Backup and Restore, Workstation, Email, Printer/Scanner, Server, Network, Power, Phone System, File Share, User, Microsoft 365
 
 ---
@@ -23,7 +23,7 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 **Objective**: Inventory existing assets, establish baseline metrics, and define acceptance criteria for the rebuilt system.
 
 **Tasks**:
-1. Document existing ticket sources (Autotask paste/email) ✓
+1. Document existing ticket sources (PSA paste/email) ✓
 2. Inventory runtime files and schema versions ✓
 3. Catalog branch packs and keyword triggers ✓
 4. Document routing inputs (ticket fields, notes, issue/sub-issue types) ✓
@@ -319,8 +319,8 @@ Rebuild QF_Wiz from the ground up with a clear, testable runtime architecture, c
 
 ## Open Questions — RESOLVED
 
-- ~~Which ticket sources are in scope for v1 rebuild?~~ → Autotask paste/email via raw dump
-- ~~What is the minimum viable pack coverage target?~~ → 100% of Autotask taxonomy Sub-Issue Types
+- ~~Which ticket sources are in scope for v1 rebuild?~~ → PSA paste/email via raw dump
+- ~~What is the minimum viable pack coverage target?~~ → 100% of PSA taxonomy Sub-Issue Types
 - ~~What feedback signals are available post-resolution?~~ → Deferred to Phase 6 (deprioritized)
 ---
 
