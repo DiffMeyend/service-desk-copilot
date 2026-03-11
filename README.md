@@ -6,6 +6,41 @@ AI-powered troubleshooting orchestration for MSP service desks — structured tr
 
 ---
 
+## Quick Start
+
+### Docker (recommended)
+
+```bash
+cp .env.example .env    # add your ANTHROPIC_API_KEY
+docker-compose up --build
+```
+
+- **API:** http://localhost:8787 · **Docs:** http://localhost:8787/docs
+- **Web UI:** http://localhost:80
+
+### Local Dev
+
+```bash
+# API
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn api.main:app --host 0.0.0.0 --port 8787 --reload
+
+# Web (separate terminal)
+cd web && cp .env.example .env && npm install && npm run dev
+# → http://localhost:5173
+```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|:--|:--|:--|
+| `ANTHROPIC_API_KEY` | For AI features | Claude triage, interpretation, and chat |
+| `SDC_API_KEY` | No | Optional API auth (`X-API-Key` header) |
+| `SDC_ALLOWED_ORIGINS` | No | Comma-separated CORS origins for production |
+
+---
+
 ## Architecture
 
 ### Ticket Flow
@@ -55,7 +90,7 @@ Hard caps enforce guardrails — e.g., CSS maxes at 50 if hostname is unknown.
 55 branch packs organized across 8 categories: network, identity, m365, messaging, security, endpoint, infrastructure, and cross-cutting.
 
 **Selection flow:**
-1. Extract Issue Type + Sub-Issue Type from ticket (Autotask taxonomy)
+1. Extract Issue Type + Sub-Issue Type from ticket (PSA taxonomy)
 2. Look up packs via `taxonomy_pack_mapping.yaml` (deterministic)
 3. If no taxonomy match, fall back to keyword matching against ticket summary + body
 4. Load primary pack + optional cross-cutting fallback (max 2)
@@ -113,11 +148,17 @@ scripts/
 
 FastAPI service exposing ticket context, command catalogs, and branch pack metadata.
 
+- `POST /api/v1/intake/parse` — parse raw ticket → structured context payload + AI triage suggestion
 - `GET /api/v1/tickets/{id}` — fetch context payload
+- `POST /api/v1/tickets/{id}/log-result` — log diagnostic result + AI evidence interpretation
+- `GET /api/v1/tickets/{id}/next-action` — recommended next step with AI reasoning
+- `POST /api/v1/tickets/{id}/chat` — freeform AI conversation grounded in ticket state
 - `GET /api/v1/commands/...` — search PowerShell catalogs
 - `GET /api/v1/branch-packs/...` — pack metadata and search
-- `WebSocket /api/v1/tickets/{id}/stream` — real-time ticket updates
+- `WebSocket /api/v1/tickets/{id}/stream` — real-time CSS and hypothesis updates
 - Optional `X-API-Key` authentication
+
+Claude augments 4 points in the pipeline: ticket triage, evidence interpretation, next-step reasoning, and freeform chat. All Claude calls degrade gracefully — the app is fully functional without an API key.
 
 ### React Dashboard (`web/`)
 
@@ -125,7 +166,7 @@ Three-panel workbench UI for visualizing ticket state and troubleshooting progre
 
 - **Left sidebar:** Ticket list
 - **Main area:** Ticket summary, hypotheses, evidence log
-- **Right panel:** CSS gauge, domain scores, blockers, decision gate
+- **Right panel:** CSS gauge, domain scores, blockers, decision gate, AI insights + chat
 
 ---
 
@@ -138,6 +179,8 @@ Three-panel workbench UI for visualizing ticket state and troubleshooting progre
 | API | FastAPI, Uvicorn, Pydantic, WebSockets |
 | Web | React 19, TypeScript, Vite, Tailwind CSS, Zustand, TanStack Query, Recharts |
 | Testing | pytest, pytest-cov, pytest-xdist |
+| Deployment | Docker, docker-compose, nginx |
+| AI | Anthropic Claude (claude-sonnet-4-6), graceful degradation |
 
 ---
 
@@ -160,7 +203,7 @@ PYTHONPATH=. pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
 
 **8K character limit forcing compression.** The GPT Custom GPT Knowledge file constraint (8K chars for `router.txt`) forced aggressive compression of the system prompt. Every word earns its place. This constraint shaped the four-pillar architecture — each pillar is a self-contained section that fits within the budget.
 
-**Taxonomy-first routing.** Branch pack selection uses the Autotask Issue/Sub-Issue taxonomy as the primary routing signal, not keyword heuristics. This gives deterministic, auditable routing for any ticket that has structured fields. Keyword matching is the fallback, not the default.
+**Taxonomy-first routing.** Branch pack selection uses the PSA Issue/Sub-Issue taxonomy as the primary routing signal, not keyword heuristics. This gives deterministic, auditable routing for any ticket that has structured fields. Keyword matching is the fallback, not the default.
 
 **CSS as signal, not gate.** The Context Stability Score tells the operator whether context is thin or rich. It never blocks a decision. A low CSS means "prioritize clarifiers"; a high CSS means "enough to act." This avoids the failure mode where automation refuses to help because a score is below a threshold.
 

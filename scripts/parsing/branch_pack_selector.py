@@ -137,12 +137,14 @@ def _lookup_taxonomy(issue_type: str, sub_issue_type: str) -> Tuple[Optional[Dic
         map_issue = _safe_lower(mapping.get("issue_type", ""))
         map_sub = _safe_lower(mapping.get("sub_issue_type", ""))
         if map_issue == issue_lower and map_sub == sub_lower:
-            detail.update({
-                "matched": True,
-                "match_stage": "exact",
-                "mapping_issue_type": mapping.get("issue_type", ""),
-                "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
-            })
+            detail.update(
+                {
+                    "matched": True,
+                    "match_stage": "exact",
+                    "mapping_issue_type": mapping.get("issue_type", ""),
+                    "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
+                }
+            )
             return mapping, detail
 
     # Pass 2: Fuzzy match - ticket Issue Type CONTAINS mapping Issue Type
@@ -152,12 +154,14 @@ def _lookup_taxonomy(issue_type: str, sub_issue_type: str) -> Tuple[Optional[Dic
         map_issue = _safe_lower(mapping.get("issue_type", ""))
         map_sub = _safe_lower(mapping.get("sub_issue_type", ""))
         if map_sub == sub_lower and map_issue and map_issue in issue_lower:
-            detail.update({
-                "matched": True,
-                "match_stage": "ticket_contains_mapping_issue",
-                "mapping_issue_type": mapping.get("issue_type", ""),
-                "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
-            })
+            detail.update(
+                {
+                    "matched": True,
+                    "match_stage": "ticket_contains_mapping_issue",
+                    "mapping_issue_type": mapping.get("issue_type", ""),
+                    "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
+                }
+            )
             return mapping, detail
 
     # Pass 3: Fuzzy match - mapping Issue Type CONTAINS ticket Issue Type
@@ -168,12 +172,14 @@ def _lookup_taxonomy(issue_type: str, sub_issue_type: str) -> Tuple[Optional[Dic
         # Extract base word from ticket issue type (e.g., "Microsoft" from "Microsoft Issue")
         issue_base = issue_lower.replace(" issue", "").replace(" problem", "").replace(" request", "").strip()
         if map_sub == sub_lower and issue_base and issue_base in map_issue:
-            detail.update({
-                "matched": True,
-                "match_stage": "mapping_contains_issue",
-                "mapping_issue_type": mapping.get("issue_type", ""),
-                "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
-            })
+            detail.update(
+                {
+                    "matched": True,
+                    "match_stage": "mapping_contains_issue",
+                    "mapping_issue_type": mapping.get("issue_type", ""),
+                    "mapping_sub_issue_type": mapping.get("sub_issue_type", ""),
+                }
+            )
             return mapping, detail
 
     return None, detail
@@ -371,27 +377,31 @@ def _select_by_taxonomy(
     # Get primary pack
     primary_pack = _get_pack_by_id(primary_pack_id)
     if primary_pack:
-        selected.append({
-            "pack": primary_pack,
-            "score": 100,  # High score for taxonomy match
-            "summary_hits": 0,
-            "longest_match": 0,
-            "match_type": "taxonomy",
-            "match_detail": match_detail,
-        })
+        selected.append(
+            {
+                "pack": primary_pack,
+                "score": 100,  # High score for taxonomy match
+                "summary_hits": 0,
+                "longest_match": 0,
+                "match_type": "taxonomy",
+                "match_detail": match_detail,
+            }
+        )
 
     # Get first fallback pack (typically cross-cutting)
     for fb_id in fallback_pack_ids[:1]:
         fb_pack = _get_pack_by_id(fb_id)
         if fb_pack and fb_pack.get("id") != primary_pack_id:
-            selected.append({
-                "pack": fb_pack,
-                "score": 50,  # Lower score for fallback
-                "summary_hits": 0,
-                "longest_match": 0,
-                "match_type": "taxonomy_fallback",
-                "match_detail": match_detail,
-            })
+            selected.append(
+                {
+                    "pack": fb_pack,
+                    "score": 50,  # Lower score for fallback
+                    "summary_hits": 0,
+                    "longest_match": 0,
+                    "match_type": "taxonomy_fallback",
+                    "match_detail": match_detail,
+                }
+            )
             break
 
     match_detail["match_status"] = "pack_loaded" if selected else "pack_missing"
@@ -439,7 +449,9 @@ def _taxonomy_explanation(match_detail: Dict[str, object], match_type: str) -> s
     parts = [stage_desc.get(match_detail.get("match_stage"), "Taxonomy lookup")]
     if match_detail.get("alias_applied"):
         parts.append(f"alias applied ({issue_input} → {resolved})")
-    explanation = f"{', '.join(parts)} for Issue '{issue_input}' mapped to '{mapping_issue}' / Sub-Issue '{mapping_sub}'."
+    explanation = (
+        f"{', '.join(parts)} for Issue '{issue_input}' mapped to '{mapping_issue}' / Sub-Issue '{mapping_sub}'."
+    )
     if match_type == "taxonomy_fallback":
         explanation += " Using taxonomy-defined fallback pack."
     return explanation
@@ -475,8 +487,8 @@ def select_branch_pack_seed(
     Args:
         summary: Ticket summary/title
         raw_text: Full ticket text
-        issue_type: Autotask Issue Type (e.g., "Network", "User")
-        sub_issue_type: Autotask Sub-Issue Type (e.g., "VPN", "Login Issue")
+        issue_type: PSA Issue Type (e.g., "Network", "User")
+        sub_issue_type: PSA Sub-Issue Type (e.g., "VPN", "Login Issue")
 
     Returns:
         Dict with 'pack_ids', 'hypotheses', and 'routing_method' keys
@@ -518,24 +530,28 @@ def select_branch_pack_seed(
             if not pack:
                 manual_override_info["invalid"].append(normalized)
                 continue
-            override_entries.append({
-                "pack": pack,
-                "score": 200,
-                "summary_hits": 0,
-                "longest_match": 0,
-                "match_type": "manual_override",
-                "hits": [],
-            })
+            override_entries.append(
+                {
+                    "pack": pack,
+                    "score": 200,
+                    "summary_hits": 0,
+                    "longest_match": 0,
+                    "match_type": "manual_override",
+                    "hits": [],
+                }
+            )
             manual_override_info["applied"].append(normalized)
         if override_entries:
             selected = override_entries
             routing_method = "manual_override"
-            taxonomy_detail.update({
-                "match_stage": "manual_override",
-                "match_status": "manual_override",
-                "issue_type_input": issue_type or "",
-                "issue_type_resolved": issue_type or "",
-            })
+            taxonomy_detail.update(
+                {
+                    "match_stage": "manual_override",
+                    "match_status": "manual_override",
+                    "issue_type_input": issue_type or "",
+                    "issue_type_resolved": issue_type or "",
+                }
+            )
 
     if routing_method != "manual_override":
         # Try taxonomy-first routing

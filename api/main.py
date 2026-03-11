@@ -6,7 +6,10 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+
+load_dotenv()  # loads .env into os.environ so ANTHROPIC_API_KEY is available
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 

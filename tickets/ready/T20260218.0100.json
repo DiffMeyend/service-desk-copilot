@@ -2,7 +2,7 @@
   "meta": {
     "schema_version": "1.3.1",
     "session_id": "T20260218.0100",
-    "last_updated": "2026-02-19T02:08:42Z",
+    "last_updated": "2026-03-11T00:01:41+00:00",
     "timezone": "America/Chicago"
   },
   "ticket": {
@@ -115,10 +115,57 @@
     "discriminating_test": ""
   },
   "branches": {
-    "active_hypotheses": [],
+    "active_hypotheses": [
+      {
+        "id": "ad_auth_dc.dc_outage",
+        "hypothesis": "DC unreachable / site issue",
+        "confidence_hint": 0.4,
+        "discriminating_question": "Domain logon slow/fails; file shares unavailable",
+        "discriminating_tests": [
+          "Run Tier-A: domain_dc_check (nltest /dsgetdc).",
+          "Check network baseline (net_snapshot)."
+        ],
+        "command_refs": [
+          "domain_dc_check",
+          "net_snapshot"
+        ]
+      },
+      {
+        "id": "ad_auth_dc.secure_channel",
+        "hypothesis": "Secure channel / computer account issues",
+        "confidence_hint": 0.35,
+        "discriminating_question": "Only one machine has domain trust issues",
+        "discriminating_tests": [
+          "Look for Netlogon/LSA errors in system_errors.",
+          "Escalate: repair secure channel is change-making (STOP) and often exceeds QF."
+        ],
+        "command_refs": [
+          "system_errors"
+        ],
+        "notes": "Repair requires admin action beyond Tier-A; gate with STOP."
+      },
+      {
+        "id": "ad_auth_dc.account_lockout",
+        "hypothesis": "Account lockout / password issues",
+        "confidence_hint": 0.25,
+        "discriminating_question": "User canâ€™t log in across devices",
+        "discriminating_tests": [
+          "Check lockout status if tools available or ping OHT.",
+          "Capture exact login error text."
+        ]
+      }
+    ],
     "collapsed_hypotheses": [],
     "current_best_guess": "",
-    "source_pack": []
+    "source_pack": [
+      "ad_auth_dc"
+    ],
+    "manual_overrides": [
+      {
+        "pack_id": "ad_auth_dc",
+        "loaded_at": "2026-03-11T00:01:41+00:00"
+      }
+    ]
   },
   "plan": {
     "next_3_actions": [],
@@ -147,7 +194,7 @@
     }
   },
   "notes": {
-    "rolling": "",
+    "rolling": "Manual override: loaded pack 'ad_auth_dc' (3 hypotheses)",
     "final": "",
     "escalation": ""
   }

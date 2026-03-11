@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     class Config:
         env_prefix = "SDC_"
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

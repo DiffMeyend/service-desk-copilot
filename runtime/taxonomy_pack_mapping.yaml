@@ -1,5 +1,5 @@
 # taxonomy_pack_mapping.yaml
-# Maps Autotask Issue Type + Sub-Issue Type pairs to branch pack IDs.
+# Maps PSA Issue Type + Sub-Issue Type pairs to branch pack IDs.
 # Used by branch_pack_selector.py for taxonomy-first routing.
 #
 # Selection: When a ticket has Issue Type + Sub-Issue Type, look up here first.
