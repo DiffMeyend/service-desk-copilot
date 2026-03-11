@@ -2,9 +2,11 @@
  * Sidebar component - displays ticket list for navigation
  */
 
+import { useState } from 'react';
 import { useTickets } from '../../hooks/useTickets';
 import { useStore } from '../../store';
 import type { TicketSummary } from '../../types/contextPayload';
+import { ParseTicketModal } from '../intake/ParseTicketModal';
 
 interface SidebarProps {
   className?: string;
@@ -81,17 +83,30 @@ function TicketItem({
 export function Sidebar({ className = '' }: SidebarProps) {
   const { data: tickets, isLoading, error } = useTickets();
   const { activeTicketId, setActiveTicket } = useStore();
+  const [showParseModal, setShowParseModal] = useState(false);
 
   return (
     <aside
       className={`flex flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 ${className}`}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Tickets
         </h2>
+        <button
+          onClick={() => setShowParseModal(true)}
+          title="Parse ticket"
+          className="text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       </div>
+
+      {showParseModal && <ParseTicketModal onClose={() => setShowParseModal(false)} />}
 
       {/* Ticket list */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">

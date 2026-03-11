@@ -44,14 +44,17 @@ interface TroubleshootingStore {
   // WebSocket connection state
   isConnected: boolean;
 
-  // UI state
-  selectedHypothesisId: string | null;
-
   // Claude triage info (set when intake/parse is called)
   triageInfo: TriageInfo | null;
 
   // Evidence interpretations keyed by command_id
   evidenceInterpretations: Record<string, string>;
+
+  // Pending command ID to pre-fill LogResultForm
+  pendingCommandId: string | null;
+
+  // Claude hypothesis assessments from chat responses
+  hypothesisAssessments: Record<string, 'confirmed' | 'falsified' | 'unchanged'>;
 
   // Actions
   setActiveTicket: (ticketId: string | null) => void;
@@ -61,9 +64,12 @@ interface TroubleshootingStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setConnected: (connected: boolean) => void;
-  setSelectedHypothesis: (id: string | null) => void;
   setTriageInfo: (info: TriageInfo | null) => void;
+
   addEvidenceInterpretation: (commandId: string, interpretation: string) => void;
+  setPendingCommandId: (id: string | null) => void;
+  setHypothesisAssessment: (id: string, status: 'confirmed' | 'falsified' | 'unchanged') => void;
+  clearHypothesisAssessments: () => void;
 
   // Derived getters
   getCSSScore: () => number;
@@ -80,12 +86,13 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
   isLoading: false,
   error: null,
   isConnected: false,
-  selectedHypothesisId: null,
   triageInfo: null,
   evidenceInterpretations: {},
+  pendingCommandId: null,
+  hypothesisAssessments: {},
 
   // Actions
-  setActiveTicket: (ticketId) => set({ activeTicketId: ticketId }),
+  setActiveTicket: (ticketId) => set({ activeTicketId: ticketId, hypothesisAssessments: {} }),
 
   setContextPayload: (cp) => set({ contextPayload: cp }),
 
@@ -104,7 +111,6 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
 
   setConnected: (isConnected) => set({ isConnected }),
 
-  setSelectedHypothesis: (id) => set({ selectedHypothesisId: id }),
 
   setTriageInfo: (info) => set({ triageInfo: info }),
 
@@ -115,6 +121,15 @@ export const useStore = create<TroubleshootingStore>((set, get) => ({
         [commandId]: interpretation,
       },
     })),
+
+  setPendingCommandId: (id) => set({ pendingCommandId: id }),
+
+  setHypothesisAssessment: (id, status) =>
+    set((state) => ({
+      hypothesisAssessments: { ...state.hypothesisAssessments, [id]: status },
+    })),
+
+  clearHypothesisAssessments: () => set({ hypothesisAssessments: {} }),
 
   // Derived getters
   getCSSScore: () => get().contextPayload?.css?.score ?? 0,

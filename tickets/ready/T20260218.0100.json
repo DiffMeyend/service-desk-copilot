@@ -2,60 +2,43 @@
   "meta": {
     "schema_version": "1.3.1",
     "session_id": "T20260218.0100",
-    "last_updated": "2026-03-11T00:01:41+00:00",
+    "last_updated": "2026-02-19T02:08:42Z",
     "timezone": "America/Chicago"
   },
   "ticket": {
     "id": "T20260218.0100",
-    "created_at": "",
-    "company": "",
-    "site": "",
-    "priority": "UNKNOWN",
-    "category": "",
-    "service": "",
-    "summary": "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
-    "raw_dump": "Ticket Number: T20260218.0100\nTitle: Teams call drops after VPN reconnect\n\nContact Info\nName: Jordan Lee\nEmail: jordan.lee@example.com\nPhone: 555-010-5555\n\nDescription\nLaptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,\nusually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN\nclient last week. Need confirmation that the NIC drivers are current.\n\nTroubleshooting Notes\n- Gathered screenshots from Teams notifications.\n- Verified ticket generated from mobile email.\n- Pending output from systeminfo.\n\nQuoted Thread (should be ignored by sanitizer)\n-----Original Message-----\nFrom: Jordan Lee <jordan.lee@example.com>\nSent: Monday, February 17, 2026 8:02 PM\nTo: MSP Helpdesk <helpdesk@examplemsp.com>\nSubject: RE: VPN keeps disconnecting\n\n> We already pushed the update. Does this still happen after reboot?\n>\n> Thanks,\n> Tier 1\n\nStill broken. Please advise.\n\n> On Mon, Feb 17, 2026 at 7:38 PM MSP Helpdesk <helpdesk@examplemsp.com> wrote:\n> -----Original Message-----\n> From: Jordan Lee <jordan.lee@example.com>\n> Sent: Monday, February 17, 2026 7:15 PM\n> Subject: VPN keeps disconnecting\n>\n> Drops network every 30 minutes. Need this fixed before tomorrow's webinar.",
+    "created_at": "2026-02-19T02:08:42Z",
+    "company": "Example Corp",
+    "site": "Chicago",
+    "priority": "P3",
+    "category": "Network",
+    "service": "VPN",
+    "summary": "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom.",
+    "raw_dump": "Ticket Number: T20260218.0100\nTitle: Teams call drops after VPN reconnect\n\nContact Info\nName: Jordan Lee\nEmail: jordan.lee@example.com\nPhone: 555-010-5555\n\nDescription\nLaptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,\nusually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN\nclient last week. Need confirmation that the NIC drivers are current.\n\nTroubleshooting Notes\n- Gathered screenshots from Teams notifications.\n- Verified ticket generated from mobile email.\n- Pending output from systeminfo.\n\nQuoted Thread (should be ignored by sanitizer)\n-----Original Message-----\nFrom: Jordan Lee <jordan.lee@example.com>\nSent: Monday, February 17, 2026 8:02 PM\nTo: MSP Helpdesk <helpdesk@examplemsp.com>\nSubject: RE: VPN keeps disconnecting\n\n> We already pushed the update. Does this still happen after reboot?\n>\n> Thanks,\n> Tier 1\n\nStill broken. Please advise.\n\n> On Mon, Feb 17, 2026 at 7:38 PM MSP Helpdesk <helpdesk@examplemsp.com> wrote:\n> -----Original Message-----\n> From: Jordan Lee <jordan.lee@example.com>\n> Sent: Monday, February 17, 2026 7:15 PM\n> Subject: VPN keeps disconnecting\n>\n> Drops network every 30 minutes. Need this fixed before tomorrow's webinar.",
     "requester": {
       "name": "Jordan Lee",
-      "contact": "Jordan Lee",
       "phone": "555-010-5555",
       "email": "jordan.lee@example.com"
     }
   },
-  "quickfix": {
-    "timebox_minutes": 15,
-    "hard_stop_minutes": 30,
-    "time_spent_minutes": 0,
-    "remaining_minutes": 15,
-    "allowed_scope": "quick_fix",
-    "escalation_paths": [
-      "time",
-      "skill"
-    ],
-    "timer": {
-      "start_time": "2026-02-19T02:08:42Z",
-      "elapsed_minutes": 0,
-      "minutes_since_first_payload_estimate": 0
-    }
-  },
   "environment": {
     "target_device": {
-      "hostname": "Jordan Lee",
-      "os": "UNKNOWN",
-      "ip": "UNKNOWN",
-      "on_domain": null,
-      "asset_tag": "Jordan Lee",
-      "serial_number": ""
+      "hostname": "JLEE-LT01",
+      "os": "Windows 11 22H2",
+      "ip": "192.168.1.45",
+      "on_domain": true,
+      "asset_tag": "AST-004421",
+      "serial_number": "5CG1234XYZ"
     },
     "user_context": {
-      "username": "UNKNOWN",
-      "is_admin": null,
-      "is_remote": null
+      "username": "jlee",
+      "is_admin": false,
+      "is_remote": true
     },
     "network": {
-      "connection_type": "",
+      "connection_type": "Wi-Fi (hotel)",
       "dns_servers": [],
-      "vpn": null
+      "vpn": true
     },
     "execution_context": {
       "tooling": "ScreenConnect",
@@ -66,44 +49,34 @@
   },
   "problem": {
     "symptoms": [
-      "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
-      "usually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN",
-      "client last week. Need confirmation that the NIC drivers are current.",
-      "Troubleshooting Notes",
-      "Gathered screenshots from Teams notifications."
+      "Audio drops when VPN reconnects mid-call",
+      "Affects both Teams and Zoom",
+      "Occurs after ~30 minutes on hotel Wi-Fi",
+      "User rebooted twice — issue persists",
+      "VPN client reinstalled last week"
     ],
     "impact": {
-      "who": "UNKNOWN",
-      "how_bad": "UNKNOWN",
-      "work_stopped": null
+      "who": "Single user — Jordan Lee",
+      "how_bad": "Cannot participate in calls during VPN reconnects",
+      "work_stopped": true
     },
     "scope": {
-      "single_user": null,
-      "multi_user": null,
-      "single_device": null,
-      "service_wide": null
+      "single_user": true,
+      "multi_user": false,
+      "single_device": true,
+      "service_wide": false
     },
-    "start_time": "",
-    "last_known_good": "",
-    "recent_changes": []
-  },
-  "constraints": {
-    "cannot_reboot": null,
-    "cannot_disconnect": null,
-    "change_freeze": null,
-    "security_sensitivity": "",
-    "security_controls": {
-      "threatlocker_present": null,
-      "threatlocker_notes": ""
-    }
+    "start_time": "2026-02-17T19:15:00Z",
+    "last_known_good": "2026-02-10",
+    "recent_changes": [
+      "VPN client reinstalled last week"
+    ]
   },
   "evidence": {
     "observations": [
-      "Laptop loses audio whenever VPN reconnects mid-call. Happens in both Teams and Zoom,",
-      "usually after 30 minutes on hotel Wi-Fi. User rebooted twice and reinstalled the VPN",
-      "client last week. Need confirmation that the NIC drivers are current.",
-      "Troubleshooting Notes",
-      "Gathered screenshots from Teams notifications."
+      "Audio drops when VPN reconnects mid-call",
+      "Affects both Teams and Zoom",
+      "Occurs after ~30 minutes on hotel Wi-Fi"
     ],
     "tests_run": [],
     "results": [],
@@ -117,59 +90,58 @@
   "branches": {
     "active_hypotheses": [
       {
-        "id": "ad_auth_dc.dc_outage",
-        "hypothesis": "DC unreachable / site issue",
-        "confidence_hint": 0.4,
-        "discriminating_question": "Domain logon slow/fails; file shares unavailable",
+        "id": "vpn_audio.audio_device_reset",
+        "hypothesis": "VPN reconnect triggers audio device re-enumeration, dropping active streams",
+        "confidence_hint": 0.45,
+        "discriminating_question": "Does audio recover automatically or require manual intervention?",
         "discriminating_tests": [
-          "Run Tier-A: domain_dc_check (nltest /dsgetdc).",
-          "Check network baseline (net_snapshot)."
+          "Check audio device list before/after VPN reconnect (get_audio_devices)",
+          "Review Windows event log for audio service restarts (system_errors)"
         ],
         "command_refs": [
-          "domain_dc_check",
-          "net_snapshot"
-        ]
-      },
-      {
-        "id": "ad_auth_dc.secure_channel",
-        "hypothesis": "Secure channel / computer account issues",
-        "confidence_hint": 0.35,
-        "discriminating_question": "Only one machine has domain trust issues",
-        "discriminating_tests": [
-          "Look for Netlogon/LSA errors in system_errors.",
-          "Escalate: repair secure channel is change-making (STOP) and often exceeds QF."
-        ],
-        "command_refs": [
+          "get_audio_devices",
           "system_errors"
         ],
-        "notes": "Repair requires admin action beyond Tier-A; gate with STOP."
+        "notes": "Most common cause — Windows treats VPN adapter changes as hardware events, resetting audio graph."
       },
       {
-        "id": "ad_auth_dc.account_lockout",
-        "hypothesis": "Account lockout / password issues",
-        "confidence_hint": 0.25,
-        "discriminating_question": "User canâ€™t log in across devices",
+        "id": "vpn_audio.qos_mtu",
+        "hypothesis": "MTU mismatch or QoS policy change on VPN reconnect drops media streams",
+        "confidence_hint": 0.30,
+        "discriminating_question": "Do pings to Teams/Zoom servers show packet loss after reconnect?",
         "discriminating_tests": [
-          "Check lockout status if tools available or ping OHT.",
-          "Capture exact login error text."
-        ]
+          "Run MTU path test (mtu_check)",
+          "Capture network baseline at reconnect (net_snapshot)"
+        ],
+        "command_refs": [
+          "mtu_check",
+          "net_snapshot"
+        ],
+        "notes": ""
+      },
+      {
+        "id": "vpn_audio.nic_driver",
+        "hypothesis": "Outdated NIC driver causes instability under VPN load",
+        "confidence_hint": 0.20,
+        "discriminating_question": "Is the NIC driver version current per vendor advisory?",
+        "discriminating_tests": [
+          "Check NIC driver version (driver_check)",
+          "Look for NIC errors in device manager event log (system_errors)"
+        ],
+        "command_refs": [
+          "driver_check",
+          "system_errors"
+        ],
+        "notes": "User already mentioned wanting NIC driver confirmation — worth ruling in/out quickly."
       }
     ],
     "collapsed_hypotheses": [],
     "current_best_guess": "",
     "source_pack": [
-      "ad_auth_dc"
+      "vpn_audio_dropout"
     ],
-    "manual_overrides": [
-      {
-        "pack_id": "ad_auth_dc",
-        "loaded_at": "2026-03-11T00:01:41+00:00"
-      }
-    ]
-  },
-  "plan": {
-    "next_3_actions": [],
-    "best_branch_collapse_test": ""
+    "manual_overrides": [],
+    "routing_method": "keyword_match"
   },
   "css": {
     "score": 0,
@@ -188,13 +160,30 @@
       "to_team": "",
       "handoff_pack": {}
     },
-    "escalation_gate": {
-      "eligible": false,
-      "blocked_reason": "CALL not attempted yet"
+    "resolution_choice": "",
+    "actual_root_cause": "",
+    "resolution_confidence": null,
+    "resolution_time_mins": 0
+  },
+  "guardrails": {
+    "basic_troubleshooting": {
+      "confirmed": false,
+      "scope_confirmed": true,
+      "error_message_confirmed": false,
+      "repro_confirmed": true,
+      "connectivity_confirmed": false,
+      "authentication_confirmed": false,
+      "service_availability_confirmed": false,
+      "missing_checks": [
+        "error_message_confirmed",
+        "connectivity_confirmed",
+        "authentication_confirmed",
+        "service_availability_confirmed"
+      ]
     }
   },
   "notes": {
-    "rolling": "Manual override: loaded pack 'ad_auth_dc' (3 hypotheses)",
+    "rolling": "",
     "final": "",
     "escalation": ""
   }

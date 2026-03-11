@@ -76,6 +76,7 @@ export function RightPanel({ className = '', triage }: RightPanelProps) {
             cssScore={css.score}
             cssTarget={css.target}
             bestGuess={contextPayload.branches.current_best_guess}
+            reasoning={decision.reasoning}
           />
         </div>
       )}

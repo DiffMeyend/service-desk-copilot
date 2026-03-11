@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { Hypothesis } from '../../types/contextPayload';
 import { HypothesisCard } from './HypothesisCard';
 import { PackSelector } from './PackSelector';
+import { useStore } from '../../store';
 
 interface HypothesesPanelProps {
   ticketId: string;
@@ -21,6 +22,7 @@ export function HypothesesPanel({
   currentBestGuess,
 }: HypothesesPanelProps) {
   const [showPackSelector, setShowPackSelector] = useState(false);
+  const hypothesisAssessments = useStore((s) => s.hypothesisAssessments);
 
   return (
     <div className="card p-4">
@@ -78,6 +80,7 @@ export function HypothesesPanel({
               hypothesis={hypothesis}
               index={index + 1}
               isBestGuess={hypothesis.id === currentBestGuess}
+              claudeAssessment={hypothesisAssessments[hypothesis.id]}
             />
           ))}
         </div>

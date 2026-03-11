@@ -36,11 +36,20 @@ async def list_tickets(
 async def get_ticket(
     ticket_id: str,
     service: TicketService = Depends(get_ticket_service),
+    css_service: CSSService = Depends(get_css_service),
 ) -> Dict[str, Any]:
-    """Get full Context Payload for a ticket."""
+    """Get full Context Payload for a ticket, with CSS recalculated."""
     cp = service.get_ticket(ticket_id)
     if cp is None:
         raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
+
+    # Recalculate CSS on every load so the score (and domain_scores) are always fresh
+    score, blockers = css_service.calculate(cp)
+    if "css" not in cp:
+        cp["css"] = {}
+    cp["css"]["score"] = score
+    cp["css"]["missing_fields"] = blockers
+
     return cp
 
 

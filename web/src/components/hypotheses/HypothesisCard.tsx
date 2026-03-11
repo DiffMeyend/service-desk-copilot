@@ -9,12 +9,14 @@ interface HypothesisCardProps {
   hypothesis: Hypothesis;
   index: number;
   isBestGuess: boolean;
+  claudeAssessment?: 'confirmed' | 'falsified' | 'unchanged';
 }
 
 export function HypothesisCard({
   hypothesis,
   index,
   isBestGuess,
+  claudeAssessment,
 }: HypothesisCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -44,11 +46,23 @@ export function HypothesisCard({
             <p className="text-sm text-slate-700 dark:text-slate-300">
               {hypothesis.hypothesis}
             </p>
-            {isBestGuess && (
-              <span className="inline-block mt-1 text-xs bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 px-1.5 py-0.5 rounded">
-                Best Guess
-              </span>
-            )}
+            <div className="flex flex-wrap gap-1 mt-1">
+              {isBestGuess && (
+                <span className="text-xs bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 px-1.5 py-0.5 rounded">
+                  Best Guess
+                </span>
+              )}
+              {claudeAssessment === 'confirmed' && (
+                <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 px-1.5 py-0.5 rounded">
+                  Claude: confirmed
+                </span>
+              )}
+              {claudeAssessment === 'falsified' && (
+                <span className="text-xs bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 px-1.5 py-0.5 rounded">
+                  Claude: falsified
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

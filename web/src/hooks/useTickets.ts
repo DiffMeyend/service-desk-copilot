@@ -136,7 +136,16 @@ export function useDecide(ticketId: string) {
  * Hook for Claude chat about a ticket
  */
 export function useChatMutation(ticketId: string) {
+  const setHypothesisAssessment = useStore((s) => s.setHypothesisAssessment);
+
   return useMutation({
     mutationFn: (request: ChatRequest) => chatWithTicket(ticketId, request),
+    onSuccess: (data) => {
+      Object.entries(data.hypothesis_updates ?? {}).forEach(([id, status]) => {
+        if (['confirmed', 'falsified', 'unchanged'].includes(status)) {
+          setHypothesisAssessment(id, status as 'confirmed' | 'falsified' | 'unchanged');
+        }
+      });
+    },
   });
 }
