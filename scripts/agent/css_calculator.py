@@ -145,15 +145,22 @@ class CSSCalculator:
         return score, blockers
 
     def _calculate_domain_scores(self, cp: Dict[str, Any]) -> int:
-        """Calculate weighted domain scores."""
+        """Calculate weighted domain scores and write them back to cp["css"]["domain_scores"]."""
         domains = self._rules.get("domains", {})
         total_score = 0
+        domain_scores: Dict[str, int] = {}
 
         for domain_id, domain_info in domains.items():
             weight = domain_info.get("weight", 0)
-            # Calculate domain completeness (simplified heuristic)
             completeness = self._evaluate_domain_completeness(domain_id, cp)
-            total_score += round(weight * completeness)
+            points = round(weight * completeness)
+            domain_scores[domain_id] = points
+            total_score += points
+
+        # Write domain scores back so callers can read them from the CP
+        if "css" not in cp:
+            cp["css"] = {}
+        cp["css"]["domain_scores"] = domain_scores
 
         return total_score
 

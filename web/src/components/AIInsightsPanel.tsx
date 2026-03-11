@@ -9,6 +9,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useChatMutation } from '../hooks/useTickets';
 import type { TriageInfo, ChatResponse } from '../types/contextPayload';
+import { useStore } from '../store';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -26,6 +27,7 @@ export function AIInsightsPanel({ ticketId, triage }: AIInsightsPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatMutation = useChatMutation(ticketId);
+  const setPendingCommandId = useStore((s) => s.setPendingCommandId);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -126,12 +128,13 @@ export function AIInsightsPanel({ ticketId, triage }: AIInsightsPanelProps) {
               {msg.suggestedCommands && msg.suggestedCommands.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {msg.suggestedCommands.map((cmd) => (
-                    <span
+                    <button
                       key={cmd}
-                      className="font-mono bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 px-1 rounded"
+                      onClick={() => setPendingCommandId(cmd)}
+                      className="font-mono bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-violet-100 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 px-1 rounded transition-colors cursor-pointer"
                     >
                       {cmd}
-                    </span>
+                    </button>
                   ))}
                 </div>
               )}

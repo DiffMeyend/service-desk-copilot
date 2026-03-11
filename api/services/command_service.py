@@ -96,6 +96,10 @@ class CommandService:
 
     def get_next_action(self) -> Dict[str, Any]:
         """Get suggested next action."""
+        # Recalculate CSS so Claude receives an accurate score
+        score, blockers = self._css_service.calculate(self._cp.cp)
+        self._cp.set_value("css.score", score)
+
         message = self._handler.handle_print_next()
 
         result = {

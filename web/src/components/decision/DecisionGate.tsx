@@ -12,6 +12,7 @@ interface DecisionGateProps {
   cssScore: number;
   cssTarget: number;
   bestGuess: string;
+  reasoning?: string[];
 }
 
 export function DecisionGate({
@@ -20,6 +21,7 @@ export function DecisionGate({
   cssScore,
   cssTarget,
   bestGuess,
+  reasoning,
 }: DecisionGateProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const decideMutation = useDecide(ticketId);
@@ -79,6 +81,20 @@ export function DecisionGate({
           <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">
             {bestGuess}
           </p>
+        </div>
+      )}
+
+      {/* Reasoning list */}
+      {reasoning && reasoning.length > 0 && (
+        <div className="mb-4">
+          <span className="text-xs text-slate-500">Reasoning:</span>
+          <ol className="mt-1 space-y-1 list-decimal list-inside">
+            {reasoning.map((r, i) => (
+              <li key={i} className="text-xs text-slate-600 dark:text-slate-400">
+                {r}
+              </li>
+            ))}
+          </ol>
         </div>
       )}
 

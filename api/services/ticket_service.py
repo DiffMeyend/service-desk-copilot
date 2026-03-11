@@ -43,16 +43,20 @@ class TicketService:
         return tickets
 
     def get_ticket(self, ticket_id: str) -> Optional[Dict[str, Any]]:
-        """Get full Context Payload for a ticket."""
-        path = self._ready_dir / f"{ticket_id}.json"
+        """Get full Context Payload for a ticket. Checks results/ (working copy) first."""
+        path = self._results_dir / f"{ticket_id}.json"
+        if not path.exists():
+            path = self._ready_dir / f"{ticket_id}.json"
         if not path.exists():
             return None
 
         return self._load_cp_file(path)
 
     def get_cp_manager(self, ticket_id: str) -> Optional[CPManager]:
-        """Get a CPManager instance for a ticket."""
-        path = self._ready_dir / f"{ticket_id}.json"
+        """Get a CPManager instance for a ticket. Checks results/ (working copy) first."""
+        path = self._results_dir / f"{ticket_id}.json"
+        if not path.exists():
+            path = self._ready_dir / f"{ticket_id}.json"
         if not path.exists():
             return None
 
@@ -63,8 +67,9 @@ class TicketService:
         return cp_manager
 
     def save_ticket(self, ticket_id: str, cp_manager: CPManager) -> Path:
-        """Save a Context Payload back to disk."""
-        path = self._ready_dir / f"{ticket_id}.json"
+        """Save a Context Payload to results/ (never mutates the ready/ fixture)."""
+        self._results_dir.mkdir(parents=True, exist_ok=True)
+        path = self._results_dir / f"{ticket_id}.json"
         return cp_manager.save(path)
 
     def _load_cp_file(self, path: Path) -> Optional[Dict[str, Any]]:

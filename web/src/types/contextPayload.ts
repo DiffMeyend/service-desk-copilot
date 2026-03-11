@@ -290,6 +290,20 @@ export interface TriageInfo {
   triage_reasoning?: string;
 }
 
+// ============ Intake Types ============
+
+export interface ParseTicketRequest {
+  raw_text: string;
+}
+
+export interface ParseTicketResponse {
+  context_payload: ContextPayload;
+  ticket_id: string;
+  source_pack: string[];
+  routing_suggestion: string | null;
+  triage_reasoning: string | null;
+}
+
 // ============ Branch Pack Types ============
 
 export interface BranchPackSummary {

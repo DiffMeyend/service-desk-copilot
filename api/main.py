@@ -113,11 +113,8 @@ async def ticket_stream(websocket: WebSocket, ticket_id: str) -> None:
 
     try:
         while True:
-            # Wait for messages from client (heartbeat, etc.)
-            data = await websocket.receive_text()
-
-            # Echo back for now (could handle client commands later)
-            await websocket.send_text(f"received: {data}")
+            # Drain client messages (heartbeats, etc.) — no response needed
+            await websocket.receive_text()
 
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket, ticket_id)

@@ -7,13 +7,14 @@ import { CPSnapshotCard } from './snapshot/CPSnapshotCard';
 import { HypothesesPanel } from './hypotheses/HypothesesPanel';
 import { LogResultForm } from './evidence/LogResultForm';
 import { EvidenceLog } from './evidence/EvidenceLog';
+import { NextActionPanel } from './NextActionPanel';
 
 interface MainWorkAreaProps {
   className?: string;
 }
 
 export function MainWorkArea({ className = '' }: MainWorkAreaProps) {
-  const { contextPayload, activeTicketId, evidenceInterpretations } = useStore();
+  const { contextPayload, activeTicketId, evidenceInterpretations, pendingCommandId } = useStore();
 
   if (!activeTicketId) {
     return (
@@ -63,6 +64,9 @@ export function MainWorkArea({ className = '' }: MainWorkAreaProps) {
     <main
       className={`overflow-y-auto bg-slate-100 dark:bg-slate-800 p-6 space-y-6 ${className}`}
     >
+      {/* Next Action Panel */}
+      <NextActionPanel />
+
       {/* CP Snapshot Card */}
       <CPSnapshotCard cp={contextPayload} />
 
@@ -78,6 +82,7 @@ export function MainWorkArea({ className = '' }: MainWorkAreaProps) {
       <LogResultForm
         ticketId={activeTicketId}
         hypotheses={contextPayload.branches.active_hypotheses}
+        prefillCommandId={pendingCommandId ?? undefined}
       />
 
       {/* Evidence Log */}

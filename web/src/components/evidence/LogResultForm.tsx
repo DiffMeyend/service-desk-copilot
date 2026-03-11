@@ -2,19 +2,28 @@
  * LogResultForm - form to log test results
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Hypothesis } from '../../types/contextPayload';
 import { useLogResult } from '../../hooks/useTickets';
+import { useStore } from '../../store';
 
 interface LogResultFormProps {
   ticketId: string;
   hypotheses: Hypothesis[];
+  prefillCommandId?: string;
 }
 
-export function LogResultForm({ ticketId, hypotheses }: LogResultFormProps) {
+export function LogResultForm({ ticketId, hypotheses, prefillCommandId }: LogResultFormProps) {
   const [commandId, setCommandId] = useState('');
   const [output, setOutput] = useState('');
   const [notes, setNotes] = useState('');
+  const setPendingCommandId = useStore((s) => s.setPendingCommandId);
+
+  useEffect(() => {
+    if (!prefillCommandId) return;
+    setCommandId(prefillCommandId);
+    setPendingCommandId(null);
+  }, [prefillCommandId, setPendingCommandId]);
 
   const logResultMutation = useLogResult(ticketId);
 
